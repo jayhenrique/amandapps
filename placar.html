@@ -41,6 +41,15 @@
   nav a { color: var(--text-dim); font-weight: 600; }
   nav a:hover { color: var(--accent); text-decoration: none; }
   nav a.active { color: var(--accent); }
+  .nav-user {
+    color: var(--gold);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+    text-decoration: none;
+  }
+  .nav-user.visible { display: inline; }
+  .nav-user:hover { text-decoration: underline; }
 
   .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem; }
 
@@ -107,6 +116,8 @@
   <nav>
     <a href="index.html">Início</a>
     <a href="placar.html" class="active">Placar</a>
+    <a href="login.html" id="nav-login">Entrar</a>
+    <a href="login.html" class="nav-user" id="nav-user"></a>
   </nav>
 </header>
 
@@ -151,6 +162,21 @@
   const { createClient } = supabase;
   const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  async function verificarUsuario() {
+    const { data: { user } } = await _supabase.auth.getUser();
+    const navUser = document.getElementById('nav-user');
+    const navLogin = document.getElementById('nav-login');
+
+    if (user) {
+      navUser.textContent = '👤 ' + user.email;
+      navUser.classList.add('visible');
+      navLogin.style.display = 'none';
+    } else {
+      navUser.classList.remove('visible');
+      navLogin.style.display = 'inline';
+    }
+  }
+
   async function carregarPlacares() {
     const cards = document.querySelectorAll('.lb-card');
     for (const card of cards) {
@@ -182,7 +208,11 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', carregarPlacares);
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarUsuario();
+    await carregarPlacares();
+    _supabase.auth.onAuthStateChange(() => verificarUsuario());
+  });
 </script>
 
 </body>

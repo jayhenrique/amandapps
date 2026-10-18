@@ -47,8 +47,10 @@
     font-size: 0.85rem;
     font-weight: 600;
     display: none;
+    text-decoration: none;
   }
   .nav-user.visible { display: inline; }
+  .nav-user:hover { text-decoration: underline; }
 
   .container { max-width: 480px; margin: 0 auto; padding: 3rem 1.5rem; }
 
@@ -192,14 +194,13 @@
     <a href="index.html">Início</a>
     <a href="placar.html">Placar</a>
     <a href="login.html" class="active" id="nav-login">Entrar</a>
-    <span class="nav-user" id="nav-user"></span>
+    <a href="login.html" class="nav-user" id="nav-user"></a>
   </nav>
 </header>
 
 <div class="container">
   <h2 class="section-title">Minha Conta</h2>
 
-  <!-- Formulário de login/cadastro -->
   <div class="auth-card" id="auth-section">
     <h3>👤 Entrar ou criar conta</h3>
     <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
@@ -211,14 +212,12 @@
     <span class="status-msg" id="auth-status"></span>
   </div>
 
-  <!-- Área do usuário logado -->
   <div class="user-info" id="user-section" style="display:none;">
     <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;">Você está logado como:</p>
     <p class="email" id="user-email-display"></p>
     <button class="logout-btn" onclick="fazerLogout()">Sair</button>
   </div>
 
-  <!-- Info -->
   <div class="info-box">
     <strong>Por que fazer login?</strong><br>
     Jogar não exige login — você pode jogar e enviar pontuações como <strong>"Anônimo"</strong> a qualquer momento.

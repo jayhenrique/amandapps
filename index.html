@@ -47,8 +47,10 @@
     font-size: 0.85rem;
     font-weight: 600;
     display: none;
+    text-decoration: none;
   }
   .nav-user.visible { display: inline; }
+  .nav-user:hover { text-decoration: underline; }
 
   .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem; }
 
@@ -167,13 +169,16 @@
     <a href="index.html" class="active">Início</a>
     <a href="placar.html">Placar</a>
     <a href="login.html" id="nav-login">Entrar</a>
-    <span class="nav-user" id="nav-user"></span>
+    <a href="login.html" class="nav-user" id="nav-user"></a>
   </nav>
 </header>
 
 <div class="container">
 
-  <!-- Jogos -->
+  <div class="banner">
+    🎮 Escolha um jogo e jogue direto no navegador. Rankings globais via Supabase!
+  </div>
+
   <h2 class="section-title">Jogos Disponíveis</h2>
   <div class="game-grid">
     <a class="game-card" href="jogos/snake.html">
@@ -226,7 +231,6 @@
     </a>
   </div>
 
-  <!-- Atividade recente -->
   <h2 class="section-title">Atividade Recente</h2>
   <div class="activity-feed" id="activity-feed">
     <p>Carregando atividades do Supabase...</p>
