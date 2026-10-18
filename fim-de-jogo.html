@@ -18,9 +18,11 @@
         .wrap {
             min-height: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
+            gap: 1rem;
         }
 
         .panel {
@@ -39,9 +41,6 @@
             to   { transform: translateY(0);   opacity: 1; }
         }
 
-        /* ===================================================== */
-        /* THUMB DO JOGO — 300x250 px, carregada de thumb/       */
-        /* ===================================================== */
         .thumb {
             width: 100%;
             max-width: 300px;
@@ -75,20 +74,12 @@
             height: 100%;
         }
 
-        /* ===================================================== */
-        /* PERFIL — horizontal: avatar à esquerda, nome à direita */
-        /* Destaque médio (menor que a pontuação)                 */
-        /* ===================================================== */
         .profile-row {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
             margin: 0 auto 1.1rem;
-            padding: 0.6rem 0.8rem;
-            background: rgba(15, 52, 96, 0.45);
-            border: 1px solid #2a3a5c;
-            border-radius: 10px;
             max-width: 300px;
         }
 
@@ -119,9 +110,6 @@
             word-break: break-word;
         }
 
-        /* ===================================================== */
-        /* PONTUAÇÃO — destaque principal                        */
-        /* ===================================================== */
         .score-box {
             background: #0f3460;
             border: 1px solid #2a3a5c;
@@ -142,10 +130,10 @@
             color: #f5c518;
             line-height: 1;
         }
+        .score-value.error {
+            color: #ff7b8a;
+        }
 
-        /* ===================================================== */
-        /* STATUS                                                */
-        /* ===================================================== */
         .status {
             font-size: 0.78rem;
             min-height: 1.1em;
@@ -154,9 +142,6 @@
         .status.ok { color: #6ee7a8; }
         .status.error { color: #ff7b8a; }
 
-        /* ===================================================== */
-        /* BOTÕES                                                */
-        /* ===================================================== */
         .actions {
             display: flex;
             gap: 0.6rem;
@@ -182,56 +167,60 @@
         }
         .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
 
-        .no-data { color: #8a8fa3; font-size: 0.9rem; margin-bottom: 1.2rem; }
+        /* DEBUG — game ID, fora do layout principal */
+        .debug-game-id {
+            font-size: 0.7rem;
+            color: #4a5578;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            letter-spacing: 0.3px;
+            user-select: all;
+        }
     </style>
 </head>
 <body>
 
 <div class="wrap">
     <div class="panel" id="panel">
-        <!-- 1) Thumb do jogo (300x250) -->
         <div class="thumb" id="thumb-wrap">
             <img id="thumb-img" src="" alt="Thumb do jogo">
             <div class="thumb-fallback">🎮</div>
         </div>
 
-        <!-- 2) Perfil horizontal (avatar + nome) -->
         <div class="profile-row" id="profile-row">
             <div class="avatar" id="avatar">🎮</div>
             <div class="name" id="name">—</div>
         </div>
 
-        <!-- 3) Pontuação em destaque -->
         <div class="score-box" id="score-box">
             <div class="score-label">Pontuação</div>
             <div class="score-value" id="score-value">0</div>
         </div>
 
-        <!-- 4) Status + botões -->
         <div class="status" id="status"></div>
 
         <div class="actions" id="actions">
             <button type="button" class="btn-retry" id="btn-retry">🔄 Tentar de novo</button>
             <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
         </div>
-
-        <p class="no-data" id="no-data" style="display:none;">
-            Nenhum resultado encontrado. Volte para a home para jogar novamente.
-        </p>
     </div>
+
+    <!-- DEBUG: id do jogo (fora do card, discreto) -->
+    <div class="debug-game-id" id="debug-game-id">game_id: —</div>
 </div>
 
 <script>
-    // --------- CONFIG ---------
-    // Home do site — como este arquivo está na raiz, é relativo à raiz.
-    const HOME_URL = '/amandapps/';
-    // Pasta das thumbs (relativa à raiz do site)
-    const THUMB_DIR = '/amandapps/thumb-assets';
+    // =====================================================
+    // CONFIG
+    // =====================================================
+    const HOME_URL    = '/amandapps/';                // home na raiz do repo
+    const THUMB_DIR   = '/amandapps/thumbs-assets';   // pasta de thumbs na raiz
 
     // Fallback caso o sessionStorage esteja vazio
-    const JOGO_PADRAO_URL = 'jogos/teste/index.html';
+    const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
 
-    // --------- LER DADOS ---------
+    // =====================================================
+    // LER DADOS
+    // =====================================================
     let dados = null;
     try {
         const raw = sessionStorage.getItem('fimDeJogo');
@@ -242,11 +231,10 @@
 
     const elAvatar  = document.getElementById('avatar');
     const elName    = document.getElementById('name');
-    const elScoreBox= document.getElementById('score-box');
     const elScore   = document.getElementById('score-value');
     const elStatus  = document.getElementById('status');
-    const elNoData  = document.getElementById('no-data');
     const panel     = document.getElementById('panel');
+    const elDebugId = document.getElementById('debug-game-id');
 
     const thumbWrap = document.getElementById('thumb-wrap');
     const thumbImg  = document.getElementById('thumb-img');
@@ -254,15 +242,14 @@
     let jogoUrl = JOGO_PADRAO_URL;
 
     if (dados && typeof dados.score === 'number') {
-        // --- Perfil (avatar + nome) ---
+        // -------- Caminho normal: dados válidos --------
         elAvatar.textContent = dados.avatar || '🎮';
         elName.textContent   = dados.nome || 'Anônimo';
         panel.classList.toggle('anon', !dados.nome || dados.nome === 'Anônimo');
 
-        // --- Pontuação ---
         elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
+        elScore.classList.remove('error');
 
-        // --- Status ---
         if (dados.salvo) {
             elStatus.textContent = '✔ Pontuação salva!';
             elStatus.className = 'status ok';
@@ -271,31 +258,45 @@
             elStatus.className = 'status error';
         }
 
-        // --- Thumb: thumb/{gameId}.png ---
         const gameId = dados.gameId || 'clickteam';
         const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
         thumbImg.src = thumbUrl;
         thumbImg.alt = `Thumb do jogo ${gameId}`;
-
         thumbImg.onerror = () => {
             thumbWrap.classList.add('error');
             thumbImg.removeAttribute('src');
             console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
         };
 
-        // --- URL do "Tentar de novo" ---
+        elDebugId.textContent = `game_id: ${gameId}`;
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
     } else {
-        // Sem dados — esconde tudo que depende do resultado
-        document.getElementById('thumb-wrap').style.display  = 'none';
-        document.getElementById('profile-row').style.display = 'none';
-        elScoreBox.style.display = 'none';
-        elStatus.style.display   = 'none';
-        elName.textContent = 'Sem resultado';
-        elNoData.style.display = 'block';
+        // -------- Sem dados: mostra o layout em estado de erro --------
+        panel.classList.add('anon'); // visual neutro, sem destaque de usuário
+
+        elAvatar.textContent = '⚠';
+        elName.textContent   = 'Erro';
+
+        elScore.textContent = 'Erro';
+        elScore.classList.add('error');
+
+        elStatus.textContent = '⚠ Nenhum resultado encontrado.';
+        elStatus.className = 'status error';
+
+        // Sem gameId → thumb cai no fallback (🎮) imediatamente
+        thumbWrap.classList.add('error');
+        thumbImg.removeAttribute('src');
+        thumbImg.alt = 'Thumb indisponível';
+
+        elDebugId.textContent = 'game_id: —';
+
+        // Botões continuam funcionando com os fallbacks padrão
+        jogoUrl = JOGO_PADRAO_URL;
     }
 
-    // --------- BOTÕES ---------
+    // =====================================================
+    // BOTÕES
+    // =====================================================
     document.getElementById('btn-retry').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
         window.location.href = jogoUrl;
@@ -303,7 +304,6 @@
 
     document.getElementById('btn-home').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-        // index.html na raiz do site
         window.location.href = HOME_URL;
     });
 </script>
