@@ -26,7 +26,6 @@
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  /* Header */
   header {
     background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     border-bottom: 3px solid var(--accent);
@@ -37,20 +36,14 @@
     flex-wrap: wrap;
     gap: 1rem;
   }
-  .logo {
-    font-size: 1.6rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-  }
+  .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
   .logo span { color: var(--accent); }
   nav { display: flex; gap: 1.5rem; font-size: 0.95rem; }
   nav a { color: var(--text-dim); font-weight: 600; }
   nav a:hover { color: var(--accent); text-decoration: none; }
 
-  /* Container */
   .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-  /* Banner */
   .banner {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -62,7 +55,6 @@
     color: var(--text-dim);
   }
 
-  /* Section titles */
   .section-title {
     font-size: 1.4rem;
     font-weight: 700;
@@ -78,7 +70,6 @@
     border-radius: 2px;
   }
 
-  /* Game grid */
   .game-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -128,7 +119,6 @@
   }
   .badge.hot { background: var(--accent); }
 
-  /* Challenges */
   .challenge-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -162,7 +152,6 @@
     min-height: 120px;
   }
 
-  /* Activity feed */
   .activity-feed {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -177,7 +166,6 @@
   .activity-feed p:last-child { border-bottom: none; }
   .activity-feed strong { color: var(--text); }
 
-  /* Leaderboards */
   .leaderboards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -203,7 +191,33 @@
   .lb-card .score { text-align: right; color: var(--gold); font-weight: 700; }
   .lb-card tr:nth-child(1) .player { color: var(--gold); }
 
-  /* Footer */
+  /* Estilo do formulário de teste */
+  .test-form {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-top: 2rem;
+  }
+  .test-form h3 { margin-bottom: 0.8rem; font-size: 1rem; }
+  .test-form input, .test-form select, .test-form button {
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.85rem;
+  }
+  .test-form button {
+    background: var(--accent);
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .test-form button:hover { opacity: 0.9; }
+
   footer {
     text-align: center;
     padding: 2rem;
@@ -236,10 +250,9 @@
 <div class="container">
 
   <div class="banner">
-    🎮 Todos os jogos podem ser jogados no navegador com HTML5. Rankings globais atualizados em tempo real. Novos jogos em breve!
+    🎮 Todos os jogos podem ser jogados no navegador com HTML5. Rankings globais atualizados em tempo real via Supabase!
   </div>
 
-  <!-- GAMES -->
   <h2 class="section-title">Jogos Disponíveis</h2>
   <div class="game-grid">
     <a class="game-card" href="jogos/snake.html">
@@ -292,7 +305,6 @@
     </a>
   </div>
 
-  <!-- CHALLENGES -->
   <h2 class="section-title">Desafios</h2>
   <div class="challenge-grid">
     <div class="challenge-card">
@@ -319,95 +331,183 @@
     </div>
   </div>
 
-  <!-- ACTIVITY FEED -->
   <h2 class="section-title">Atividade Recente</h2>
-  <div class="activity-feed">
-    <p><strong>jinene</strong> jogou <strong>Snake</strong> e fez <strong>292 pontos</strong>! Ganhou 7 moedas!</p>
-    <p><strong>jin</strong> jogou <strong>Tetris</strong> e fez <strong>317 pontos</strong>! Ganhou 8 moedas!</p>
-    <p>Alguém jogou <strong>Breakout</strong>!</p>
-    <p><strong>sharilyn</strong> jogou <strong>Jogo da Memória</strong> e fez <strong>5100 pontos</strong>! Ganhou 85 moedas!</p>
-    <p>Alguém jogou <strong>Flappy Bird</strong>!</p>
-    <p><strong>hollywood</strong> jogou <strong>2048</strong> e fez <strong>163650 pontos</strong>! Ganhou 50 moedas!</p>
-    <p>Alguém jogou <strong>Tetris</strong>!</p>
-    <p><strong>psycholepzy</strong> jogou <strong>Snake</strong> e fez <strong>144400 pontos</strong>! Ganhou 40 moedas!</p>
+  <div class="activity-feed" id="activity-feed">
+    <p>Carregando atividades do Supabase...</p>
   </div>
 
-  <!-- LEADERBOARDS -->
   <h2 class="section-title">Placar de Líderes</h2>
-  <div class="leaderboards">
-
-    <div class="lb-card">
+  <div class="leaderboards" id="leaderboards-container">
+    <!-- Os cards serão gerados pelo JS, mas mantive a estrutura visual -->
+    <div class="lb-card" data-game-id="snake">
       <h4>🐍 Snake Classic</h4>
-      <table>
-        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">6294</td></tr>
-        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">4900</td></tr>
-        <tr><td class="rank">3</td><td class="player">hollywood</td><td class="score">4802</td></tr>
-        <tr><td class="rank">4</td><td class="player">HIR</td><td class="score">3396</td></tr>
-        <tr><td class="rank">5</td><td class="player">PLF</td><td class="score">2866</td></tr>
-      </table>
+      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
     </div>
-
-    <div class="lb-card">
+    <div class="lb-card" data-game-id="breakout">
       <h4>🧱 Breakout</h4>
-      <table>
-        <tr><td class="rank">1</td><td class="player">sharilyn</td><td class="score">28786</td></tr>
-        <tr><td class="rank">2</td><td class="player">sharilyn</td><td class="score">19295</td></tr>
-        <tr><td class="rank">3</td><td class="player">SHE</td><td class="score">16265</td></tr>
-        <tr><td class="rank">4</td><td class="player">hollywood</td><td class="score">14463</td></tr>
-        <tr><td class="rank">5</td><td class="player">hollywood</td><td class="score">13993</td></tr>
-      </table>
+      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
     </div>
-
-    <div class="lb-card">
+    <div class="lb-card" data-game-id="flappy">
       <h4>🐦 Flappy Bird</h4>
-      <table>
-        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">6367</td></tr>
-        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">5446</td></tr>
-        <tr><td class="rank">3</td><td class="player">HOM</td><td class="score">5000</td></tr>
-        <tr><td class="rank">4</td><td class="player">LMN</td><td class="score">5000</td></tr>
-        <tr><td class="rank">5</td><td class="player">DMV</td><td class="score">5000</td></tr>
-      </table>
+      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
     </div>
-
-    <div class="lb-card">
+    <div class="lb-card" data-game-id="tetris">
       <h4>🟦 Tetris</h4>
-      <table>
-        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">163650</td></tr>
-        <tr><td class="rank">2</td><td class="player">psycholepzy</td><td class="score">144400</td></tr>
-        <tr><td class="rank">3</td><td class="player">hollywood</td><td class="score">139750</td></tr>
-        <tr><td class="rank">4</td><td class="player">hollywood</td><td class="score">133100</td></tr>
-        <tr><td class="rank">5</td><td class="player">psycholepzy</td><td class="score">115600</td></tr>
-      </table>
+      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
     </div>
-
-    <div class="lb-card">
+    <div class="lb-card" data-game-id="memory">
       <h4>🧠 Jogo da Memória</h4>
-      <table>
-        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">2574</td></tr>
-        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">2526</td></tr>
-        <tr><td class="rank">3</td><td class="player">hollywood</td><td class="score">1738</td></tr>
-        <tr><td class="rank">4</td><td class="player">sharilyn</td><td class="score">1099</td></tr>
-        <tr><td class="rank">5</td><td class="player">CBN</td><td class="score">986</td></tr>
-      </table>
+      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
     </div>
-
-    <div class="lb-card">
+    <div class="lb-card" data-game-id="2048">
       <h4>🔢 2048</h4>
-      <table>
-        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">27240</td></tr>
-        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">18535</td></tr>
-        <tr><td class="rank">3</td><td class="player">NBW</td><td class="score">15450</td></tr>
-        <tr><td class="rank">4</td><td class="player">WBZ</td><td class="score">12470</td></tr>
-        <tr><td class="rank">5</td><td class="player">hollywood</td><td class="score">10255</td></tr>
-      </table>
+      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
     </div>
-
   </div>
+
+  <!-- Formulário de teste -->
+  <div class="test-form">
+    <h3>🧪 Enviar pontuação de teste</h3>
+    <input type="text" id="test-player" placeholder="Seu nome" value="JogadorTeste">
+    <select id="test-game">
+      <option value="snake">Snake</option>
+      <option value="breakout">Breakout</option>
+      <option value="flappy">Flappy</option>
+      <option value="tetris">Tetris</option>
+      <option value="memory">Memória</option>
+      <option value="2048">2048</option>
+    </select>
+    <input type="number" id="test-score" placeholder="Pontuação" value="1000">
+    <button onclick="enviarPontuacao()">Enviar</button>
+    <span id="test-status" style="font-size:0.8rem; color:var(--text-dim); margin-left:0.5rem;"></span>
+  </div>
+
 </div>
 
 <footer>
-  Arcade Central &copy; 2026 · Feito com HTML5 · Todos os jogos rodam no navegador
+  Arcade Central &copy; 2026 · Feito com HTML5 + Supabase
 </footer>
+
+<!-- Biblioteca do Supabase via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // ============================================
+  // CONFIGURAÇÃO — COLE AQUI SUAS CREDENCIAIS
+  // ============================================
+  const SUPABASE_URL = 'COLE_AQUI_SUA_URL_DO_SUPABASE'; 
+  const SUPABASE_ANON_KEY = 'COLE_AQUI_SUA_CHAVE_ANON';
+
+  // Inicializa o cliente
+  const { createClient } = supabase;
+  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ============================================
+  // FUNÇÃO: Carregar placares
+  // ============================================
+  async function carregarPlacares() {
+    const cards = document.querySelectorAll('.lb-card');
+    
+    for (const card of cards) {
+      const gameId = card.dataset.gameId;
+      const tbody = card.querySelector('.lb-body');
+      
+      const { data, error } = await _supabase
+        .from('scores')
+        .select('player_name, score')
+        .eq('game_id', gameId)
+        .order('score', { ascending: false })
+        .limit(5);
+
+      if (error) {
+        console.error('Erro ao buscar placar do jogo', gameId, error);
+        tbody.innerHTML = '<tr><td colspan="3">Erro ao carregar.</td></tr>';
+        continue;
+      }
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3">Nenhuma pontuação ainda.</td></tr>';
+        continue;
+      }
+
+      tbody.innerHTML = data.map((row, index) => `
+        <tr>
+          <td class="rank">${index + 1}</td>
+          <td class="player">${row.player_name}</td>
+          <td class="score">${row.score}</td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // ============================================
+  // FUNÇÃO: Carregar atividade recente (últimas 10)
+  // ============================================
+  async function carregarAtividade() {
+    const feed = document.getElementById('activity-feed');
+    const { data, error } = await _supabase
+      .from('scores')
+      .select('player_name, game_id, score, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      feed.innerHTML = '<p>Erro ao carregar atividades.</p>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      feed.innerHTML = '<p>Nenhuma atividade recente.</p>';
+      return;
+    }
+
+    feed.innerHTML = data.map(row => `
+      <p><strong>${row.player_name}</strong> jogou <strong>${row.game_id}</strong> e fez <strong>${row.score} pontos</strong>!</p>
+    `).join('');
+  }
+
+  // ============================================
+  // FUNÇÃO: Enviar pontuação (teste)
+  // ============================================
+  async function enviarPontuacao() {
+    const player = document.getElementById('test-player').value.trim();
+    const gameId = document.getElementById('test-game').value;
+    const score = parseInt(document.getElementById('test-score').value, 10);
+    const status = document.getElementById('test-status');
+
+    if (!player || isNaN(score)) {
+      status.textContent = 'Preencha nome e pontuação.';
+      return;
+    }
+
+    status.textContent = 'Enviando...';
+
+    const { error } = await _supabase
+      .from('scores')
+      .insert({ player_name: player, game_id: gameId, score: score });
+
+    if (error) {
+      console.error(error);
+      status.textContent = 'Erro ao enviar: ' + error.message;
+      return;
+    }
+
+    status.textContent = 'Pontuação enviada!';
+    // Recarrega os placares
+    await carregarPlacares();
+    await carregarAtividade();
+    
+    setTimeout(() => { status.textContent = ''; }, 2000);
+  }
+
+  // ============================================
+  // INICIALIZAÇÃO
+  // ============================================
+  document.addEventListener('DOMContentLoaded', () => {
+    carregarPlacares();
+    carregarAtividade();
+  });
+</script>
 
 </body>
 </html>
