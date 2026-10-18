@@ -38,9 +38,16 @@
   }
   .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
   .logo span { color: var(--accent); }
-  nav { display: flex; gap: 1.5rem; font-size: 0.95rem; }
+  nav { display: flex; gap: 1.5rem; font-size: 0.95rem; align-items: center; }
   nav a { color: var(--text-dim); font-weight: 600; }
   nav a:hover { color: var(--accent); text-decoration: none; }
+  .nav-user {
+    color: var(--gold);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+  }
+  .nav-user.visible { display: inline; }
 
   .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 
@@ -191,7 +198,7 @@
   .lb-card .score { text-align: right; color: var(--gold); font-weight: 700; }
   .lb-card tr:nth-child(1) .player { color: var(--gold); }
 
-  /* Estilo do formulário de teste */
+  /* Estilo dos formulários (auth e teste) */
   .test-form {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -217,6 +224,23 @@
     cursor: pointer;
   }
   .test-form button:hover { opacity: 0.9; }
+  .test-form button.secondary {
+    background: var(--accent2);
+  }
+  .test-form .status-msg {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-left: 0.5rem;
+  }
+  .test-form .user-info {
+    font-size: 0.85rem;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
   footer {
     text-align: center;
@@ -244,6 +268,7 @@
     <a href="#">Desafios</a>
     <a href="#">Placar</a>
     <a href="#">Meu Perfil</a>
+    <span class="nav-user" id="nav-user"></span>
   </nav>
 </header>
 
@@ -251,6 +276,40 @@
 
   <div class="banner">
     🎮 Todos os jogos podem ser jogados no navegador com HTML5. Rankings globais atualizados em tempo real via Supabase!
+  </div>
+
+  <!-- ============================================= -->
+  <!-- SEÇÃO DE AUTENTICAÇÃO (visível apenas deslogado) -->
+  <!-- ============================================= -->
+  <div class="test-form" id="auth-section">
+    <h3>👤 Entrar / Cadastrar</h3>
+    <input type="email" id="auth-email" placeholder="Email">
+    <input type="password" id="auth-password" placeholder="Senha (mín. 6 caracteres)">
+    <button onclick="fazerLogin()">Entrar</button>
+    <button class="secondary" onclick="fazerCadastro()">Cadastrar</button>
+    <span class="status-msg" id="auth-status"></span>
+  </div>
+
+  <!-- ============================================= -->
+  <!-- FORMULÁRIO DE TESTE (visível apenas logado) -->
+  <!-- ============================================= -->
+  <div class="test-form" id="test-section" style="display:none;">
+    <div class="user-info">
+      <span>✅ Logado como: <span id="user-email-display"></span></span>
+      <button class="secondary" onclick="fazerLogout()">Sair</button>
+    </div>
+    <h3>🧪 Enviar pontuação</h3>
+    <select id="test-game">
+      <option value="snake">Snake</option>
+      <option value="breakout">Breakout</option>
+      <option value="flappy">Flappy</option>
+      <option value="tetris">Tetris</option>
+      <option value="memory">Memória</option>
+      <option value="2048">2048</option>
+    </select>
+    <input type="number" id="test-score" placeholder="Pontuação" value="1000">
+    <button onclick="enviarPontuacao()">Enviar</button>
+    <span class="status-msg" id="test-status"></span>
   </div>
 
   <h2 class="section-title">Jogos Disponíveis</h2>
@@ -338,7 +397,6 @@
 
   <h2 class="section-title">Placar de Líderes</h2>
   <div class="leaderboards" id="leaderboards-container">
-    <!-- Os cards serão gerados pelo JS, mas mantive a estrutura visual -->
     <div class="lb-card" data-game-id="snake">
       <h4>🐍 Snake Classic</h4>
       <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
@@ -365,23 +423,6 @@
     </div>
   </div>
 
-  <!-- Formulário de teste -->
-  <div class="test-form">
-    <h3>🧪 Enviar pontuação de teste</h3>
-    <input type="text" id="test-player" placeholder="Seu nome" value="JogadorTeste">
-    <select id="test-game">
-      <option value="snake">Snake</option>
-      <option value="breakout">Breakout</option>
-      <option value="flappy">Flappy</option>
-      <option value="tetris">Tetris</option>
-      <option value="memory">Memória</option>
-      <option value="2048">2048</option>
-    </select>
-    <input type="number" id="test-score" placeholder="Pontuação" value="1000">
-    <button onclick="enviarPontuacao()">Enviar</button>
-    <span id="test-status" style="font-size:0.8rem; color:var(--text-dim); margin-left:0.5rem;"></span>
-  </div>
-
 </div>
 
 <footer>
@@ -393,25 +434,89 @@
 
 <script>
   // ============================================
-  // CONFIGURAÇÃO — COLE AQUI SUAS CREDENCIAIS
+  // CONFIGURAÇÃO
   // ============================================
-  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co'; 
+  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
 
-  // Inicializa o cliente
   const { createClient } = supabase;
   const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ============================================
-  // FUNÇÃO: Carregar placares
+  // AUTENTICAÇÃO
+  // ============================================
+  async function verificarUsuario() {
+    const { data: { user } } = await _supabase.auth.getUser();
+    const authSection = document.getElementById('auth-section');
+    const testSection = document.getElementById('test-section');
+    const navUser = document.getElementById('nav-user');
+
+    if (user) {
+      authSection.style.display = 'none';
+      testSection.style.display = 'block';
+      document.getElementById('user-email-display').textContent = user.email;
+      navUser.textContent = '👤 ' + user.email;
+      navUser.classList.add('visible');
+    } else {
+      authSection.style.display = 'block';
+      testSection.style.display = 'none';
+      navUser.classList.remove('visible');
+    }
+  }
+
+  async function fazerCadastro() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const status = document.getElementById('auth-status');
+
+    if (!email || password.length < 6) {
+      status.textContent = 'Email válido e senha com 6+ caracteres.';
+      return;
+    }
+
+    status.textContent = 'Cadastrando...';
+    const { error } = await _supabase.auth.signUp({ email, password });
+
+    if (error) {
+      status.textContent = 'Erro: ' + error.message;
+    } else {
+      status.textContent = 'Cadastro realizado! Você já pode fazer login.';
+    }
+  }
+
+  async function fazerLogin() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const status = document.getElementById('auth-status');
+
+    status.textContent = 'Entrando...';
+    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      status.textContent = 'Erro: ' + error.message;
+    } else {
+      status.textContent = '';
+      await verificarUsuario();
+      await carregarPlacares();
+      await carregarAtividade();
+    }
+  }
+
+  async function fazerLogout() {
+    await _supabase.auth.signOut();
+    await verificarUsuario();
+  }
+
+  // ============================================
+  // CARREGAR PLACARES
   // ============================================
   async function carregarPlacares() {
     const cards = document.querySelectorAll('.lb-card');
-    
+
     for (const card of cards) {
       const gameId = card.dataset.gameId;
       const tbody = card.querySelector('.lb-body');
-      
+
       const { data, error } = await _supabase
         .from('scores')
         .select('player_name, score')
@@ -441,7 +546,7 @@
   }
 
   // ============================================
-  // FUNÇÃO: Carregar atividade recente (últimas 10)
+  // CARREGAR ATIVIDADE RECENTE
   // ============================================
   async function carregarAtividade() {
     const feed = document.getElementById('activity-feed');
@@ -467,24 +572,33 @@
   }
 
   // ============================================
-  // FUNÇÃO: Enviar pontuação (teste)
+  // ENVIAR PONTUAÇÃO (agora com usuário logado)
   // ============================================
   async function enviarPontuacao() {
-    const player = document.getElementById('test-player').value.trim();
-    const gameId = document.getElementById('test-game').value;
-    const score = parseInt(document.getElementById('test-score').value, 10);
+    const { data: { user } } = await _supabase.auth.getUser();
     const status = document.getElementById('test-status');
 
-    if (!player || isNaN(score)) {
-      status.textContent = 'Preencha nome e pontuação.';
+    if (!user) {
+      status.textContent = 'Você precisa estar logado.';
+      return;
+    }
+
+    const gameId = document.getElementById('test-game').value;
+    const score = parseInt(document.getElementById('test-score').value, 10);
+
+    if (isNaN(score)) {
+      status.textContent = 'Informe uma pontuação válida.';
       return;
     }
 
     status.textContent = 'Enviando...';
 
+    // Usa o email (parte antes do @) como nome no placar
+    const playerName = user.email.split('@')[0];
+
     const { error } = await _supabase
       .from('scores')
-      .insert({ player_name: player, game_id: gameId, score: score });
+      .insert({ player_name: playerName, game_id: gameId, score: score });
 
     if (error) {
       console.error(error);
@@ -493,19 +607,24 @@
     }
 
     status.textContent = 'Pontuação enviada!';
-    // Recarrega os placares
     await carregarPlacares();
     await carregarAtividade();
-    
+
     setTimeout(() => { status.textContent = ''; }, 2000);
   }
 
   // ============================================
   // INICIALIZAÇÃO
   // ============================================
-  document.addEventListener('DOMContentLoaded', () => {
-    carregarPlacares();
-    carregarAtividade();
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarUsuario();
+    await carregarPlacares();
+    await carregarAtividade();
+
+    // Escuta mudanças de autenticação (login/logout em outra aba, etc.)
+    _supabase.auth.onAuthStateChange(() => {
+      verificarUsuario();
+    });
   });
 </script>
 
