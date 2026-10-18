@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Fim de jogo — Arcade Central</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #1A1A2E;
+            color: #eaeaea;
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+        }
+
+        .wrap {
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .panel {
+            background: #16213e;
+            border: 1px solid #2a3a5c;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 380px;
+            padding: 1.6rem 1.4rem;
+            text-align: center;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+            animation: panelIn 0.25s ease-out;
+        }
+        @keyframes panelIn {
+            from { transform: translateY(15px); opacity: 0; }
+            to   { transform: translateY(0);   opacity: 1; }
+        }
+
+        /* ===================================================== */
+        /* THUMB DO JOGO — 300x250 px, carregada de thumb/       */
+        /* ===================================================== */
+        .thumb {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 300 / 250;
+            margin: 0 auto 1.1rem;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .thumb .thumb-fallback {
+            font-size: 4rem;
+            color: #8a8fa3;
+            display: none;
+        }
+        .thumb.error img { display: none; }
+        .thumb.error .thumb-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ===================================================== */
+        /* PERFIL — horizontal: avatar à esquerda, nome à direita */
+        /* Destaque médio (menor que a pontuação)                 */
+        /* ===================================================== */
+        .profile-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 0 auto 1.1rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(15, 52, 96, 0.45);
+            border: 1px solid #2a3a5c;
+            border-radius: 10px;
+            max-width: 300px;
+        }
+
+        .profile-row .avatar {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #0f3460, #1f2b4d);
+            border: 2px solid #e94560;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.12);
+        }
+        .panel.anon .profile-row .avatar {
+            border-color: #2a3a5c;
+            box-shadow: 0 0 0 4px rgba(138, 143, 163, 0.06);
+        }
+
+        .profile-row .name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #eaeaea;
+            text-align: left;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        /* ===================================================== */
+        /* PONTUAÇÃO — destaque principal                        */
+        /* ===================================================== */
+        .score-box {
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            border-radius: 10px;
+            padding: 1.1rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .score-label {
+            font-size: 0.75rem;
+            color: #8a8fa3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+        .score-value {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #f5c518;
+            line-height: 1;
+        }
+
+        /* ===================================================== */
+        /* STATUS                                                */
+        /* ===================================================== */
+        .status {
+            font-size: 0.78rem;
+            min-height: 1.1em;
+            margin-bottom: 1rem;
+        }
+        .status.ok { color: #6ee7a8; }
+        .status.error { color: #ff7b8a; }
+
+        /* ===================================================== */
+        /* BOTÕES                                                */
+        /* ===================================================== */
+        .actions {
+            display: flex;
+            gap: 0.6rem;
+        }
+        .actions button {
+            flex: 1;
+            padding: 0.8rem 0.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .actions button:hover { opacity: 0.92; }
+        .actions button:active { transform: scale(0.98); }
+
+        .btn-retry { background: #e94560; color: #fff; }
+        .btn-home  {
+            background: transparent;
+            color: #8a8fa3;
+            border: 1px solid #2a3a5c !important;
+        }
+        .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
+
+        .no-data { color: #8a8fa3; font-size: 0.9rem; margin-bottom: 1.2rem; }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="panel" id="panel">
+        <!-- 1) Thumb do jogo (300x250) -->
+        <div class="thumb" id="thumb-wrap">
+            <img id="thumb-img" src="" alt="Thumb do jogo">
+            <div class="thumb-fallback">🎮</div>
+        </div>
+
+        <!-- 2) Perfil horizontal (avatar + nome) -->
+        <div class="profile-row" id="profile-row">
+            <div class="avatar" id="avatar">🎮</div>
+            <div class="name" id="name">—</div>
+        </div>
+
+        <!-- 3) Pontuação em destaque -->
+        <div class="score-box" id="score-box">
+            <div class="score-label">Pontuação</div>
+            <div class="score-value" id="score-value">0</div>
+        </div>
+
+        <!-- 4) Status + botões -->
+        <div class="status" id="status"></div>
+
+        <div class="actions" id="actions">
+            <button type="button" class="btn-retry" id="btn-retry">🔄 Tentar de novo</button>
+            <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
+        </div>
+
+        <p class="no-data" id="no-data" style="display:none;">
+            Nenhum resultado encontrado. Volte para a home para jogar novamente.
+        </p>
+    </div>
+</div>
+
+<script>
+    // --------- CONFIG ---------
+    // Home do site — como este arquivo está na raiz, é relativo à raiz.
+    const HOME_URL = '/amandapps/';
+    // Pasta das thumbs (relativa à raiz do site)
+    const THUMB_DIR = '/amandapps/thumb-assets';
+
+    // Fallback caso o sessionStorage esteja vazio
+    const JOGO_PADRAO_URL = 'jogos/teste/index.html';
+
+    // --------- LER DADOS ---------
+    let dados = null;
+    try {
+        const raw = sessionStorage.getItem('fimDeJogo');
+        if (raw) dados = JSON.parse(raw);
+    } catch (e) {
+        console.warn('[fim-de-jogo] sessionStorage inválido:', e);
+    }
+
+    const elAvatar  = document.getElementById('avatar');
+    const elName    = document.getElementById('name');
+    const elScoreBox= document.getElementById('score-box');
+    const elScore   = document.getElementById('score-value');
+    const elStatus  = document.getElementById('status');
+    const elNoData  = document.getElementById('no-data');
+    const panel     = document.getElementById('panel');
+
+    const thumbWrap = document.getElementById('thumb-wrap');
+    const thumbImg  = document.getElementById('thumb-img');
+
+    let jogoUrl = JOGO_PADRAO_URL;
+
+    if (dados && typeof dados.score === 'number') {
+        // --- Perfil (avatar + nome) ---
+        elAvatar.textContent = dados.avatar || '🎮';
+        elName.textContent   = dados.nome || 'Anônimo';
+        panel.classList.toggle('anon', !dados.nome || dados.nome === 'Anônimo');
+
+        // --- Pontuação ---
+        elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
+
+        // --- Status ---
+        if (dados.salvo) {
+            elStatus.textContent = '✔ Pontuação salva!';
+            elStatus.className = 'status ok';
+        } else {
+            elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
+            elStatus.className = 'status error';
+        }
+
+        // --- Thumb: thumb/{gameId}.png ---
+        const gameId = dados.gameId || 'clickteam';
+        const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
+        thumbImg.src = thumbUrl;
+        thumbImg.alt = `Thumb do jogo ${gameId}`;
+
+        thumbImg.onerror = () => {
+            thumbWrap.classList.add('error');
+            thumbImg.removeAttribute('src');
+            console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
+        };
+
+        // --- URL do "Tentar de novo" ---
+        jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
+    } else {
+        // Sem dados — esconde tudo que depende do resultado
+        document.getElementById('thumb-wrap').style.display  = 'none';
+        document.getElementById('profile-row').style.display = 'none';
+        elScoreBox.style.display = 'none';
+        elStatus.style.display   = 'none';
+        elName.textContent = 'Sem resultado';
+        elNoData.style.display = 'block';
+    }
+
+    // --------- BOTÕES ---------
+    document.getElementById('btn-retry').addEventListener('click', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.href = jogoUrl;
+    });
+
+    document.getElementById('btn-home').addEventListener('click', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        // index.html na raiz do site
+        window.location.href = HOME_URL;
+    });
+</script>
+
+</body>
+</html>
