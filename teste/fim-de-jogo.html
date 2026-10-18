@@ -39,6 +39,37 @@
             to   { transform: translateY(0);   opacity: 1; }
         }
 
+        /* ===================================================== */
+        /* THUMB DO JOGO — 300x250 px, carregada de thumb/       */
+        /* ===================================================== */
+        .thumb {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 300 / 250;
+            margin: 0 auto 1rem;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .thumb .thumb-fallback {
+            font-size: 4rem;
+            color: #8a8fa3;
+            display: none;
+        }
+        .thumb.error img { display: none; }
+        .thumb.error .thumb-fallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+
         .avatar {
             width: 96px;
             height: 96px;
@@ -129,7 +160,6 @@
         }
         .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
 
-        /* Caso não haja dados no sessionStorage */
         .no-data { color: #8a8fa3; font-size: 0.9rem; margin-bottom: 1.2rem; }
     </style>
 </head>
@@ -137,6 +167,12 @@
 
 <div class="wrap">
     <div class="panel" id="panel">
+        <!-- Thumb do jogo (300x250) -->
+        <div class="thumb" id="thumb-wrap">
+            <img id="thumb-img" src="" alt="Thumb do jogo">
+            <div class="thumb-fallback">🎮</div>
+        </div>
+
         <div class="avatar" id="avatar">🎮</div>
         <div class="name" id="name">—</div>
         <div class="sub" id="sub">Resultado da partida</div>
@@ -162,10 +198,14 @@
 
 <script>
     // --------- CONFIG ---------
-    // Página inicial do site (home). Ajuste se necessário.
+    // Página inicial do site (home). Como este arquivo está na raiz, é relativo à raiz.
     const HOME_URL = 'index.html';
-    // Página padrão do jogo, se o sessionStorage não informar.
-    const JOGO_PADRAO_URL = 'jogo.html';
+
+    // Pasta das thumbs (relativa à raiz do site)
+    const THUMB_DIR = 'thumb';
+
+    // Fallback caso o sessionStorage esteja vazio
+    const JOGO_PADRAO_URL = 'jogos/teste/index.html';
 
     // --------- LER DADOS ---------
     let dados = null;
@@ -182,9 +222,11 @@
     const elScore = document.getElementById('score-value');
     const elGame = document.getElementById('game-name');
     const elStatus = document.getElementById('status');
-    const elActions = document.getElementById('actions');
     const elNoData = document.getElementById('no-data');
     const panel = document.getElementById('panel');
+
+    const thumbWrap = document.getElementById('thumb-wrap');
+    const thumbImg = document.getElementById('thumb-img');
 
     let jogoUrl = JOGO_PADRAO_URL;
 
@@ -204,8 +246,23 @@
             elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
             elStatus.className = 'status error';
         }
+
+        // ---- Thumb: thumb/{gameId}.png ----
+        const gameId = dados.gameId || 'clickteam';
+        // encodeURIComponent protege contra caracteres estranhos no id
+        const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
+        thumbImg.src = thumbUrl;
+        thumbImg.alt = `Thumb do jogo ${gameId}`;
+
+        // Se a imagem não existir, cai no fallback
+        thumbImg.onerror = () => {
+            thumbWrap.classList.add('error');
+            thumbImg.removeAttribute('src');
+            console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
+        };
     } else {
-        // Sem dados — esconde o card de score e mostra aviso
+        // Sem dados — esconde tudo que depende do resultado
+        document.getElementById('thumb-wrap').style.display = 'none';
         elScoreBox.style.display = 'none';
         elAvatar.textContent = '🎭';
         elName.textContent = 'Sem resultado';
@@ -216,9 +273,7 @@
 
     // --------- BOTÕES ---------
     document.getElementById('btn-retry').addEventListener('click', () => {
-        // Limpa os dados para não reaparecer se o usuário voltar
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-        // Navega de volta para a página do jogo (mesma aba)
         window.location.href = jogoUrl;
     });
 

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Fim de jogo — Arcade Central</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #1A1A2E;
+            color: #eaeaea;
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+        }
+
+        .wrap {
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .panel {
+            background: #16213e;
+            border: 1px solid #2a3a5c;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 380px;
+            padding: 1.8rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+            animation: panelIn 0.25s ease-out;
+        }
+        @keyframes panelIn {
+            from { transform: translateY(15px); opacity: 0; }
+            to   { transform: translateY(0);   opacity: 1; }
+        }
+
+        .avatar {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 0.9rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.6rem;
+            background: linear-gradient(135deg, #0f3460, #1f2b4d);
+            border: 3px solid #e94560;
+            box-shadow: 0 0 0 6px rgba(233, 69, 96, 0.15);
+        }
+        .panel.anon .avatar {
+            border-color: #2a3a5c;
+            box-shadow: 0 0 0 6px rgba(138, 143, 163, 0.08);
+        }
+
+        .name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.15rem;
+        }
+        .sub {
+            font-size: 0.8rem;
+            color: #8a8fa3;
+            margin-bottom: 1.2rem;
+        }
+
+        .score-box {
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.6rem;
+        }
+        .score-label {
+            font-size: 0.75rem;
+            color: #8a8fa3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.2rem;
+        }
+        .score-value {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #f5c518;
+            line-height: 1;
+        }
+        .game {
+            font-size: 0.8rem;
+            color: #8a8fa3;
+            margin-bottom: 1.2rem;
+        }
+        .game strong { color: #eaeaea; }
+
+        .status {
+            font-size: 0.78rem;
+            min-height: 1.1em;
+            margin-bottom: 1rem;
+        }
+        .status.ok { color: #6ee7a8; }
+        .status.error { color: #ff7b8a; }
+
+        .actions {
+            display: flex;
+            gap: 0.6rem;
+        }
+        .actions button {
+            flex: 1;
+            padding: 0.8rem 0.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .actions button:hover { opacity: 0.92; }
+        .actions button:active { transform: scale(0.98); }
+
+        .btn-retry { background: #e94560; color: #fff; }
+        .btn-home  {
+            background: transparent;
+            color: #8a8fa3;
+            border: 1px solid #2a3a5c !important;
+        }
+        .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
+
+        /* Caso não haja dados no sessionStorage */
+        .no-data { color: #8a8fa3; font-size: 0.9rem; margin-bottom: 1.2rem; }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="panel" id="panel">
+        <div class="avatar" id="avatar">🎮</div>
+        <div class="name" id="name">—</div>
+        <div class="sub" id="sub">Resultado da partida</div>
+
+        <div class="score-box" id="score-box">
+            <div class="score-label">Pontuação</div>
+            <div class="score-value" id="score-value">0</div>
+        </div>
+        <div class="game">Jogo: <strong id="game-name">—</strong></div>
+
+        <div class="status" id="status"></div>
+
+        <div class="actions" id="actions">
+            <button type="button" class="btn-retry" id="btn-retry">🔄 Tentar de novo</button>
+            <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
+        </div>
+
+        <p class="no-data" id="no-data" style="display:none;">
+            Nenhum resultado encontrado. Volte para a home para jogar novamente.
+        </p>
+    </div>
+</div>
+
+<script>
+    // --------- CONFIG ---------
+    // Página inicial do site (home). Ajuste se necessário.
+    const HOME_URL = 'index.html';
+    // Página padrão do jogo, se o sessionStorage não informar.
+    const JOGO_PADRAO_URL = 'jogo.html';
+
+    // --------- LER DADOS ---------
+    let dados = null;
+    try {
+        const raw = sessionStorage.getItem('fimDeJogo');
+        if (raw) dados = JSON.parse(raw);
+    } catch (e) {
+        console.warn('[fim-de-jogo] sessionStorage inválido:', e);
+    }
+
+    const elAvatar = document.getElementById('avatar');
+    const elName = document.getElementById('name');
+    const elScoreBox = document.getElementById('score-box');
+    const elScore = document.getElementById('score-value');
+    const elGame = document.getElementById('game-name');
+    const elStatus = document.getElementById('status');
+    const elActions = document.getElementById('actions');
+    const elNoData = document.getElementById('no-data');
+    const panel = document.getElementById('panel');
+
+    let jogoUrl = JOGO_PADRAO_URL;
+
+    if (dados && typeof dados.score === 'number') {
+        elAvatar.textContent = dados.avatar || '🎮';
+        elName.textContent = dados.nome || 'Anônimo';
+        elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
+        elGame.textContent = dados.gameId || 'clickteam';
+        jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
+
+        panel.classList.toggle('anon', !dados.nome || dados.nome === 'Anônimo');
+
+        if (dados.salvo) {
+            elStatus.textContent = '✔ Pontuação salva!';
+            elStatus.className = 'status ok';
+        } else {
+            elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
+            elStatus.className = 'status error';
+        }
+    } else {
+        // Sem dados — esconde o card de score e mostra aviso
+        elScoreBox.style.display = 'none';
+        elAvatar.textContent = '🎭';
+        elName.textContent = 'Sem resultado';
+        elGame.parentElement.style.display = 'none';
+        elStatus.style.display = 'none';
+        elNoData.style.display = 'block';
+    }
+
+    // --------- BOTÕES ---------
+    document.getElementById('btn-retry').addEventListener('click', () => {
+        // Limpa os dados para não reaparecer se o usuário voltar
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        // Navega de volta para a página do jogo (mesma aba)
+        window.location.href = jogoUrl;
+    });
+
+    document.getElementById('btn-home').addEventListener('click', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.href = HOME_URL;
+    });
+</script>
+
+</body>
+</html>
