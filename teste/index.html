@@ -295,3 +295,97 @@
             document.getElementById('sm-avatar').textContent = avatar;
             document.getElementById('sm-name').textContent = nome;
             document.getElementById('sm-score-value').textContent = Number(score).toLocaleString('pt-BR');
+            document.getElementById('sm-game-name').textContent = gameId;
+
+            const modal = document.getElementById('score-modal');
+            modal.classList.toggle('anon', !currentUser);
+
+            const status = document.getElementById('sm-status');
+            status.textContent = 'Enviando pontuação...';
+            status.className = 'sm-status loading';
+
+            document.getElementById('score-modal-backdrop').classList.add('open');
+        }
+
+        function fecharModalResultado() {
+            document.getElementById('score-modal-backdrop').classList.remove('open');
+        }
+
+        function setModalStatus(text, type = '') {
+            const el = document.getElementById('sm-status');
+            el.textContent = text;
+            el.className = 'sm-status ' + type;
+        }
+
+        // --------- ENVIAR AO SUPABASE ---------
+        async function enviarAoBanco(score, gameId) {
+            const payload = {
+                player_name: currentUser ? currentUser.username : 'Anônimo',
+                game_id: gameId,
+                score: score,
+                user_id: currentUser ? currentUser.id : null
+            };
+
+            const { error } = await _supabase.from('scores').insert(payload);
+
+            if (error) {
+                console.error(error);
+                setModalStatus('Falha ao salvar: ' + error.message, 'error');
+                return false;
+            }
+
+            setModalStatus('✔ Pontuação salva!', 'ok');
+            return true;
+        }
+
+        // --------- PONTE FUSION → PÁGINA ---------
+        // O Fusion deve chamar (no evento de fim de jogo):
+        //   window.receberPontuacaoDoJogo(1000);
+        //   window.receberPontuacaoDoJogo(1000, "snake");
+        window.receberPontuacaoDoJogo = function (score, gameId) {
+            const pontuacao = Number(score);
+            if (!isFinite(pontuacao)) {
+                console.warn('[receberPontuacaoDoJogo] valor inválido:', score);
+                return;
+            }
+
+            pontuacaoPendente = pontuacao;
+            jogoPendente = (gameId && String(gameId)) || 'clickteam';
+
+            abrirModalResultado({ score: pontuacao, gameId: jogoPendente });
+            enviarAoBanco(pontuacao, jogoPendente);
+        };
+
+        // --------- BOTÕES DO MODAL ---------
+        document.getElementById('sm-btn-retry').addEventListener('click', () => {
+            // Reinicia a partida recarregando a página do jogo.
+            // Se quiser reiniciar SEM recarregar, precisa de uma ponte
+            // Fusion (ex: window.resetRuntime) — avise se quiser essa versão.
+            window.location.reload();
+        });
+
+        document.getElementById('sm-btn-home').addEventListener('click', () => {
+            window.location.href = HOME_URL;
+        });
+
+        // Fecha ao clicar fora do card
+        document.getElementById('score-modal-backdrop').addEventListener('click', (e) => {
+            if (e.target.id === 'score-modal-backdrop') {
+                fecharModalResultado();
+            }
+        });
+
+        // --------- INICIALIZAÇÃO ---------
+        (async function init() {
+            // Recupera sessão atual
+            const { data: { session } } = await _supabase.auth.getSession();
+            currentUser = lerPerfilDoUser(session?.user);
+
+            // Escuta mudanças (login em outra aba, logout, etc.)
+            _supabase.auth.onAuthStateChange((_event, session) => {
+                currentUser = lerPerfilDoUser(session?.user);
+            });
+        })();
+    </script>
+</body>
+</html>
