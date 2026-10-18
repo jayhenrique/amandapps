@@ -2,105 +2,118 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1a1a2e">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Amand.Apps Games</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+  <!-- HEADER -->
   <header>
-    <h1>Amand.Apps Games</h1>
+    <div class="logo">🎮 Amand.Apps <span>Games</span></div>
     <nav>
-      <a href="index.html">Home</a>
-      <a href="placar.html">Placar</a>
-      <a href="login.html" id="nav-auth">Entrar</a>
+      <a href="#games">Jogos</a>
+      <a href="#hiscore">Hi-Score</a>
+      <a href="#sobre">Sobre</a>
     </nav>
+    <div id="userArea">
+      <button id="loginBtn" class="btn">Entrar / Registrar</button>
+      <div id="userInfo" class="hidden">
+        <span id="userNameDisplay"></span>
+        <button id="logoutBtn" class="btn-small">Sair</button>
+      </div>
+    </div>
   </header>
 
-  <main>
-    <section id="games-list">
-      <div class="game-card" data-game="Flappy Amand">
-        <img src="image_game.png" alt="Flappy Amand" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><rect fill=%22%23162d3e%22 width=%22120%22 height=%22120%22/><text x=%2250%25%22 y=%2250%25%22 fill=%22%23fff%22 font-size=%2214%22 text-anchor=%22middle%22 dy=%22.3em%22>Flappy</text></svg>'">
-        <h3>Flappy Amand</h3>
-        <div class="top-score" data-game="Flappy Amand">Carregando...</div>
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Bem-vindo ao <span class="accent">Amand.Apps Games</span></h1>
+    <p>Jogue anonimamente ou entre para salvar sua pontuação no Hi-Score oficial!</p>
+    <p class="small">Desde 2024 — feitos por fãs, para fãs.</p>
+  </section>
+
+  <!-- STATUS FEED -->
+  <section class="feed">
+    <h2>📡 Atividade recente</h2>
+    <ul id="activityFeed">
+      <li class="muted">Carregando atividades...</li>
+    </ul>
+  </section>
+
+  <!-- JOGOS -->
+  <section id="games" class="games">
+    <h2>🕹️ Nossos Jogos</h2>
+    <div class="game-grid">
+      <div class="game-card">
+        <div class="thumb">🐍</div>
+        <h3>Snake Classic</h3>
+        <p>O clássico da cobrinha. Coma maçãs e cresça!</p>
+        <a href="games/snake.html" class="btn-play">Jogar</a>
       </div>
-      <!-- Adicione mais jogos aqui no futuro -->
-    </section>
+      <div class="game-card">
+        <div class="thumb">🧠</div>
+        <h3>Memory Match</h3>
+        <p>Encontre todos os pares antes do tempo acabar.</p>
+        <a href="games/memory.html" class="btn-play">Jogar</a>
+      </div>
+      <div class="game-card">
+        <div class="thumb">👆</div>
+        <h3>Clicker Frenzy</h3>
+        <p>Clique o mais rápido que puder em 10 segundos!</p>
+        <a href="games/clicker.html" class="btn-play">Jogar</a>
+      </div>
+    </div>
+  </section>
 
-    <section id="activity-feed">
-      <h2>Registro de Atividades</h2>
-      <ul id="activity-list"></ul>
-    </section>
-  </main>
+  <!-- HISCORE -->
+  <section id="hiscore" class="hiscore">
+    <h2>🏆 Hi-Score</h2>
+    <div class="tabs">
+      <button class="tab active" data-game="snake">Snake</button>
+      <button class="tab" data-game="memory">Memory</button>
+      <button class="tab" data-game="clicker">Clicker</button>
+    </div>
+    <ol id="hiscoreList">
+      <li class="muted">Carregando...</li>
+    </ol>
+  </section>
 
-  <a href="https://www.instagram.com/amand.apps" target="_blank" class="instagram-btn">📷 @amand.apps</a>
+  <!-- SOBRE -->
+  <section id="sobre" class="about">
+    <h2>ℹ️ Sobre</h2>
+    <p>Amand.Apps Games é um cantinho feito por fãs, para fãs. Todos os jogos são em HTML5, funcionam no celular e no desktop, e podem ser jogados sem cadastro.</p>
+    <p>Registrar é rápido e grátis — nem precisa de email real (mas você perde a conta se esquecer a senha!).</p>
+  </section>
 
-  <script>
-    const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <footer>
+    <p>© 2024 Amand.Apps Games — Feito com 💜 por fãs.</p>
+  </footer>
 
-    async function loadTopScores() {
-      const cards = document.querySelectorAll('.top-score');
-      for (const card of cards) {
-        const game = card.dataset.game;
-        const { data } = await supabase
-          .from('scores')
-          .select('username, score')
-          .eq('game_name', game)
-          .order('score', { ascending: false })
-          .limit(1);
-        if (data && data.length > 0) {
-          card.textContent = `${data[0].username || 'Anônimo'}: ${data[0].score}`;
-          card.onclick = () => location.href = `placar.html?game=${encodeURIComponent(game)}`;
-        } else {
-          card.textContent = 'Sem recordes ainda';
-        }
-      }
-    }
+  <!-- MODAL DE LOGIN -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="modalTitle">Entrar</h2>
+      <form id="loginForm">
+        <label>Email</label>
+        <input type="email" id="emailInput" required>
+        <label>Senha</label>
+        <input type="password" id="passwordInput" required minlength="6">
+        <div id="registerFields" class="hidden">
+          <label>Nome de usuário</label>
+          <input type="text" id="usernameInput" minlength="3" maxlength="20">
+          <small id="usernameCheck"></small>
+        </div>
+        <button type="submit" class="btn" id="submitBtn">Entrar</button>
+      </form>
+      <p class="switch-mode">
+        <a href="#" id="switchMode">Ainda não tem conta? Registrar</a>
+      </p>
+      <p id="loginError" class="error"></p>
+      <button class="btn-close" id="closeModal">✕</button>
+    </div>
+  </div>
 
-    async function loadActivities() {
-      const { data } = await supabase
-        .from('activities')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
-      const list = document.getElementById('activity-list');
-      list.innerHTML = (data || []).map(a => {
-        const name = a.username || 'Um Amandfã';
-        return `<li>${name} fez ${a.score} pontos em ${a.game_name}</li>`;
-      }).join('');
-    }
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      const navAuth = document.getElementById('nav-auth');
-      if (session) {
-        const { data: profile } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
-        navAuth.textContent = profile?.username || 'Área Logada';
-        navAuth.href = 'area-logada.html';
-      }
-    }
-
-    checkAuth();
-    loadTopScores();
-    loadActivities();
-
-    // Redirecionar clique no card para o jogo
-    document.querySelectorAll('.game-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.classList.contains('top-score')) return;
-        location.href = 'flappy.html';
-      });
-    });
-
-    // Registrar Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
