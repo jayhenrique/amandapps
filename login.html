@@ -1,269 +1,99 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Entrar | Arcade Central</title>
-<style>
-  :root {
-    --bg: #1a1a2e;
-    --bg-card: #16213e;
-    --accent: #e94560;
-    --accent2: #0f3460;
-    --text: #eaeaea;
-    --text-dim: #8a8fa3;
-    --gold: #f5c518;
-    --border: #2a3a5c;
-    --error: #ff6b6b;
-    --success: #4ade80;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-    min-height: 100vh;
-  }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-
-  header {
-    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
-    border-bottom: 3px solid var(--accent);
-    padding: 1rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
-  .logo span { color: var(--accent); }
-  nav { display: flex; gap: 1.2rem; font-size: 0.9rem; align-items: center; }
-  nav a { color: var(--text-dim); font-weight: 600; }
-  nav a:hover { color: var(--accent); text-decoration: none; }
-  nav a.active { color: var(--accent); }
-  .nav-user {
-    color: var(--gold);
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: none;
-    text-decoration: none;
-  }
-  .nav-user.visible { display: inline; }
-  .nav-user:hover { text-decoration: underline; }
-
-  .container { max-width: 480px; margin: 0 auto; padding: 3rem 1.5rem; }
-
-  .section-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-  .section-title::before {
-    content: '';
-    width: 4px; height: 1.3rem;
-    background: var(--accent);
-    border-radius: 2px;
-  }
-
-  .auth-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.5rem;
-  }
-  .auth-card h3 {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    color: var(--gold);
-  }
-  .auth-card label {
-    display: block;
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    margin-bottom: 0.25rem;
-    margin-top: 0.5rem;
-    font-weight: 600;
-  }
-  .auth-card input {
-    width: 100%;
-    padding: 0.7rem;
-    margin-bottom: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 0.9rem;
-  }
-  .auth-card input:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-  .auth-card input.invalid { border-color: var(--error); }
-  .auth-card input.valid { border-color: var(--success); }
-  .auth-card .field-hint {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    margin-bottom: 0.6rem;
-    min-height: 1em;
-  }
-  .auth-card .field-hint.error { color: var(--error); }
-  .auth-card .field-hint.success { color: var(--success); }
-
-  .auth-card .btn-row {
-    display: flex;
-    gap: 0.6rem;
-    margin-top: 0.5rem;
-  }
-  .auth-card button {
-    flex: 1;
-    padding: 0.7rem;
-    border-radius: 6px;
-    border: none;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  .auth-card button:hover { opacity: 0.9; }
-  .auth-card button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .auth-card button.primary { background: var(--accent); color: #fff; }
-  .auth-card button.secondary {
-    background: var(--accent2);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-
-  .auth-card .status-msg {
-    display: block;
-    margin-top: 0.8rem;
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    min-height: 1.2em;
-  }
-  .auth-card .status-msg.error { color: var(--error); }
-  .auth-card .status-msg.success { color: var(--success); }
-
-  .user-info {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.5rem;
-    text-align: center;
-  }
-  .user-info .username {
-    color: var(--gold);
-    font-weight: 800;
-    font-size: 1.4rem;
-    margin-bottom: 0.3rem;
-  }
-  .user-info .email-line {
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    margin-bottom: 1rem;
-    word-break: break-all;
-  }
-  .user-info .logout-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 0.7rem 1.5rem;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-  .user-info .logout-btn:hover { opacity: 0.9; }
-
-  .info-box {
-    margin-top: 1.5rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--accent2);
-    border-radius: 8px;
-    padding: 1rem 1.2rem;
-    font-size: 0.8rem;
-    color: var(--text-dim);
-  }
-  .info-box strong { color: var(--text); }
-
-  footer {
-    text-align: center;
-    padding: 1.5rem;
-    color: var(--text-dim);
-    font-size: 0.75rem;
-    border-top: 1px solid var(--border);
-    margin-top: 1.5rem;
-  }
-
-  @media (max-width: 600px) {
-    header { flex-direction: column; align-items: flex-start; padding: 1rem; }
-    nav { flex-wrap: wrap; gap: 0.8rem; }
-    .container { padding: 1.5rem 1rem; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar — Amand.Apps Games</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
-<header>
-  <div class="logo">ARCADE <span>CENTRAL</span></div>
-  <nav>
-    <a href="index.html">Início</a>
-    <a href="placar.html">Placar</a>
-    <a href="login.html" class="active" id="nav-login">Entrar</a>
-    <a href="login.html" class="nav-user" id="nav-user"></a>
-  </nav>
-</header>
-
-<div class="container">
-  <h2 class="section-title">Minha Conta</h2>
-
-  <div class="auth-card" id="auth-section">
-    <h3>👤 Entrar ou criar conta</h3>
-
-    <label for="auth-email">Email</label>
-    <input type="email" id="auth-email" placeholder="seu@email.com" autocomplete="email">
-
-    <label for="auth-password">Senha</label>
-    <input type="password" id="auth-password" placeholder="Mínimo 6 caracteres" autocomplete="current-password">
-
-    <div id="username-field" style="display:none;">
-      <label for="auth-username">Nome de usuário (3 a 8 caracteres, só letras e números)</label>
-      <input type="text" id="auth-username" placeholder="ex: jogador1" maxlength="8" autocomplete="username">
-      <div class="field-hint" id="username-hint"></div>
+  <header>
+    <h1>Entrar</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="placar.html">Placar</a>
+      <a href="login.html">Entrar</a>
+    </nav>
+  </header>
+  <main>
+    <div class="auth-tabs">
+      <button id="tab-login" class="active">Login</button>
+      <button id="tab-register">Criar Conta</button>
     </div>
 
-    <div class="btn-row">
-      <button class="primary" id="primary-btn">Entrar</button>
-      <button class="secondary" onclick="toggleCadastro()" id="toggle-cadastro-btn">Criar conta</button>
-    </div>
-    <span class="status-msg" id="auth-status"></span>
-  </div>
+    <form id="login-form" class="auth-form">
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+      <p id="login-msg"></p>
+    </form>
 
-  <div class="user-info" id="user-section" style="display:none;">
-    <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.3rem;">Você está logado como:</p>
-    <p class="username" id="user-username-display"></p>
-    <p class="email-line" id="user-email-display"></p>
-    <button class="logout-btn" onclick="fazerLogout()">Sair</button>
-  </div>
+    <form id="register-form" class="auth-form hidden">
+      <input type="email" id="reg-email" placeholder="Email" required>
+      <input type="text" id="reg-username" placeholder="Nome de usuário" required>
+      <input type="password" id="reg-password" placeholder="Senha (mín. 6 caracteres)" required minlength="6">
+      <button type="submit">Criar Conta</button>
+      <p id="reg-msg"></p>
+    </form>
+  </main>
 
-  <div class="info-box">
-    <strong>Por que fazer login?</strong><br>
-    Jogar não exige login — você pode jogar e enviar pontuações como <strong>"Anônimo"</strong> a qualquer momento.
-    Ao criar uma conta, você escolhe um <strong>nome de usuário</strong> (3 a 8 caracteres) que aparecerá no placar e no feed de atividades.
-  </div>
-</div>
+  <script>
+    const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<footer>
-  Arcade Central &copy; 2026 · Feito com HTML5 + Supabase
-</footer>
+    document.getElementById('tab-login').onclick = () => {
+      document.getElementById('login-form').classList.remove('hidden');
+      document.getElementById('register-form').classList.add('hidden');
+      document.getElementById('tab-login').classList.add('active');
+      document.getElementById('tab-register').classList.remove('active');
+    };
+    document.getElementById('tab-register').onclick = () => {
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('register-form').classList.remove('hidden');
+      document.getElementById('tab-register').classList.add('active');
+      document.getElementById('tab-login').classList.remove('active');
+    };
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-F
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const msg = document.getElementById('login-msg');
+      if (error) { msg.textContent = 'Erro: ' + error.message; }
+      else { location.href = 'area-logada.html'; }
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value;
+      const username = document.getElementById('reg-username').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const msg = document.getElementById('reg-msg');
+
+      // Verificar username
+      const { data: available } = await supabase.rpc('check_username_available', { username_to_check: username });
+      if (!available) {
+        msg.textContent = 'Este nome de usuário já existe. Tente outro.';
+        return;
+      }
+
+      // Criar usuário
+      const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+      if (authError) { msg.textContent = 'Erro: ' + authError.message; return; }
+
+      // Criar perfil
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: authData.user.id,
+        username: username
+      });
+      if (profileError) { msg.textContent = 'Erro ao criar perfil: ' + profileError.message; return; }
+
+      msg.textContent = 'Conta criada! Redirecionando...';
+      setTimeout(() => location.href = 'area-logada.html', 1000);
+    });
+  </script>
+</body>
+</html>

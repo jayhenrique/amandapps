@@ -1,226 +1,91 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Placar de Líderes | Arcade Central</title>
-<style>
-  :root {
-    --bg: #1a1a2e;
-    --bg-card: #16213e;
-    --accent: #e94560;
-    --accent2: #0f3460;
-    --text: #eaeaea;
-    --text-dim: #8a8fa3;
-    --gold: #f5c518;
-    --border: #2a3a5c;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-  }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-
-  header {
-    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
-    border-bottom: 3px solid var(--accent);
-    padding: 1rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
-  .logo span { color: var(--accent); }
-  nav { display: flex; gap: 1.2rem; font-size: 0.9rem; align-items: center; }
-  nav a { color: var(--text-dim); font-weight: 600; }
-  nav a:hover { color: var(--accent); text-decoration: none; }
-  nav a.active { color: var(--accent); }
-  .nav-user {
-    color: var(--gold);
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: none;
-    text-decoration: none;
-  }
-  .nav-user.visible { display: inline; }
-  .nav-user:hover { text-decoration: underline; }
-
-  .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem; }
-
-  .section-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-  .section-title::before {
-    content: '';
-    width: 4px; height: 1.3rem;
-    background: var(--accent);
-    border-radius: 2px;
-  }
-
-  .leaderboards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
-  }
-  .lb-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .lb-card h4 {
-    background: var(--accent2);
-    padding: 0.55rem 0.9rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-  }
-  .lb-card table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-  .lb-card td { padding: 0.4rem 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  .lb-card tr:last-child td { border-bottom: none; }
-  .lb-card .rank { color: var(--text-dim); width: 2rem; }
-  .lb-card .player { font-weight: 600; }
-  .lb-card .score { text-align: right; color: var(--gold); font-weight: 700; }
-  .lb-card tr:nth-child(1) .player { color: var(--gold); }
-
-  footer {
-    text-align: center;
-    padding: 1.5rem;
-    color: var(--text-dim);
-    font-size: 0.75rem;
-    border-top: 1px solid var(--border);
-    margin-top: 1.5rem;
-  }
-
-  @media (max-width: 600px) {
-    header { flex-direction: column; align-items: flex-start; padding: 1rem; }
-    nav { flex-wrap: wrap; gap: 0.8rem; }
-    .container { padding: 1rem; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Placar — Amand.Apps Games</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <header>
+    <h1>Placar</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="placar.html">Placar</a>
+      <a href="login.html" id="nav-auth">Entrar</a>
+    </nav>
+  </header>
+  <main>
+    <div id="scores-table"></div>
 
-<header>
-  <div class="logo">ARCADE <span>CENTRAL</span></div>
-  <nav>
-    <a href="index.html">Início</a>
-    <a href="placar.html" class="active">Placar</a>
-    <a href="login.html" id="nav-login">Entrar</a>
-    <a href="login.html" class="nav-user" id="nav-user"></a>
-  </nav>
-</header>
+    <section class="test-form">
+      <h3>Inserir Hiscore de Teste</h3>
+      <form id="test-score-form">
+        <input type="text" id="test-game" placeholder="Nome do jogo" value="Flappy Amand" required>
+        <input type="text" id="test-name" placeholder="Nome de usuário (opcional)">
+        <input type="number" id="test-score" placeholder="Pontuação" required>
+        <button type="submit">Inserir</button>
+      </form>
+      <p id="test-msg"></p>
+    </section>
+  </main>
 
-<div class="container">
-  <h2 class="section-title">Placar de Líderes</h2>
-  <div class="leaderboards">
-    <div class="lb-card" data-game-id="snake">
-      <h4>🐍 Snake Classic</h4>
-      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
-    </div>
-    <div class="lb-card" data-game-id="breakout">
-      <h4>🧱 Breakout</h4>
-      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
-    </div>
-    <div class="lb-card" data-game-id="flappy">
-      <h4>🐦 Flappy Bird</h4>
-      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
-    </div>
-    <div class="lb-card" data-game-id="tetris">
-      <h4>🟦 Tetris</h4>
-      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
-    </div>
-    <div class="lb-card" data-game-id="memory">
-      <h4>🧠 Jogo da Memória</h4>
-      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
-    </div>
-    <div class="lb-card" data-game-id="2048">
-      <h4>🔢 2048</h4>
-      <table><tbody class="lb-body"><tr><td colspan="3">Carregando...</td></tr></tbody></table>
-    </div>
-  </div>
-</div>
+  <script>
+    const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<footer>
-  Arcade Central &copy; 2026 · Feito com HTML5 + Supabase
-</footer>
+    const urlParams = new URLSearchParams(location.search);
+    const filterGame = urlParams.get('game');
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
-  const { createClient } = supabase;
-  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    async function loadScores() {
+      let query = supabase.from('scores').select('*').order('score', { ascending: false });
+      if (filterGame) query = query.eq('game_name', filterGame);
+      const { data } = await query.limit(100);
+      
+      const games = {};
+      (data || []).forEach(s => {
+        if (!games[s.game_name]) games[s.game_name] = [];
+        games[s.game_name].push(s);
+      });
 
-  async function verificarUsuario() {
-    const { data: { user } } = await _supabase.auth.getUser();
-    const navUser = document.getElementById('nav-user');
-    const navLogin = document.getElementById('nav-login');
-
-    if (user) {
-      const { data: profile } = await _supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      const username = profile?.username || user.email.split('@')[0];
-      navUser.textContent = '👤 ' + username;
-      navUser.classList.add('visible');
-      navLogin.style.display = 'none';
-    } else {
-      navUser.classList.remove('visible');
-      navLogin.style.display = 'inline';
+      const container = document.getElementById('scores-table');
+      container.innerHTML = Object.entries(games).map(([game, scores]) => `
+        <h3>${game}</h3>
+        <table>
+          <tr><th>#</th><th>Jogador</th><th>Pontos</th></tr>
+          ${scores.map((s, i) => `
+            <tr><td>${i+1}</td><td>${s.username || 'Anônimo'}</td><td>${s.score}</td></tr>
+          `).join('')}
+        </table>
+      `).join('') || '<p>Nenhuma pontuação ainda.</p>';
     }
-  }
 
-  async function carregarPlacares() {
-    const cards = document.querySelectorAll('.lb-card');
-    for (const card of cards) {
-      const gameId = card.dataset.gameId;
-      const tbody = card.querySelector('.lb-body');
-
-      const { data, error } = await _supabase
-        .from('scores')
-        .select('player_name, score')
-        .eq('game_id', gameId)
-        .order('score', { ascending: false })
-        .limit(5);
-
-      if (error) {
-        tbody.innerHTML = '<tr><td colspan="3">Erro ao carregar.</td></tr>';
-        continue;
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const navAuth = document.getElementById('nav-auth');
+      if (session) {
+        const { data: profile } = await supabase.from('profiles').select('username').eq('id', session.user.id).single();
+        navAuth.textContent = profile?.username || 'Área Logada';
+        navAuth.href = 'area-logada.html';
       }
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3">Nenhuma pontuação ainda.</td></tr>';
-        continue;
-      }
-      tbody.innerHTML = data.map((row, i) => `
-        <tr>
-          <td class="rank">${i + 1}</td>
-          <td class="player">${row.player_name}</td>
-          <td class="score">${row.score}</td>
-        </tr>
-      `).join('');
     }
-  }
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    await verificarUsuario();
-    await carregarPlacares();
-    _supabase.auth.onAuthStateChange(() => verificarUsuario());
-  });
-</script>
+    document.getElementById('test-score-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const game = document.getElementById('test-game').value;
+      const name = document.getElementById('test-name').value || null;
+      const score = parseInt(document.getElementById('test-score').value);
+      
+      const { error } = await supabase.from('scores').insert({ game_name: game, username: name, score });
+      const msg = document.getElementById('test-msg');
+      if (error) { msg.textContent = 'Erro: ' + error.message; }
+      else { msg.textContent = 'Inserido!'; loadScores(); }
+    });
 
+    checkAuth();
+    loadScores();
+  </script>
 </body>
 </html>
