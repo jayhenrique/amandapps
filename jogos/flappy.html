@@ -2,112 +2,196 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Flappy Bird | Arcade Central</title>
 <style>
   :root {
     --bg: #1a1a2e;
     --accent: #e94560;
+    --accent2: #0f3460;
     --text: #eaeaea;
+    --text-dim: #8a8fa3;
     --gold: #f5c518;
     --border: #2a3a5c;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background: var(--bg);
+    font-family: 'Segoe UI', system-ui, sans-serif;
     color: var(--text);
-    min-height: 100vh;
+  }
+
+  /* Canvas ocupa toda a tela */
+  #game {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background: #70c5ce;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  /* Botão de voltar sobreposto (canto superior esquerdo) */
+  .back-btn-overlay {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 50;
+    background: rgba(15, 52, 96, 0.85);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .back-btn-overlay:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  /* HUD de status (canto inferior) */
+  #status {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.35);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    min-height: 1.4em;
+    text-align: center;
+    pointer-events: none;
+    max-width: 90vw;
+  }
+
+  /* Overlay de início / game over */
+  #overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(0,0,0,0.72);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    padding: 1rem;
-  }
-  h1 { font-size: 1.4rem; color: var(--accent); }
-  h1 span { color: var(--text); }
-  #game-wrapper {
-    position: relative;
-    border: 3px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  }
-  canvas { display: block; background: #70c5ce; }
-  #overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
     text-align: center;
-    padding: 1rem;
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
   }
   #overlay.hidden { display: none; }
-  #overlay h2 { font-size: 1.5rem; color: var(--gold); }
-  #overlay p { font-size: 0.9rem; color: var(--text); }
-  #overlay .score-big { font-size: 2rem; font-weight: 800; color: var(--accent); }
-  #overlay button {
-    background: var(--accent);
-    color: #fff;
+  #overlay h2 {
+    font-size: 2rem;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  #overlay p { font-size: 0.95rem; color: var(--text); max-width: 320px; }
+  #overlay .score-big {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  #overlay .score-label {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  #overlay .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    width: 100%;
+    max-width: 240px;
+  }
+  #overlay button,
+  #overlay a.btn {
     border: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-  }
-  #overlay button:hover { opacity: 0.9; }
-  #status {
-    font-size: 0.8rem;
-    color: var(--text-dim, #8a8fa3);
-    min-height: 1.2em;
-  }
-  .back-link {
-    color: #8a8fa3;
     text-decoration: none;
-    font-size: 0.85rem;
-  }
-  .back-link:hover { color: var(--accent); }
-  .hint {
-    font-size: 0.8rem;
-    color: #8a8fa3;
+    display: block;
     text-align: center;
-    max-width: 400px;
+    transition: opacity 0.2s;
+  }
+  #overlay button:hover,
+  #overlay a.btn:hover { opacity: 0.9; text-decoration: none; }
+  #start-btn {
+    background: var(--accent);
+    color: #fff;
+  }
+  #home-btn {
+    background: var(--accent2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  /* Dica de controles */
+  .hint {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    pointer-events: none;
+    max-width: 90vw;
   }
 </style>
 </head>
 <body>
 
-<h1>🐦 FLAPPY <span>BIRD</span></h1>
-<a class="back-link" href="../index.html">← Voltar para o Arcade</a>
+<!-- Botão voltar sempre visível, sobreposto ao jogo -->
+<a class="back-btn-overlay" href="../index.html">← Voltar</a>
 
-<div id="game-wrapper">
-  <canvas id="game" width="360" height="480"></canvas>
+<!-- Canvas em tela cheia -->
+<canvas id="game"></canvas>
 
-  <div id="overlay">
-    <h2 id="overlay-title">Pronto?</h2>
-    <p id="overlay-msg">Clique ou aperte espaço para voar</p>
-    <div id="overlay-score" style="display:none;">
-      <p>Sua pontuação:</p>
-      <div class="score-big" id="final-score">0</div>
-    </div>
+<!-- Status de envio -->
+<div id="status"></div>
+
+<!-- Overlay de início / game over -->
+<div id="overlay">
+  <h2 id="overlay-title">🐦 Flappy Bird</h2>
+  <p id="overlay-msg">Clique, toque ou aperte espaço para voar</p>
+  <div id="overlay-score" style="display:none;">
+    <div class="score-label">Sua pontuação</div>
+    <div class="score-big" id="final-score">0</div>
+  </div>
+  <div class="buttons">
     <button id="start-btn">Começar</button>
+    <a id="home-btn" class="btn" href="../index.html" style="display:none;">← Voltar para o Arcade</a>
   </div>
 </div>
 
-<div id="status"></div>
-<p class="hint">Pressione <strong>espaço</strong>, clique ou toque para bater as asas. Evite os canos!</p>
+<div class="hint" id="hint">Espaço / clique / toque para voar · Evite os canos</div>
 
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // ============================================
-  // CONFIGURAÇÃO (mesmas credenciais do index)
+  // CONFIGURAÇÃO
   // ============================================
   const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
@@ -127,26 +211,44 @@
   const overlayScore = document.getElementById('overlay-score');
   const finalScoreEl = document.getElementById('final-score');
   const startBtn = document.getElementById('start-btn');
+  const homeBtn = document.getElementById('home-btn');
   const statusEl = document.getElementById('status');
+  const hintEl = document.getElementById('hint');
+
+  // ============================================
+  // CANVAS RESPONSIVO (tela cheia)
+  // ============================================
+  let W, H, DPR;
+  function resizeCanvas() {
+    DPR = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    if (bird) draw();
+  }
+  window.addEventListener('resize', resizeCanvas);
 
   // ============================================
   // ESTADO DO JOGO
   // ============================================
-  const W = canvas.width;
-  const H = canvas.height;
-
   const GRAVITY = 0.45;
   const JUMP = -7.5;
   const PIPE_W = 60;
-  const PIPE_GAP = 150;
-  const PIPE_SPEED = 2.5;
-  const PIPE_SPAWN_INTERVAL = 90; // frames
+  const PIPE_SPEED = 2.8;
+  const PIPE_SPAWN_INTERVAL = 90;
 
   let bird, pipes, frames, score, gameRunning, gameOver;
   let pipesPassed = 0;
+  let pipeGap = 160; // ajustado dinamicamente em resize
 
   function resetGame() {
-    bird = { x: 80, y: H / 2, w: 28, h: 22, vy: 0 };
+    // Ajusta gap e posição inicial com base na altura da tela
+    pipeGap = Math.max(130, Math.min(H * 0.28, 220));
+    bird = { x: 90, y: H / 2, w: 30, h: 24, vy: 0 };
     pipes = [];
     frames = 0;
     score = 0;
@@ -157,7 +259,7 @@
   }
 
   // ============================================
-  // CONTROLE
+  // CONTROLES
   // ============================================
   function flap() {
     if (!gameRunning) return;
@@ -196,7 +298,9 @@
     gameOver = false;
     overlay.classList.add('hidden');
     overlayScore.style.display = 'none';
-    bird.vy = JUMP; // pequeno impulso inicial
+    homeBtn.style.display = 'none';
+    hintEl.style.display = 'block';
+    bird.vy = JUMP;
     loop();
   }
 
@@ -209,8 +313,9 @@
     overlayScore.style.display = 'block';
     finalScoreEl.textContent = score;
     startBtn.textContent = 'Jogar de novo';
+    homeBtn.style.display = 'block';
+    hintEl.style.display = 'none';
 
-    // Envia pontuação ao Supabase
     enviarPontuacao(score);
   }
 
@@ -234,14 +339,14 @@
 
     if (error) {
       console.error(error);
-      statusEl.textContent = 'Erro ao enviar pontuação: ' + error.message;
+      statusEl.textContent = 'Erro ao enviar: ' + error.message;
     } else {
       statusEl.textContent = `✅ Pontuação de ${pontos} enviada como "${playerName}"!`;
     }
   }
 
   // ============================================
-  // ATUALIZAÇÃO E DESENHO
+  // ATUALIZAÇÃO
   // ============================================
   function update() {
     if (!gameRunning) return;
@@ -250,12 +355,13 @@
     bird.vy += GRAVITY;
     bird.y += bird.vy;
 
-    // Chão / teto
-    if (bird.y + bird.h / 2 > H - 40) {
-      bird.y = H - 40 - bird.h / 2;
+    // Chão
+    if (bird.y + bird.h / 2 > H - 50) {
+      bird.y = H - 50 - bird.h / 2;
       endGame();
       return;
     }
+    // Teto
     if (bird.y - bird.h / 2 < 0) {
       bird.y = bird.h / 2;
       bird.vy = 0;
@@ -263,7 +369,7 @@
 
     // Spawn de canos
     if (frames % PIPE_SPAWN_INTERVAL === 0) {
-      const gapY = 80 + Math.random() * (H - 40 - PIPE_GAP - 160);
+      const gapY = 80 + Math.random() * (H - 50 - pipeGap - 160);
       pipes.push({ x: W, gapY, passed: false });
     }
 
@@ -271,7 +377,6 @@
     for (const p of pipes) {
       p.x -= PIPE_SPEED;
 
-      // Colisão
       const birdLeft = bird.x - bird.w / 2;
       const birdRight = bird.x + bird.w / 2;
       const birdTop = bird.y - bird.h / 2;
@@ -280,7 +385,7 @@
       const pLeft = p.x;
       const pRight = p.x + PIPE_W;
       const gapTop = p.gapY;
-      const gapBottom = p.gapY + PIPE_GAP;
+      const gapBottom = p.gapY + pipeGap;
 
       if (birdRight > pLeft && birdLeft < pRight) {
         if (birdTop < gapTop || birdBottom > gapBottom) {
@@ -289,7 +394,6 @@
         }
       }
 
-      // Pontuação ao passar pelo cano
       if (!p.passed && p.x + PIPE_W < bird.x) {
         p.passed = true;
         pipesPassed++;
@@ -297,83 +401,84 @@
       }
     }
 
-    // Remove canos fora da tela
     pipes = pipes.filter(p => p.x + PIPE_W > -50);
   }
 
+  // ============================================
+  // DESENHO
+  // ============================================
   function draw() {
+    if (!W || !H) return;
+
     // Fundo
     ctx.fillStyle = '#70c5ce';
     ctx.fillRect(0, 0, W, H);
 
-    // Nuvens simples
+    // Nuvens
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    for (let i = 0; i < 3; i++) {
-      const cx = ((frames * 0.3 + i * 140) % (W + 80)) - 40;
-      const cy = 60 + i * 40;
+    for (let i = 0; i < 5; i++) {
+      const cx = ((frames * 0.3 + i * 180) % (W + 100)) - 50;
+      const cy = 60 + (i % 3) * 50;
       ctx.beginPath();
-      ctx.arc(cx, cy, 25, 0, Math.PI * 2);
-      ctx.arc(cx + 25, cy, 20, 0, Math.PI * 2);
-      ctx.arc(cx - 25, cy, 18, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+      ctx.arc(cx + 28, cy, 22, 0, Math.PI * 2);
+      ctx.arc(cx - 28, cy, 20, 0, Math.PI * 2);
       ctx.fill();
     }
 
     // Canos
     for (const p of pipes) {
       ctx.fillStyle = '#2e8b57';
-      // Cano de cima
       ctx.fillRect(p.x, 0, PIPE_W, p.gapY);
-      // Cano de baixo
-      ctx.fillRect(p.x, p.gapY + PIPE_GAP, PIPE_W, H - 40 - (p.gapY + PIPE_GAP));
-      // Detalhes (bordas)
+      ctx.fillRect(p.x, p.gapY + pipeGap, PIPE_W, H - 50 - (p.gapY + pipeGap));
       ctx.fillStyle = '#1f6b3f';
       ctx.fillRect(p.x - 4, p.gapY - 20, PIPE_W + 8, 20);
-      ctx.fillRect(p.x - 4, p.gapY + PIPE_GAP, PIPE_W + 8, 20);
+      ctx.fillRect(p.x - 4, p.gapY + pipeGap, PIPE_W + 8, 20);
     }
 
     // Chão
     ctx.fillStyle = '#ded895';
-    ctx.fillRect(0, H - 40, W, 40);
+    ctx.fillRect(0, H - 50, W, 50);
     ctx.fillStyle = '#c9b96c';
-    ctx.fillRect(0, H - 40, W, 6);
+    ctx.fillRect(0, H - 50, W, 7);
 
     // Pássaro
-    ctx.save();
-    ctx.translate(bird.x, bird.y);
-    const angle = Math.max(-0.5, Math.min(0.9, bird.vy * 0.06));
-    ctx.rotate(angle);
-    // Corpo
-    ctx.fillStyle = '#f5c518';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, bird.w / 2, bird.h / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    // Bico
-    ctx.fillStyle = '#e94560';
-    ctx.beginPath();
-    ctx.moveTo(bird.w / 2 - 2, -2);
-    ctx.lineTo(bird.w / 2 + 10, 2);
-    ctx.lineTo(bird.w / 2 - 2, 6);
-    ctx.closePath();
-    ctx.fill();
-    // Olho
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(bird.w / 4, -4, 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(bird.w / 4 + 2, -4, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    if (bird) {
+      ctx.save();
+      ctx.translate(bird.x, bird.y);
+      const angle = Math.max(-0.5, Math.min(0.9, bird.vy * 0.06));
+      ctx.rotate(angle);
+      ctx.fillStyle = '#f5c518';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, bird.w / 2, bird.h / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#e94560';
+      ctx.beginPath();
+      ctx.moveTo(bird.w / 2 - 2, -2);
+      ctx.lineTo(bird.w / 2 + 12, 2);
+      ctx.lineTo(bird.w / 2 - 2, 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(bird.w / 4, -4, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(bird.w / 4 + 2, -4, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
     // Pontuação em jogo
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
-    ctx.font = 'bold 32px sans-serif';
+    ctx.lineWidth = 4;
+    ctx.font = 'bold 40px sans-serif';
     ctx.textAlign = 'center';
-    ctx.strokeText(score, W / 2, 50);
-    ctx.fillText(score, W / 2, 50);
+    ctx.textBaseline = 'middle';
+    ctx.strokeText(score, W / 2, 60);
+    ctx.fillText(score, W / 2, 60);
   }
 
   // ============================================
@@ -388,12 +493,14 @@
   // ============================================
   // INIT
   // ============================================
+  resizeCanvas();
   resetGame();
   draw();
-  overlayTitle.textContent = 'Pronto?';
-  overlayMsg.textContent = 'Clique ou aperte espaço para voar';
+  overlayTitle.textContent = '🐦 Flappy Bird';
+  overlayMsg.textContent = 'Clique, toque ou aperte espaço para voar';
   overlayScore.style.display = 'none';
   startBtn.textContent = 'Começar';
+  homeBtn.style.display = 'none';
 </script>
 
 </body>
