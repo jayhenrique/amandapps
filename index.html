@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arcade Central | Minijogos</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --bg-card: #16213e;
+    --bg-card-hover: #1f2b4d;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --text-dim: #8a8fa3;
+    --gold: #f5c518;
+    --border: #2a3a5c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    border-bottom: 3px solid var(--accent);
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .logo {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .logo span { color: var(--accent); }
+  nav { display: flex; gap: 1.5rem; font-size: 0.95rem; }
+  nav a { color: var(--text-dim); font-weight: 600; }
+  nav a:hover { color: var(--accent); text-decoration: none; }
+
+  /* Container */
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Banner */
+  .banner {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .section-title::before {
+    content: '';
+    width: 4px; height: 1.4rem;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Game grid */
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+  .game-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .game-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    background: var(--bg-card-hover);
+  }
+  .game-thumb {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    border-bottom: 1px solid var(--border);
+  }
+  .game-info { padding: 1rem; }
+  .game-info h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+  .game-info p { font-size: 0.8rem; color: var(--text-dim); }
+  .game-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.7rem;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .badge {
+    background: var(--accent2);
+    color: var(--text);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .badge.hot { background: var(--accent); }
+
+  /* Challenges */
+  .challenge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  .challenge-card {
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+  .challenge-card .ch-title { font-weight: 700; margin-bottom: 0.3rem; }
+  .challenge-card .ch-info { color: var(--text-dim); font-size: 0.78rem; margin-bottom: 0.6rem; }
+  .challenge-card .ch-coins { color: var(--gold); font-weight: 700; }
+  .challenge-card .ch-btn {
+    display: inline-block;
+    margin-top: 0.5rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .challenge-card.empty {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--text-dim); text-align: center;
+    min-height: 120px;
+  }
+
+  /* Activity feed */
+  .activity-feed {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 3rem;
+    font-size: 0.85rem;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .activity-feed p { padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-dim); }
+  .activity-feed p:last-child { border-bottom: none; }
+  .activity-feed strong { color: var(--text); }
+
+  /* Leaderboards */
+  .leaderboards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.2rem;
+  }
+  .lb-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .lb-card h4 {
+    background: var(--accent2);
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .lb-card table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .lb-card td { padding: 0.4rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .lb-card tr:last-child td { border-bottom: none; }
+  .lb-card .rank { color: var(--text-dim); width: 2rem; }
+  .lb-card .player { font-weight: 600; }
+  .lb-card .score { text-align: right; color: var(--gold); font-weight: 700; }
+  .lb-card tr:nth-child(1) .player { color: var(--gold); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    header { flex-direction: column; align-items: flex-start; }
+    nav { flex-wrap: wrap; gap: 1rem; }
+    .container { padding: 1.2rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ARCADE <span>CENTRAL</span></div>
+  <nav>
+    <a href="#">Início</a>
+    <a href="#">Jogos</a>
+    <a href="#">Desafios</a>
+    <a href="#">Placar</a>
+    <a href="#">Meu Perfil</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="banner">
+    🎮 Todos os jogos podem ser jogados no navegador com HTML5. Rankings globais atualizados em tempo real. Novos jogos em breve!
+  </div>
+
+  <!-- GAMES -->
+  <h2 class="section-title">Jogos Disponíveis</h2>
+  <div class="game-grid">
+    <a class="game-card" href="jogos/snake.html">
+      <div class="game-thumb">🐍</div>
+      <div class="game-info">
+        <h3>Snake Classic</h3>
+        <p>Coma maçãs e cresça sem bater na parede.</p>
+        <div class="game-meta"><span class="badge hot">Popular</span><span>Ranking global</span></div>
+      </div>
+    </a>
+    <a class="game-card" href="jogos/breakout.html">
+      <div class="game-thumb">🧱</div>
+      <div class="game-info">
+        <h3>Breakout</h3>
+        <p>Quebre todos os tijolos com a bola.</p>
+        <div class="game-meta"><span class="badge">Clássico</span><span>Ranking global</span></div>
+      </div>
+    </a>
+    <a class="game-card" href="jogos/flappy.html">
+      <div class="game-thumb">🐦</div>
+      <div class="game-info">
+        <h3>Flappy Bird</h3>
+        <p>Voe entre os canos sem tocar.</p>
+        <div class="game-meta"><span class="badge hot">Popular</span><span>Ranking global</span></div>
+      </div>
+    </a>
+    <a class="game-card" href="jogos/tetris.html">
+      <div class="game-thumb">🟦</div>
+      <div class="game-info">
+        <h3>Tetris</h3>
+        <p>Encaixe as peças e limpe as linhas.</p>
+        <div class="game-meta"><span class="badge">Puzzle</span><span>Ranking global</span></div>
+      </div>
+    </a>
+    <a class="game-card" href="jogos/memory.html">
+      <div class="game-thumb">🧠</div>
+      <div class="game-info">
+        <h3>Jogo da Memória</h3>
+        <p>Encontre todos os pares no menor tempo.</p>
+        <div class="game-meta"><span class="badge">Casual</span><span>Ranking global</span></div>
+      </div>
+    </a>
+    <a class="game-card" href="jogos/2048.html">
+      <div class="game-thumb">🔢</div>
+      <div class="game-info">
+        <h3>2048</h3>
+        <p>Junte os números até chegar a 2048.</p>
+        <div class="game-meta"><span class="badge">Puzzle</span><span>Ranking global</span></div>
+      </div>
+    </a>
+  </div>
+
+  <!-- CHALLENGES -->
+  <h2 class="section-title">Desafios</h2>
+  <div class="challenge-grid">
+    <div class="challenge-card">
+      <div class="ch-title">Snake — 1 minuto</div>
+      <div class="ch-info">por <strong>player1</strong> · <span class="ch-coins">5 moedas</span></div>
+      <div class="ch-info">Faça a maior pontuação em 60s.</div>
+      <a class="ch-btn" href="#">Aceitar!</a>
+    </div>
+    <div class="challenge-card">
+      <div class="ch-title">Breakout — Completo</div>
+      <div class="ch-info">por <strong>hollywood</strong> · <span class="ch-coins">10 moedas</span></div>
+      <div class="ch-info">Termine o jogo com 3 vidas.</div>
+      <a class="ch-btn" href="#">Aceitar!</a>
+    </div>
+    <div class="challenge-card">
+      <div class="ch-title">Flappy — 30 pontos</div>
+      <div class="ch-info">por <strong>sharilyn</strong> · <span class="ch-coins">15 moedas</span></div>
+      <div class="ch-info">Alcance 30 pontos sem morrer.</div>
+      <a class="ch-btn" href="#">Aceitar!</a>
+    </div>
+    <div class="challenge-card empty">
+      <div>Nenhum desafio</div>
+      <a class="ch-btn" href="#">Criar um!</a>
+    </div>
+  </div>
+
+  <!-- ACTIVITY FEED -->
+  <h2 class="section-title">Atividade Recente</h2>
+  <div class="activity-feed">
+    <p><strong>jinene</strong> jogou <strong>Snake</strong> e fez <strong>292 pontos</strong>! Ganhou 7 moedas!</p>
+    <p><strong>jin</strong> jogou <strong>Tetris</strong> e fez <strong>317 pontos</strong>! Ganhou 8 moedas!</p>
+    <p>Alguém jogou <strong>Breakout</strong>!</p>
+    <p><strong>sharilyn</strong> jogou <strong>Jogo da Memória</strong> e fez <strong>5100 pontos</strong>! Ganhou 85 moedas!</p>
+    <p>Alguém jogou <strong>Flappy Bird</strong>!</p>
+    <p><strong>hollywood</strong> jogou <strong>2048</strong> e fez <strong>163650 pontos</strong>! Ganhou 50 moedas!</p>
+    <p>Alguém jogou <strong>Tetris</strong>!</p>
+    <p><strong>psycholepzy</strong> jogou <strong>Snake</strong> e fez <strong>144400 pontos</strong>! Ganhou 40 moedas!</p>
+  </div>
+
+  <!-- LEADERBOARDS -->
+  <h2 class="section-title">Placar de Líderes</h2>
+  <div class="leaderboards">
+
+    <div class="lb-card">
+      <h4>🐍 Snake Classic</h4>
+      <table>
+        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">6294</td></tr>
+        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">4900</td></tr>
+        <tr><td class="rank">3</td><td class="player">hollywood</td><td class="score">4802</td></tr>
+        <tr><td class="rank">4</td><td class="player">HIR</td><td class="score">3396</td></tr>
+        <tr><td class="rank">5</td><td class="player">PLF</td><td class="score">2866</td></tr>
+      </table>
+    </div>
+
+    <div class="lb-card">
+      <h4>🧱 Breakout</h4>
+      <table>
+        <tr><td class="rank">1</td><td class="player">sharilyn</td><td class="score">28786</td></tr>
+        <tr><td class="rank">2</td><td class="player">sharilyn</td><td class="score">19295</td></tr>
+        <tr><td class="rank">3</td><td class="player">SHE</td><td class="score">16265</td></tr>
+        <tr><td class="rank">4</td><td class="player">hollywood</td><td class="score">14463</td></tr>
+        <tr><td class="rank">5</td><td class="player">hollywood</td><td class="score">13993</td></tr>
+      </table>
+    </div>
+
+    <div class="lb-card">
+      <h4>🐦 Flappy Bird</h4>
+      <table>
+        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">6367</td></tr>
+        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">5446</td></tr>
+        <tr><td class="rank">3</td><td class="player">HOM</td><td class="score">5000</td></tr>
+        <tr><td class="rank">4</td><td class="player">LMN</td><td class="score">5000</td></tr>
+        <tr><td class="rank">5</td><td class="player">DMV</td><td class="score">5000</td></tr>
+      </table>
+    </div>
+
+    <div class="lb-card">
+      <h4>🟦 Tetris</h4>
+      <table>
+        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">163650</td></tr>
+        <tr><td class="rank">2</td><td class="player">psycholepzy</td><td class="score">144400</td></tr>
+        <tr><td class="rank">3</td><td class="player">hollywood</td><td class="score">139750</td></tr>
+        <tr><td class="rank">4</td><td class="player">hollywood</td><td class="score">133100</td></tr>
+        <tr><td class="rank">5</td><td class="player">psycholepzy</td><td class="score">115600</td></tr>
+      </table>
+    </div>
+
+    <div class="lb-card">
+      <h4>🧠 Jogo da Memória</h4>
+      <table>
+        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">2574</td></tr>
+        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">2526</td></tr>
+        <tr><td class="rank">3</td><td class="player">hollywood</td><td class="score">1738</td></tr>
+        <tr><td class="rank">4</td><td class="player">sharilyn</td><td class="score">1099</td></tr>
+        <tr><td class="rank">5</td><td class="player">CBN</td><td class="score">986</td></tr>
+      </table>
+    </div>
+
+    <div class="lb-card">
+      <h4>🔢 2048</h4>
+      <table>
+        <tr><td class="rank">1</td><td class="player">hollywood</td><td class="score">27240</td></tr>
+        <tr><td class="rank">2</td><td class="player">hollywood</td><td class="score">18535</td></tr>
+        <tr><td class="rank">3</td><td class="player">NBW</td><td class="score">15450</td></tr>
+        <tr><td class="rank">4</td><td class="player">WBZ</td><td class="score">12470</td></tr>
+        <tr><td class="rank">5</td><td class="player">hollywood</td><td class="score">10255</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Arcade Central &copy; 2026 · Feito com HTML5 · Todos os jogos rodam no navegador
+</footer>
+
+</body>
+</html>
