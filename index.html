@@ -141,48 +141,6 @@
   .activity-feed p:last-child { border-bottom: none; }
   .activity-feed strong { color: var(--text); }
 
-  /* Autenticação */
-  .test-form {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  .test-form h3 { margin-bottom: 0.6rem; font-size: 0.9rem; }
-  .test-form input, .test-form select, .test-form button {
-    padding: 0.4rem 0.6rem;
-    margin-right: 0.4rem;
-    margin-bottom: 0.4rem;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 0.8rem;
-  }
-  .test-form button {
-    background: var(--accent);
-    border: none;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .test-form button:hover { opacity: 0.9; }
-  .test-form button.secondary { background: var(--accent2); }
-  .test-form .status-msg {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    margin-left: 0.4rem;
-  }
-  .test-form .user-info {
-    font-size: 0.8rem;
-    color: var(--gold);
-    font-weight: 600;
-    margin-bottom: 0.6rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
   footer {
     text-align: center;
     padding: 1.5rem;
@@ -208,32 +166,12 @@
   <nav>
     <a href="index.html" class="active">Início</a>
     <a href="placar.html">Placar</a>
+    <a href="login.html" id="nav-login">Entrar</a>
     <span class="nav-user" id="nav-user"></span>
   </nav>
 </header>
 
 <div class="container">
-
-  <div class="banner">
-    🎮 Escolha um jogo e jogue direto no navegador. Rankings globais via Supabase!
-  </div>
-
-  <!-- Autenticação (opcional) -->
-  <div class="test-form" id="auth-section">
-    <h3>👤 Entrar (opcional — para aparecer seu nome no placar)</h3>
-    <input type="email" id="auth-email" placeholder="Email">
-    <input type="password" id="auth-password" placeholder="Senha (mín. 6 caracteres)">
-    <button onclick="fazerLogin()">Entrar</button>
-    <button class="secondary" onclick="fazerCadastro()">Cadastrar</button>
-    <span class="status-msg" id="auth-status"></span>
-  </div>
-
-  <div class="test-form" id="user-section" style="display:none;">
-    <div class="user-info">
-      <span>✅ Logado como: <span id="user-email-display"></span></span>
-      <button class="secondary" onclick="fazerLogout()">Sair</button>
-    </div>
-  </div>
 
   <!-- Jogos -->
   <h2 class="section-title">Jogos Disponíveis</h2>
@@ -309,53 +247,17 @@
 
   async function verificarUsuario() {
     const { data: { user } } = await _supabase.auth.getUser();
-    const authSection = document.getElementById('auth-section');
-    const userSection = document.getElementById('user-section');
     const navUser = document.getElementById('nav-user');
+    const navLogin = document.getElementById('nav-login');
 
     if (user) {
-      authSection.style.display = 'none';
-      userSection.style.display = 'block';
-      document.getElementById('user-email-display').textContent = user.email;
       navUser.textContent = '👤 ' + user.email;
       navUser.classList.add('visible');
+      navLogin.style.display = 'none';
     } else {
-      authSection.style.display = 'block';
-      userSection.style.display = 'none';
       navUser.classList.remove('visible');
+      navLogin.style.display = 'inline';
     }
-  }
-
-  async function fazerCadastro() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const status = document.getElementById('auth-status');
-    if (!email || password.length < 6) {
-      status.textContent = 'Email válido e senha com 6+ caracteres.';
-      return;
-    }
-    status.textContent = 'Cadastrando...';
-    const { error } = await _supabase.auth.signUp({ email, password });
-    status.textContent = error ? 'Erro: ' + error.message : 'Cadastro realizado! Faça login.';
-  }
-
-  async function fazerLogin() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const status = document.getElementById('auth-status');
-    status.textContent = 'Entrando...';
-    const { error } = await _supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      status.textContent = 'Erro: ' + error.message;
-    } else {
-      status.textContent = '';
-      await verificarUsuario();
-    }
-  }
-
-  async function fazerLogout() {
-    await _supabase.auth.signOut();
-    await verificarUsuario();
   }
 
   async function carregarAtividade() {
