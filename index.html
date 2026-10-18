@@ -627,6 +627,9 @@
   // ============================================
   let currentUser = null;
 
+  // Mapa game_id -> título legível (preenchido a partir de jogos.json)
+  let NOMES_JOGOS = {};
+
   function lerPerfilDoUser(user) {
     if (!user) return null;
     const meta = user.user_metadata || {};
@@ -638,6 +641,32 @@
     };
   }
 
+  // ============================================
+  // CARREGAMENTO DE jogos.json
+  // ============================================
+  async function carregarNomesJogos() {
+    try {
+      const res = await fetch('jogos.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      // Transforma { flappy: { titulo: '...' }, ... } em { flappy: 'Flappy DragQueen', ... }
+      NOMES_JOGOS = Object.fromEntries(
+        Object.entries(data).map(([id, info]) => [id, info && info.titulo ? info.titulo : id])
+      );
+    } catch (e) {
+      console.warn('Não foi possível carregar jogos.json:', e);
+      NOMES_JOGOS = {};
+    }
+  }
+
+  function nomeDoJogo(gameId) {
+    return NOMES_JOGOS[gameId] || gameId;
+  }
+
+  // ============================================
+  // UI DE USUÁRIO
+  // ============================================
   function atualizarUIUsuario() {
     const pill = document.getElementById('user-pill');
     const nameEl = document.getElementById('user-name');
@@ -833,6 +862,15 @@
       const gameId = card.dataset.gameId;
       const tbody = card.querySelector('.lb-body');
 
+      // Atualiza o título do card com o nome vindo do JSON
+      const h4 = card.querySelector('h4');
+      if (h4) {
+        // Mantém o emoji atual, se houver, e troca só o texto
+        const emojiMatch = h4.textContent.match(/^(\S+)\s+/);
+        const emoji = emojiMatch ? emojiMatch[1] + ' ' : '';
+        h4.textContent = emoji + nomeDoJogo(gameId);
+      }
+
       const { data, error } = await _supabase
         .from('scores')
         .select('player_name, score')
@@ -878,7 +916,7 @@
     }
 
     feed.innerHTML = data.map(row => `
-      <p><strong>${row.player_name}</strong> jogou <strong>${row.game_id}</strong> e fez <strong>${row.score} pontos</strong>!</p>
+      <p><strong>${row.player_name}</strong> jogou <strong>${nomeDoJogo(row.game_id)}</strong> e fez <strong>${row.score} pontos</strong>!</p>
     `).join('');
   }
 
@@ -926,6 +964,10 @@
   // ============================================
   document.addEventListener('DOMContentLoaded', async () => {
     montarGradeAvatares();
+
+    // Carrega o JSON de nomes ANTES de renderizar placares/atividade
+    await carregarNomesJogos();
+
     carregarPlacares();
     carregarAtividade();
 
