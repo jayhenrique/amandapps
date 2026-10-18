@@ -136,6 +136,7 @@
     border-radius: 2px;
   }
 
+  /* ---------- Grid de jogos (só imagem) ---------- */
   .game-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -151,42 +152,19 @@
     cursor: pointer;
     display: block;
     color: inherit;
+    aspect-ratio: 1 / 1;
   }
   .game-card:hover {
     transform: translateY(-4px);
     border-color: var(--accent);
-    background: var(--bg-card-hover);
     text-decoration: none;
   }
-  .game-thumb {
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    background: linear-gradient(135deg, #0f3460, #16213e);
-    border-bottom: 1px solid var(--border);
+  .game-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
-  .game-info { padding: 1rem; }
-  .game-info h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
-  .game-info p { font-size: 0.8rem; color: var(--text-dim); }
-  .game-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.7rem;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
-  .badge {
-    background: var(--accent2);
-    color: var(--text);
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 600;
-  }
-  .badge.hot { background: var(--accent); }
 
   .challenge-grid {
     display: grid;
@@ -459,6 +437,12 @@
     .profile-avatar { width: 90px; height: 90px; min-width: 90px; font-size: 3.5rem; }
     .profile-details h3 { font-size: 1.5rem; }
     .avatar-grid { grid-template-columns: repeat(6, 1fr); }
+
+    /* Dois jogos por coluna no mobile */
+    .game-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+    }
   }
 </style>
 </head>
@@ -483,25 +467,12 @@
   <h2 class="section-title anchor-target" id="jogos">Jogos Disponíveis</h2>
   <div class="game-grid">
     <a class="game-card" href="jogo.html?id=snake">
-      <div class="game-thumb">🐍</div>
-      <div class="game-info">
-        <h3>Snake Classic</h3>
-        <p>Coma maçãs e cresça sem bater na parede.</p>
-        <div class="game-meta"><span class="badge hot">Popular</span><span>Ranking global</span></div>
-      </div>
+      <img class="game-thumb-img" src="thumbs-assets/snakemini.png" alt="Snake Classic" loading="lazy">
     </a>
     <a class="game-card" href="jogo.html?id=teste">
-      <div class="game-thumb">🧠</div>
-      <div class="game-info">
-        <h3>Jogo da Memória</h3>
-        <p>Encontre todos os pares no menor tempo.</p>
-        <div class="game-meta"><span class="badge">Casual</span><span>Ranking global</span></div>
-      </div>
+      <img class="game-thumb-img" src="thumbs-assets/testemini.png" alt="Jogo da Memória" loading="lazy">
     </a>
-
   </div>
-
-
 
   <h2 class="section-title">Atividade Recente</h2>
   <div class="activity-feed" id="activity-feed">
