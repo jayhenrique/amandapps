@@ -627,7 +627,7 @@
   // ============================================
   let currentUser = null;
 
-  // Mapa game_id -> título legível (preenchido a partir de jogos.json)
+  // Mapa game_id -> título legível (preenchido a partir de jogos-info.json)
   let NOMES_JOGOS = {};
 
   function lerPerfilDoUser(user) {
@@ -642,11 +642,11 @@
   }
 
   // ============================================
-  // CARREGAMENTO DE jogos.json
+  // CARREGAMENTO DE jogos-info.json
   // ============================================
   async function carregarNomesJogos() {
     try {
-      const res = await fetch('jogos.json');
+      const res = await fetch('jogos-info.json');
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
 
@@ -655,7 +655,7 @@
         Object.entries(data).map(([id, info]) => [id, info && info.titulo ? info.titulo : id])
       );
     } catch (e) {
-      console.warn('Não foi possível carregar jogos.json:', e);
+      console.warn('Não foi possível carregar jogos-info.json:', e);
       NOMES_JOGOS = {};
     }
   }
