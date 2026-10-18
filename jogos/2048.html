@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>2048 | Arcade Central</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --text-dim: #8a8fa3;
+    --gold: #f5c518;
+    --border: #2a3a5c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--bg);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text);
+  }
+  #game {
+    display: block;
+    width: 100vw; height: 100vh;
+    background: #0f1728;
+    touch-action: none;
+  }
+  .back-btn-overlay {
+    position: fixed; top: 16px; left: 16px; z-index: 50;
+    background: rgba(15, 52, 96, 0.85);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.55rem 1rem; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 700;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s, transform 0.1s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .back-btn-overlay:hover { background: var(--accent); transform: translateY(-1px); text-decoration: none; }
+  #status {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 40; font-size: 0.75rem;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.35);
+    padding: 0.3rem 0.8rem; border-radius: 20px;
+    min-height: 1.4em; text-align: center;
+    pointer-events: none; max-width: 90vw;
+  }
+  #overlay {
+    position: fixed; inset: 0; z-index: 60;
+    background: rgba(0,0,0,0.72);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1rem; text-align: center; padding: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+  #overlay.hidden { display: none; }
+  #overlay h2 { font-size: 2rem; color: var(--gold); letter-spacing: 1px; }
+  #overlay p { font-size: 0.95rem; color: var(--text); max-width: 360px; }
+  #overlay .score-big { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  #overlay .score-label { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  #overlay .buttons {
+    display: flex; flex-direction: column; gap: 0.6rem;
+    margin-top: 0.5rem; width: 100%; max-width: 240px;
+  }
+  #overlay button, #overlay a.btn {
+    border: none; padding: 0.75rem 1.5rem; border-radius: 8px;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    text-decoration: none; display: block; text-align: center;
+    transition: opacity 0.2s;
+  }
+  #overlay button:hover, #overlay a.btn:hover { opacity: 0.9; text-decoration: none; }
+  #start-btn { background: var(--accent); color: #fff; }
+  #home-btn { background: var(--accent2); color: var(--text); border: 1px solid var(--border); }
+  .hint {
+    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+    z-index: 30; font-size: 0.75rem;
+    color: rgba(255,255,255,0.7); text-align: center;
+    pointer-events: none; max-width: 90vw;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-btn-overlay" href="../index.html">← Voltar</a>
+<canvas id="game"></canvas>
+<div id="status"></div>
+
+<div id="overlay">
+  <h2 id="overlay-title">🔢 2048</h2>
+  <p id="overlay-msg">Use as setas (ou arraste o dedo) para juntar os números e chegar em 2048!</p>
+  <div id="overlay-score" style="display:none;">
+    <div class="score-label">Sua pontuação</div>
+    <div class="score-big" id="final-score">0</div>
+  </div>
+  <div class="buttons">
+    <button id="start-btn">Começar</button>
+    <a id="home-btn" class="btn" href="../index.html" style="display:none;">← Voltar para o Arcade</a>
+  </div>
+</div>
+
+<div class="hint" id="hint">Setas / WASD / swipe para mover os tiles</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ============================================
+  // CONFIGURAÇÃO
+  // ============================================
+  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+  const { createClient } = supabase;
+  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const GAME_ID = '2048';
+
+  // ============================================
+  // ELEMENTOS
+  // ============================================
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlayMsg = document.getElementById('overlay-msg');
+  const overlayScore = document.getElementById('overlay-score');
+  const finalScoreEl = document.getElementById('final-score');
+  const startBtn = document.getElementById('start-btn');
+  const homeBtn = document.getElementById('home-btn');
+  const statusEl = document.getElementById('status');
+  const hintEl = document.getElementById('hint');
+
+  // ============================================
+  // CANVAS
+  // ============================================
+  let W, H, DPR;
+  function resizeCanvas() {
+    DPR = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    calcularBoard();
+    if (grid) draw();
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  // ============================================
+  // BOARD
+  // ============================================
+  const SIZE = 4;
+  let CELL, GAP, BOARD_X, BOARD_Y, BOARD_SIZE;
+  let grid, score, gameRunning, gameOver, won, paused;
+
+  function calcularBoard() {
+    // O tabuleiro ocupa o menor entre largura e altura (deixando margem)
+    const margem = 60; // espaço para HUD
+    const maxLado = Math.min(W, H) - margem * 2;
+    BOARD_SIZE = Math.max(200, Math.min(maxLado, 600));
+    GAP = Math.floor(BOARD_SIZE * 0.025);
+    CELL = Math.floor((BOARD_SIZE - GAP * (SIZE + 1)) / SIZE);
+    // Recalcula o tamanho real do board com base nos cells
+    BOARD_SIZE = CELL * SIZE + GAP * (SIZE + 1);
+    BOARD_X = (W - BOARD_SIZE) / 2;
+    BOARD_Y = (H - BOARD_SIZE) / 2 + 20;
+  }
+
+  // ============================================
+  // ESTADO
+  // ============================================
+  function resetGame() {
+    calcularBoard();
+    grid = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
+    score = 0;
+    gameRunning = false;
+    gameOver = false;
+    won = false;
+    paused = false;
+    statusEl.textContent = '';
+    addRandomTile();
+    addRandomTile();
+  }
+
+  function addRandomTile() {
+    const empty = [];
+    for (let r = 0; r < SIZE; r++)
+      for (let c = 0; c < SIZE; c++)
+        if (grid[r][c] === 0) empty.push({ r, c });
+    if (empty.length === 0) return;
+    const { r, c } = empty[Math.floor(Math.random() * empty.length)];
+    grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+  }
+
+  // ============================================
+  // MOVIMENTO
+  // ============================================
+  function mover(direcao) {
+    if (!gameRunning || paused) return;
+
+    // direcao: 'up', 'down', 'left', 'right'
+    let moveu = false;
+
+    // Rotaciona para sempre trabalhar "para a esquerda"
+    function getLinha(r) { return grid[r].slice(); }
+    function setLinha(r, linha) { grid[r] = linha; }
+    function getColuna(c) { return grid.map(row => row[c]); }
+    function setColuna(c, col) {
+      for (let r = 0; r < SIZE; r++) grid[r][c] = col[r];
+    }
+
+    // Transforma o grid para que "esquerda" seja a direção do movimento
+    if (direcao === 'left') {
+      for (let r = 0; r < SIZE; r++) {
+        const linha = getLinha(r);
+        const { nova, ganhouPonto } = mergeLinha(linha);
+        if (linha.join() !== nova.join()) moveu = true;
+        setLinha(r, nova);
+        score += ganhouPonto;
+      }
+    } else if (direcao === 'right') {
+      for (let r = 0; r < SIZE; r++) {
+        const linha = getLinha(r).slice().reverse();
+        const { nova, ganhouPonto } = mergeLinha(linha);
+        const final = nova.reverse();
+        if (getLinha(r).join() !== final.join()) moveu = true;
+        setLinha(r, final);
+        score += ganhouPonto;
+      }
+    } else if (direcao === 'up') {
+      for (let c = 0; c < SIZE; c++) {
+        const col = getColuna(c);
+        const { nova, ganhouPonto } = mergeLinha(col);
+        if (col.join() !== nova.join()) moveu = true;
+        setColuna(c, nova);
+        score += ganhouPonto;
+      }
+    } else if (direcao === 'down') {
+      for (let c = 0; c < SIZE; c++) {
+        const col = getColuna(c).slice().reverse();
+        const { nova, ganhouPonto } = mergeLinha(col);
+        const final = nova.reverse();
+        if (getColuna(c).join() !== final.join()) moveu = true;
+        setColuna(c, final);
+        score += ganhouPonto;
+      }
+    }
+
+    if (moveu) {
+      addRandomTile();
+      // Verifica vitória
+      if (!won && grid.some(row => row.some(v => v === 2048))) {
+        won = true;
+        statusEl.textContent = '🎉 Você chegou em 2048! Continue jogando...';
+      }
+      // Verifica game over
+      if (semMovimentos()) {
+        endGame();
+      }
+    }
+  }
+
+  function mergeLinha(linha) {
+    // Remove zeros
+    let nums = linha.filter(v => v !== 0);
+    let ganhouPonto = 0;
+    const resultado = [];
+    let i = 0;
+    while (i < nums.length) {
+      if (i + 1 < nums.length && nums[i] === nums[i + 1]) {
+        const somado = nums[i] * 2;
+        resultado.push(somado);
+        ganhouPonto += somado;
+        i += 2;
+      } else {
+        resultado.push(nums[i]);
+        i++;
+      }
+    }
+    // Preenche com zeros
+    while (resultado.length < SIZE) resultado.push(0);
+    return { nova: resultado, ganhouPonto };
+  }
+
+  function semMovimentos() {
+    // Se tem algum zero, ainda tem movimento
+    for (let r

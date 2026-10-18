@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Breakout | Arcade Central</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --text-dim: #8a8fa3;
+    --gold: #f5c518;
+    --border: #2a3a5c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--bg);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text);
+  }
+  #game {
+    display: block;
+    width: 100vw; height: 100vh;
+    background: #0f1728;
+    touch-action: none;
+    cursor: none;
+  }
+  .back-btn-overlay {
+    position: fixed; top: 16px; left: 16px; z-index: 50;
+    background: rgba(15, 52, 96, 0.85);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.55rem 1rem; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 700;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    transition: background 0.2s, transform 0.1s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .back-btn-overlay:hover { background: var(--accent); transform: translateY(-1px); text-decoration: none; }
+  #status {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 40; font-size: 0.75rem;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.35);
+    padding: 0.3rem 0.8rem; border-radius: 20px;
+    min-height: 1.4em; text-align: center;
+    pointer-events: none; max-width: 90vw;
+  }
+  #overlay {
+    position: fixed; inset: 0; z-index: 60;
+    background: rgba(0,0,0,0.72);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1rem; text-align: center; padding: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+  #overlay.hidden { display: none; }
+  #overlay h2 { font-size: 2rem; color: var(--gold); letter-spacing: 1px; }
+  #overlay p { font-size: 0.95rem; color: var(--text); max-width: 360px; }
+  #overlay .score-big { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  #overlay .score-label { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  #overlay .buttons {
+    display: flex; flex-direction: column; gap: 0.6rem;
+    margin-top: 0.5rem; width: 100%; max-width: 240px;
+  }
+  #overlay button, #overlay a.btn {
+    border: none; padding: 0.75rem 1.5rem; border-radius: 8px;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    text-decoration: none; display: block; text-align: center;
+    transition: opacity 0.2s;
+  }
+  #overlay button:hover, #overlay a.btn:hover { opacity: 0.9; text-decoration: none; }
+  #start-btn { background: var(--accent); color: #fff; }
+  #home-btn { background: var(--accent2); color: var(--text); border: 1px solid var(--border); }
+  .hint {
+    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+    z-index: 30; font-size: 0.75rem;
+    color: rgba(255,255,255,0.7); text-align: center;
+    pointer-events: none; max-width: 90vw;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-btn-overlay" href="../index.html">← Voltar</a>
+<canvas id="game"></canvas>
+<div id="status"></div>
+
+<div id="overlay">
+  <h2 id="overlay-title">🧱 Breakout</h2>
+  <p id="overlay-msg">Mova o mouse (ou arraste o dedo) para rebater a bola e quebrar todos os tijolos!</p>
+  <div id="overlay-score" style="display:none;">
+    <div class="score-label">Sua pontuação</div>
+    <div class="score-big" id="final-score">0</div>
+  </div>
+  <div class="buttons">
+    <button id="start-btn">Começar</button>
+    <a id="home-btn" class="btn" href="../index.html" style="display:none;">← Voltar para o Arcade</a>
+  </div>
+</div>
+
+<div class="hint" id="hint">Mouse / toque para mover a raquete · Espaço para pausar</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ============================================
+  // CONFIGURAÇÃO
+  // ============================================
+  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+  const { createClient } = supabase;
+  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const GAME_ID = 'breakout';
+
+  // ============================================
+  // ELEMENTOS
+  // ============================================
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlayMsg = document.getElementById('overlay-msg');
+  const overlayScore = document.getElementById('overlay-score');
+  const finalScoreEl = document.getElementById('final-score');
+  const startBtn = document.getElementById('start-btn');
+  const homeBtn = document.getElementById('home-btn');
+  const statusEl = document.getElementById('status');
+  const hintEl = document.getElementById('hint');
+
+  // ============================================
+  // CANVAS RESPONSIVO
+  // ============================================
+  let W, H, DPR;
+  function resizeCanvas() {
+    DPR = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    if (paddle) draw();
+  }
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+    if (paddle) {
+      // reposiciona a raquete proporcionalmente
+      paddle.y = H - 50;
+      paddle.x = Math.min(paddle.x, W - paddle.w);
+    }
+  });
+
+  // ============================================
+  // ESTADO
+  // ============================================
+  let paddle, ball, bricks, score, lives, gameRunning, gameOver, paused;
+  let keys = {};
+  let mouseX = null;
+
+  const BRICK_ROWS = 6;
+  const BRICK_COLS = 10;
+  const BRICK_TOP = 80;
+
+  function resetGame() {
+    // Raquete
+    const pw = Math.max(90, Math.min(140, W * 0.14));
+    paddle = {
+      w: pw,
+      h: 14,
+      x: (W - pw) / 2,
+      y: H - 50,
+      speed: 8,
+    };
+
+    // Bola
+    ball = {
+      x: W / 2,
+      y: H / 2 + 60,
+      r: 8,
+      vx: 0,
+      vy: 0,
+      speed: 6,
+    };
+
+    // Tijolos
+    bricks = [];
+    const marginX = 20;
+    const gap = 4;
+    const totalGapX = marginX * 2 + gap * (BRICK_COLS - 1);
+    const bw = Math.floor((W - totalGapX) / BRICK_COLS);
+    const bh = 22;
+    // Cores por linha
+    const cores = ['#e94560', '#f5c518', '#2e8b57', '#0f3460', '#8a2be2', '#e67e22'];
+
+    for (let r = 0; r < BRICK_ROWS; r++) {
+      for (let c = 0; c < BRICK_COLS; c++) {
+        bricks.push({
+          x: marginX + c * (bw + gap),
+          y: BRICK_TOP + r * (bh + gap),
+          w: bw,
+          h: bh,
+          alive: true,
+          cor: cores[r % cores.length],
+          pontos: (BRICK_ROWS - r) * 10,
+        });
+      }
+    }
+
+    score = 0;
+    lives = 3;
+    gameRunning = false;
+    gameOver = false;
+    paused = false;
+    statusEl.textContent = '';
+    mouseX = null;
+  }
+
+  // ============================================
+  // CONTROLES
+  // ============================================
+  document.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (!gameRunning && !gameOver) startGame();
+      else if (gameRunning) togglePause();
+    }
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
+  });
+  document.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+  canvas.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+  });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    mouseX = t.clientX;
+  }, { passive: false });
+
+  canvas.addEventListener('touchstart', (e) => {
+    if (!gameRunning && !gameOver) startGame();
+  }, { passive: true });
+
+  canvas.addEventListener('mousedown', () => {
+    if (!gameRunning && !gameOver) startGame();
+  });
+
+  startBtn.addEventListener('click', () => {
+    if (!gameRunning) startGame();
+  });
+
+  function togglePause() {
+    paused = !paused;
+    statusEl.textContent = paused ? '⏸ Pausado (espaço para continuar)' : '';
+  }
+
+  // ============================================
+  // INÍCIO / FIM
+  // ============================================
+  function startGame() {
+    resetGame();
+    gameRunning = true;
+    gameOver = false;
+    paused = false;
+    overlay.classList.add('hidden');
+    overlayScore.style.display = 'none';
+    homeBtn.style.display = 'none';
+    hintEl.style.display = 'block';
+
+    // Bola começa indo pra cima com ângulo aleatório
+    const ang = (-Math.PI / 3) + Math.random() * (-Math.PI / 3);
+    ball.vx = Math.cos(ang) * ball.speed;
+    ball.vy = Math.sin(ang) * ball.speed;
+
+    requestAnimationFrame(loop);
+  }
+
+  function endGame(vitoria = false) {
+    gameRunning = false;
+    gameOver = true;
+    paused = false;
+    overlay.classList.remove('hidden');
+    overlayTitle.textContent = vitoria ? '🏆 Você venceu!' : 'Fim de jogo!';
+    overlayMsg.textContent = vitoria ? 'Você quebrou todos os tijolos!' : 'Você perdeu todas as vidas.';
+    overlayScore.style.display = 'block';
+    finalScoreEl.textContent = score;
+    startBtn.textContent = 'Jogar de novo';
+    homeBtn.style.display = 'block';
+    hintEl.style.display = 'none';
+    statusEl.textContent = '';
+
+    if (vitoria || score > 0) enviarPontuacao(score);
+  }
+
+  // ============================================
+  // ENVIO
+  // ============================================
+  async function enviarPontuacao(pontos) {
+    if (pontos <= 0) { statusEl.textContent = 'Pontuação 0 não foi enviada.'; return; }
+    statusEl.textContent = 'Enviando pontuação...';
+    const { data: { user } } = await _supabase.auth.getUser();
+    const playerName = user ? user.email.split('@')[0] : 'Anônimo';
+    const { error } = await _supabase
+      .from('scores')
+      .insert({ player_name: playerName, game_id: GAME_ID, score: pontos });
+    if (error) {
+      console.error(error);
+      statusEl.textContent = 'Erro ao enviar: ' + error.message;
+    } else {
+      statusEl.textContent = `✅ Pontuação de ${pontos} enviada como "${playerName}"!`;
+    }
+  }
+
+  // ============================================
+  // ATUALIZAÇÃO
+  // ============================================
+  function update() {
+    if (!gameRunning || paused) return;
+
+    // Movimento da raquete via teclado
+    if (keys['ArrowLeft'] || keys['KeyA']) paddle.x -= paddle.speed;
+    if (keys['ArrowRight'] || keys['KeyD']) paddle.x += paddle.speed;
+    // Via mouse/toque
+    if (mouseX !== null) {
+      paddle.x += (mouseX - (paddle.x + paddle.w / 2)) * 0.3;
+    }
+    // Limita
+    paddle.x = Math.max(0, Math.min(W - paddle.w, paddle.x));
+
+    // Movimento da bola
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    // Paredes laterais
+    if (ball.x - ball.r < 0) { ball.x = ball.r; ball.vx = Math.abs(ball.vx); }
+    if (ball.x + ball.r > W) { ball.x = W - ball.r; ball.vx = -Math.abs(ball.vx); }
+    // Teto
+    if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy = Math.abs(ball.vy); }
+
+    // Chão
+    if (ball.y + ball.r > H) {
+      lives--;
+      if (lives <= 0) {
+        endGame();
+        return;
+      }
+      // Recoloca a bola
+      ball.x = W / 2;
+      ball.y = H / 2 + 60;
+      const ang = (-Math.PI / 3) + Math.random() * (-Math.PI / 3);
+      ball.vx = Math.cos(ang) * ball.speed;
+      ball.vy = Math.sin(ang) * ball.speed;
+      statusEl.textContent = `Vidas: ${lives}`;
+    }
+
+    // Colisão com raquete
+    if (
+      ball.vy > 0 &&
+      ball.y + ball.r >= paddle.y &&
+      ball.y + ball.r <= paddle.y + paddle.h + 10 &&
+      ball.x >= paddle.x &&
+      ball.x <= paddle.x + paddle.w
+    ) {
+      // Calcula ângulo com base na posição de impacto
+      const hit = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+      const maxAng = Math.PI / 3; // 60°
+      const ang = hit * maxAng;
+      ball.vx = Math.sin(ang) * ball.speed;
+      ball.vy = -Math.cos(ang) * ball.speed;
+      // Aumenta um pouquinho a velocidade
+      ball.speed = Math.min(ball.speed + 0.1, 12);
+      ball.y = paddle.y - ball.r;
+    }
+
+    // Colisão com tijolos
+    for (const b of bricks) {
+      if (!b.alive) continue;
+      if (
+        ball.x + ball.r > b.x &&
+        ball.x - ball.r < b.x + b.w &&
+        ball.y + ball.r > b.y &&
+        ball.y - ball.r < b.y + b.h
+      ) {
+        b.alive = false;
+        score += b.pontos;
+
+        // Descobre de que lado bateu
+        const dx = Math.min(Math.abs(ball.x - b.x), Math.abs(ball.x - (b.x + b.w)));
+        const dy = Math.min(Math.abs(ball.y - b.y), Math.abs(ball.y - (b.y + b.h)));
+        if (dx < dy) {
+          ball.vx = -ball.vx;
+        } else {
+          ball.vy = -ball.vy;
+        }
+        break;
+      }
+    }
+
+    // Vitória
+    if (bricks.every(b => !b.alive)) {
+      endGame(true);
+    }
+  }
+
+  // ============================================
+  // DESENHO
+  // ============================================
+  function draw() {
+    if (!W || !H) return;
+
+    // Fundo
+    ctx.fillStyle = '#0f1728';
+    ctx.fillRect(0, 0, W, H);
+
+    // Tijolos
+    for (const b of bricks) {
+      if (!b.alive) continue;
+      ctx.fillStyle = b.cor;
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+      // brilho superior
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(b.x, b.y, b.w, 3);
+      // sombra inferior
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillRect(b.x, b.y + b.h - 3, b.w, 3);
+    }
+
+    // Raquete
+    ctx.fillStyle = '#f5c518';
+    ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillRect(paddle.x, paddle.y, paddle.w, 3);
+
+    // Bola
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+    ctx.fill();
+    // brilho
+    ctx.fillStyle = 'rgba(233,69,96,0.6)';
+    ctx.beginPath();
+    ctx.arc(ball.x - 2, ball.y - 2, ball.r * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // HUD
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('Pontos: ' + score, 20, 20);
+    ctx.textAlign = 'right';
+    ctx.fillText('Vidas: ' + lives, W - 20, 20);
+
+    // Pausa
+    if (paused) {
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 48px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⏸', W / 2, H / 2);
+    }
+  }
+
+  // ============================================
+  // LOOP
+  // ============================================
+  function loop() {
+    update();
+    draw();
+    if (gameRunning) requestAnimationFrame(loop);
+  }
+
+  // ============================================
+  // INIT
+  // ============================================
+  resizeCanvas();
+  resetGame();
+  draw();
+  overlayTitle.textContent = '🧱 Breakout';
+  overlayMsg.textContent = 'Mova o mouse (ou arraste o dedo) para rebater a bola e quebrar todos os tijolos!';
+  overlayScore.style.display = 'none';
+  startBtn.textContent = 'Começar';
+  homeBtn.style.display = 'none';
+</script>
+
+</body>
+</html>
