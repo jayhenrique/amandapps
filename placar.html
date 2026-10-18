@@ -168,7 +168,14 @@
     const navLogin = document.getElementById('nav-login');
 
     if (user) {
-      navUser.textContent = '👤 ' + user.email;
+      const { data: profile } = await _supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const username = profile?.username || user.email.split('@')[0];
+      navUser.textContent = '👤 ' + username;
       navUser.classList.add('visible');
       navLogin.style.display = 'none';
     } else {

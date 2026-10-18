@@ -14,6 +14,8 @@
     --text-dim: #8a8fa3;
     --gold: #f5c518;
     --border: #2a3a5c;
+    --error: #ff6b6b;
+    --success: #4ade80;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -75,17 +77,23 @@
     border-radius: 10px;
     padding: 1.5rem;
   }
-
   .auth-card h3 {
     font-size: 1rem;
     margin-bottom: 1rem;
     color: var(--gold);
   }
-
+  .auth-card label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 0.25rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
   .auth-card input {
     width: 100%;
     padding: 0.7rem;
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.5rem;
     border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--bg);
@@ -96,13 +104,22 @@
     outline: none;
     border-color: var(--accent);
   }
+  .auth-card input.invalid { border-color: var(--error); }
+  .auth-card input.valid { border-color: var(--success); }
+  .auth-card .field-hint {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 0.6rem;
+    min-height: 1em;
+  }
+  .auth-card .field-hint.error { color: var(--error); }
+  .auth-card .field-hint.success { color: var(--success); }
 
   .auth-card .btn-row {
     display: flex;
     gap: 0.6rem;
-    margin-top: 0.3rem;
+    margin-top: 0.5rem;
   }
-
   .auth-card button {
     flex: 1;
     padding: 0.7rem;
@@ -114,10 +131,8 @@
     transition: opacity 0.2s;
   }
   .auth-card button:hover { opacity: 0.9; }
-  .auth-card button.primary {
-    background: var(--accent);
-    color: #fff;
-  }
+  .auth-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .auth-card button.primary { background: var(--accent); color: #fff; }
   .auth-card button.secondary {
     background: var(--accent2);
     color: var(--text);
@@ -131,6 +146,8 @@
     color: var(--text-dim);
     min-height: 1.2em;
   }
+  .auth-card .status-msg.error { color: var(--error); }
+  .auth-card .status-msg.success { color: var(--success); }
 
   .user-info {
     background: var(--bg-card);
@@ -139,10 +156,15 @@
     padding: 1.5rem;
     text-align: center;
   }
-  .user-info .email {
+  .user-info .username {
     color: var(--gold);
-    font-weight: 700;
-    font-size: 1rem;
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+  .user-info .email-line {
+    font-size: 0.8rem;
+    color: var(--text-dim);
     margin-bottom: 1rem;
     word-break: break-all;
   }
@@ -203,25 +225,37 @@
 
   <div class="auth-card" id="auth-section">
     <h3>👤 Entrar ou criar conta</h3>
-    <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
-    <input type="password" id="auth-password" placeholder="Senha (mín. 6 caracteres)" autocomplete="current-password">
+
+    <label for="auth-email">Email</label>
+    <input type="email" id="auth-email" placeholder="seu@email.com" autocomplete="email">
+
+    <label for="auth-password">Senha</label>
+    <input type="password" id="auth-password" placeholder="Mínimo 6 caracteres" autocomplete="current-password">
+
+    <div id="username-field" style="display:none;">
+      <label for="auth-username">Nome de usuário (3 a 8 caracteres, só letras e números)</label>
+      <input type="text" id="auth-username" placeholder="ex: jogador1" maxlength="8" autocomplete="username">
+      <div class="field-hint" id="username-hint"></div>
+    </div>
+
     <div class="btn-row">
-      <button class="primary" onclick="fazerLogin()">Entrar</button>
-      <button class="secondary" onclick="fazerCadastro()">Cadastrar</button>
+      <button class="primary" id="primary-btn">Entrar</button>
+      <button class="secondary" onclick="toggleCadastro()" id="toggle-cadastro-btn">Criar conta</button>
     </div>
     <span class="status-msg" id="auth-status"></span>
   </div>
 
   <div class="user-info" id="user-section" style="display:none;">
-    <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.5rem;">Você está logado como:</p>
-    <p class="email" id="user-email-display"></p>
+    <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.3rem;">Você está logado como:</p>
+    <p class="username" id="user-username-display"></p>
+    <p class="email-line" id="user-email-display"></p>
     <button class="logout-btn" onclick="fazerLogout()">Sair</button>
   </div>
 
   <div class="info-box">
     <strong>Por que fazer login?</strong><br>
     Jogar não exige login — você pode jogar e enviar pontuações como <strong>"Anônimo"</strong> a qualquer momento.
-    Ao fazer login, seu nome (parte antes do @ do email) aparece no placar e no feed de atividades.
+    Ao criar uma conta, você escolhe um <strong>nome de usuário</strong> (3 a 8 caracteres) que aparecerá no placar e no feed de atividades.
   </div>
 </div>
 
@@ -232,79 +266,4 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
-  const { createClient } = supabase;
-  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  async function verificarUsuario() {
-    const { data: { user } } = await _supabase.auth.getUser();
-    const authSection = document.getElementById('auth-section');
-    const userSection = document.getElementById('user-section');
-    const navUser = document.getElementById('nav-user');
-    const navLogin = document.getElementById('nav-login');
-
-    if (user) {
-      authSection.style.display = 'none';
-      userSection.style.display = 'block';
-      document.getElementById('user-email-display').textContent = user.email;
-      navUser.textContent = '👤 ' + user.email;
-      navUser.classList.add('visible');
-      navLogin.style.display = 'none';
-    } else {
-      authSection.style.display = 'block';
-      userSection.style.display = 'none';
-      navUser.classList.remove('visible');
-      navLogin.style.display = 'inline';
-    }
-  }
-
-  async function fazerCadastro() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const status = document.getElementById('auth-status');
-
-    if (!email || password.length < 6) {
-      status.textContent = 'Email válido e senha com 6+ caracteres.';
-      return;
-    }
-
-    status.textContent = 'Cadastrando...';
-    const { error } = await _supabase.auth.signUp({ email, password });
-
-    if (error) {
-      status.textContent = 'Erro: ' + error.message;
-    } else {
-      status.textContent = 'Cadastro realizado! Faça login para continuar.';
-      document.getElementById('auth-password').value = '';
-    }
-  }
-
-  async function fazerLogin() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const status = document.getElementById('auth-status');
-
-    status.textContent = 'Entrando...';
-    const { error } = await _supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      status.textContent = 'Erro: ' + error.message;
-    } else {
-      status.textContent = '';
-      await verificarUsuario();
-    }
-  }
-
-  async function fazerLogout() {
-    await _supabase.auth.signOut();
-    await verificarUsuario();
-  }
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    await verificarUsuario();
-    _supabase.auth.onAuthStateChange(() => verificarUsuario());
-  });
-</script>
-
-</body>
-</html>
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-F
