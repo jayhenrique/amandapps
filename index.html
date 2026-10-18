@@ -198,7 +198,7 @@
   .lb-card .score { text-align: right; color: var(--gold); font-weight: 700; }
   .lb-card tr:nth-child(1) .player { color: var(--gold); }
 
-  /* Estilo dos formulários (auth e teste) */
+  /* Estilo dos formulários */
   .test-form {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -279,10 +279,10 @@
   </div>
 
   <!-- ============================================= -->
-  <!-- SEÇÃO DE AUTENTICAÇÃO (visível apenas deslogado) -->
+  <!-- SEÇÃO DE AUTENTICAÇÃO (opcional) -->
   <!-- ============================================= -->
   <div class="test-form" id="auth-section">
-    <h3>👤 Entrar / Cadastrar</h3>
+    <h3>👤 Entrar (opcional — para aparecer seu nome no placar)</h3>
     <input type="email" id="auth-email" placeholder="Email">
     <input type="password" id="auth-password" placeholder="Senha (mín. 6 caracteres)">
     <button onclick="fazerLogin()">Entrar</button>
@@ -291,10 +291,10 @@
   </div>
 
   <!-- ============================================= -->
-  <!-- FORMULÁRIO DE TESTE (visível apenas logado) -->
+  <!-- FORMULÁRIO DE ENVIO (sempre visível) -->
   <!-- ============================================= -->
-  <div class="test-form" id="test-section" style="display:none;">
-    <div class="user-info">
+  <div class="test-form" id="test-section">
+    <div class="user-info" id="user-info-bar" style="display:none;">
       <span>✅ Logado como: <span id="user-email-display"></span></span>
       <button class="secondary" onclick="fazerLogout()">Sair</button>
     </div>
@@ -310,6 +310,9 @@
     <input type="number" id="test-score" placeholder="Pontuação" value="1000">
     <button onclick="enviarPontuacao()">Enviar</button>
     <span class="status-msg" id="test-status"></span>
+    <p style="font-size:0.75rem; color:var(--text-dim); margin-top:0.5rem;">
+      Não logado? Sua pontuação aparecerá como <strong>"Anônimo"</strong> no placar.
+    </p>
   </div>
 
   <h2 class="section-title">Jogos Disponíveis</h2>
@@ -429,7 +432,6 @@
   Arcade Central &copy; 2026 · Feito com HTML5 + Supabase
 </footer>
 
-<!-- Biblioteca do Supabase via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -443,23 +445,25 @@
   const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ============================================
-  // AUTENTICAÇÃO
+  // AUTENTICAÇÃO (opcional)
   // ============================================
   async function verificarUsuario() {
     const { data: { user } } = await _supabase.auth.getUser();
     const authSection = document.getElementById('auth-section');
-    const testSection = document.getElementById('test-section');
+    const userInfoBar = document.getElementById('user-info-bar');
     const navUser = document.getElementById('nav-user');
 
     if (user) {
+      // Logado: oculta o form de login, mostra a barra com email
       authSection.style.display = 'none';
-      testSection.style.display = 'block';
+      userInfoBar.style.display = 'flex';
       document.getElementById('user-email-display').textContent = user.email;
       navUser.textContent = '👤 ' + user.email;
       navUser.classList.add('visible');
     } else {
+      // Não logado: mostra o form de login, oculta a barra
       authSection.style.display = 'block';
-      testSection.style.display = 'none';
+      userInfoBar.style.display = 'none';
       navUser.classList.remove('visible');
     }
   }
@@ -480,7 +484,7 @@
     if (error) {
       status.textContent = 'Erro: ' + error.message;
     } else {
-      status.textContent = 'Cadastro realizado! Você já pode fazer login.';
+      status.textContent = 'Cadastro realizado! Faça login.';
     }
   }
 
@@ -572,17 +576,11 @@
   }
 
   // ============================================
-  // ENVIAR PONTUAÇÃO (agora com usuário logado)
+  // ENVIAR PONTUAÇÃO (funciona com ou sem login)
   // ============================================
   async function enviarPontuacao() {
     const { data: { user } } = await _supabase.auth.getUser();
     const status = document.getElementById('test-status');
-
-    if (!user) {
-      status.textContent = 'Você precisa estar logado.';
-      return;
-    }
-
     const gameId = document.getElementById('test-game').value;
     const score = parseInt(document.getElementById('test-score').value, 10);
 
@@ -593,8 +591,8 @@
 
     status.textContent = 'Enviando...';
 
-    // Usa o email (parte antes do @) como nome no placar
-    const playerName = user.email.split('@')[0];
+    // Se logado, usa o email (parte antes do @). Se não, usa "Anônimo"
+    const playerName = user ? user.email.split('@')[0] : 'Anônimo';
 
     const { error } = await _supabase
       .from('scores')
@@ -621,7 +619,6 @@
     await carregarPlacares();
     await carregarAtividade();
 
-    // Escuta mudanças de autenticação (login/logout em outra aba, etc.)
     _supabase.auth.onAuthStateChange(() => {
       verificarUsuario();
     });
