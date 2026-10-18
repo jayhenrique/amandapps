@@ -1,507 +1,279 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Flappy Bird | Arcade Central</title>
-<style>
-  :root {
-    --bg: #1a1a2e;
-    --accent: #e94560;
-    --accent2: #0f3460;
-    --text: #eaeaea;
-    --text-dim: #8a8fa3;
-    --gold: #f5c518;
-    --border: #2a3a5c;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg);
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    color: var(--text);
-  }
-
-  /* Canvas ocupa toda a tela */
-  #game {
-    display: block;
-    width: 100vw;
-    height: 100vh;
-    background: #70c5ce;
-    cursor: pointer;
-    touch-action: none;
-  }
-
-  /* Botão de voltar sobreposto (canto superior esquerdo) */
-  .back-btn-overlay {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 50;
-    background: rgba(15, 52, 96, 0.85);
-    color: var(--text);
-    border: 1px solid var(--border);
-    padding: 0.55rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-decoration: none;
-    backdrop-filter: blur(6px);
-    transition: background 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .back-btn-overlay:hover {
-    background: var(--accent);
-    transform: translateY(-1px);
-    text-decoration: none;
-  }
-
-  /* HUD de status (canto inferior) */
-  #status {
-    position: fixed;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 40;
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.85);
-    background: rgba(0,0,0,0.35);
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    min-height: 1.4em;
-    text-align: center;
-    pointer-events: none;
-    max-width: 90vw;
-  }
-
-  /* Overlay de início / game over */
-  #overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    background: rgba(0,0,0,0.72);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    text-align: center;
-    padding: 1.5rem;
-    backdrop-filter: blur(4px);
-  }
-  #overlay.hidden { display: none; }
-  #overlay h2 {
-    font-size: 2rem;
-    color: var(--gold);
-    letter-spacing: 1px;
-  }
-  #overlay p { font-size: 0.95rem; color: var(--text); max-width: 320px; }
-  #overlay .score-big {
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--accent);
-    line-height: 1;
-  }
-  #overlay .score-label {
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  #overlay .buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin-top: 0.5rem;
-    width: 100%;
-    max-width: 240px;
-  }
-  #overlay button,
-  #overlay a.btn {
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    display: block;
-    text-align: center;
-    transition: opacity 0.2s;
-  }
-  #overlay button:hover,
-  #overlay a.btn:hover { opacity: 0.9; text-decoration: none; }
-  #start-btn {
-    background: var(--accent);
-    color: #fff;
-  }
-  #home-btn {
-    background: var(--accent2);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-
-  /* Dica de controles */
-  .hint {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 30;
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.7);
-    text-align: center;
-    pointer-events: none;
-    max-width: 90vw;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flappy Amand</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f0f1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+    }
+    #game-wrapper {
+      position: relative;
+      width: 100vw;
+      max-width: calc(100vh * 9 / 16);
+      height: 100vh;
+      aspect-ratio: 9 / 16;
+      background: #1a1a2e;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #ui-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      text-align: center;
+      gap: 12px;
+    }
+    #ui-overlay.hidden { display: none; }
+    #ui-overlay h2 { font-size: 28px; }
+    #ui-overlay button {
+      padding: 12px 24px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #e94560;
+      color: white;
+      cursor: pointer;
+    }
+    #ui-overlay button.secondary { background: #16213e; }
+    #back-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
-<!-- Botão voltar sempre visível, sobreposto ao jogo -->
-<a class="back-btn-overlay" href="../index.html">← Voltar</a>
-
-<!-- Canvas em tela cheia -->
-<canvas id="game"></canvas>
-
-<!-- Status de envio -->
-<div id="status"></div>
-
-<!-- Overlay de início / game over -->
-<div id="overlay">
-  <h2 id="overlay-title">🐦 Flappy Bird</h2>
-  <p id="overlay-msg">Clique, toque ou aperte espaço para voar</p>
-  <div id="overlay-score" style="display:none;">
-    <div class="score-label">Sua pontuação</div>
-    <div class="score-big" id="final-score">0</div>
+  <div id="game-wrapper">
+    <canvas id="game-canvas"></canvas>
+    <button id="back-btn">← Menu</button>
+    <div id="ui-overlay">
+      <h2 id="overlay-title">Flappy Amand</h2>
+      <p id="overlay-score"></p>
+      <button id="overlay-btn">Jogar</button>
+      <button id="overlay-menu-btn" class="secondary hidden">Voltar ao Menu</button>
+    </div>
   </div>
-  <div class="buttons">
-    <button id="start-btn">Começar</button>
-    <a id="home-btn" class="btn" href="../index.html" style="display:none;">← Voltar para o Arcade</a>
-  </div>
-</div>
 
-<div class="hint" id="hint">Espaço / clique / toque para voar · Evite os canos</div>
+  <script>
+    const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // ============================================
-  // CONFIGURAÇÃO
-  // ============================================
-  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
-  const { createClient } = supabase;
-  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('ui-overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayScore = document.getElementById('overlay-score');
+    const overlayBtn = document.getElementById('overlay-btn');
+    const overlayMenuBtn = document.getElementById('overlay-menu-btn');
 
-  const GAME_ID = 'flappy';
-
-  // ============================================
-  // ELEMENTOS
-  // ============================================
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  const overlay = document.getElementById('overlay');
-  const overlayTitle = document.getElementById('overlay-title');
-  const overlayMsg = document.getElementById('overlay-msg');
-  const overlayScore = document.getElementById('overlay-score');
-  const finalScoreEl = document.getElementById('final-score');
-  const startBtn = document.getElementById('start-btn');
-  const homeBtn = document.getElementById('home-btn');
-  const statusEl = document.getElementById('status');
-  const hintEl = document.getElementById('hint');
-
-  // ============================================
-  // CANVAS RESPONSIVO (tela cheia)
-  // ============================================
-  let W, H, DPR;
-  function resizeCanvas() {
-    DPR = window.devicePixelRatio || 1;
-    W = window.innerWidth;
-    H = window.innerHeight;
-    canvas.width = W * DPR;
-    canvas.height = H * DPR;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    if (bird) draw();
-  }
-  window.addEventListener('resize', resizeCanvas);
-
-  // ============================================
-  // ESTADO DO JOGO
-  // ============================================
-  const GRAVITY = 0.45;
-  const JUMP = -7.5;
-  const PIPE_W = 60;
-  const PIPE_SPEED = 2.8;
-  const PIPE_SPAWN_INTERVAL = 90;
-
-  let bird, pipes, frames, score, gameRunning, gameOver;
-  let pipesPassed = 0;
-  let pipeGap = 160; // ajustado dinamicamente em resize
-
-  function resetGame() {
-    // Ajusta gap e posição inicial com base na altura da tela
-    pipeGap = Math.max(130, Math.min(H * 0.28, 220));
-    bird = { x: 90, y: H / 2, w: 30, h: 24, vy: 0 };
-    pipes = [];
-    frames = 0;
-    score = 0;
-    pipesPassed = 0;
-    gameRunning = false;
-    gameOver = false;
-    statusEl.textContent = '';
-  }
-
-  // ============================================
-  // CONTROLES
-  // ============================================
-  function flap() {
-    if (!gameRunning) return;
-    bird.vy = JUMP;
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' || e.code === 'ArrowUp') {
-      e.preventDefault();
-      if (!gameRunning && !gameOver) startGame();
-      else flap();
+    let W, H;
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      W = canvas.width = rect.width;
+      H = canvas.height = rect.height;
     }
-  });
+    window.addEventListener('resize', resize);
+    resize();
 
-  canvas.addEventListener('mousedown', () => {
-    if (!gameRunning && !gameOver) startGame();
-    else flap();
-  });
+    // Estado do jogo
+    let bird = { x: 0, y: 0, vy: 0, gravity: 0.5, jump: -8, size: 30 };
+    let pipes = [];
+    let score = 0;
+    let gameState = 'menu'; // menu, playing, gameover
+    let frame = 0;
+    const PIPE_W = 60;
+    const PIPE_GAP = 140;
+    const PIPE_SPEED = 2.5;
 
-  canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    if (!gameRunning && !gameOver) startGame();
-    else flap();
-  }, { passive: false });
-
-  startBtn.addEventListener('click', () => {
-    if (!gameRunning) startGame();
-  });
-
-  // ============================================
-  // INÍCIO / FIM
-  // ============================================
-  function startGame() {
-    resetGame();
-    gameRunning = true;
-    gameOver = false;
-    overlay.classList.add('hidden');
-    overlayScore.style.display = 'none';
-    homeBtn.style.display = 'none';
-    hintEl.style.display = 'block';
-    bird.vy = JUMP;
-    loop();
-  }
-
-  function endGame() {
-    gameRunning = false;
-    gameOver = true;
-    overlay.classList.remove('hidden');
-    overlayTitle.textContent = 'Fim de jogo!';
-    overlayMsg.textContent = '';
-    overlayScore.style.display = 'block';
-    finalScoreEl.textContent = score;
-    startBtn.textContent = 'Jogar de novo';
-    homeBtn.style.display = 'block';
-    hintEl.style.display = 'none';
-
-    enviarPontuacao(score);
-  }
-
-  // ============================================
-  // ENVIO DA PONTUAÇÃO
-  // ============================================
-  async function enviarPontuacao(pontos) {
-    if (pontos <= 0) {
-      statusEl.textContent = 'Pontuação 0 não foi enviada.';
-      return;
-    }
-
-    statusEl.textContent = 'Enviando pontuação...';
-
-    const { data: { user } } = await _supabase.auth.getUser();
-    const playerName = user ? user.email.split('@')[0] : 'Anônimo';
-
-    const { error } = await _supabase
-      .from('scores')
-      .insert({ player_name: playerName, game_id: GAME_ID, score: pontos });
-
-    if (error) {
-      console.error(error);
-      statusEl.textContent = 'Erro ao enviar: ' + error.message;
-    } else {
-      statusEl.textContent = `✅ Pontuação de ${pontos} enviada como "${playerName}"!`;
-    }
-  }
-
-  // ============================================
-  // ATUALIZAÇÃO
-  // ============================================
-  function update() {
-    if (!gameRunning) return;
-
-    frames++;
-    bird.vy += GRAVITY;
-    bird.y += bird.vy;
-
-    // Chão
-    if (bird.y + bird.h / 2 > H - 50) {
-      bird.y = H - 50 - bird.h / 2;
-      endGame();
-      return;
-    }
-    // Teto
-    if (bird.y - bird.h / 2 < 0) {
-      bird.y = bird.h / 2;
+    function resetGame() {
+      bird.x = W * 0.25;
+      bird.y = H / 2;
       bird.vy = 0;
+      pipes = [];
+      score = 0;
+      frame = 0;
     }
 
-    // Spawn de canos
-    if (frames % PIPE_SPAWN_INTERVAL === 0) {
-      const gapY = 80 + Math.random() * (H - 50 - pipeGap - 160);
-      pipes.push({ x: W, gapY, passed: false });
+    function spawnPipe() {
+      const minTop = 60;
+      const maxTop = H - PIPE_GAP - 60;
+      const top = minTop + Math.random() * (maxTop - minTop);
+      pipes.push({ x: W, top, scored: false });
     }
 
-    // Atualiza canos
-    for (const p of pipes) {
-      p.x -= PIPE_SPEED;
+    function update() {
+      if (gameState !== 'playing') return;
 
-      const birdLeft = bird.x - bird.w / 2;
-      const birdRight = bird.x + bird.w / 2;
-      const birdTop = bird.y - bird.h / 2;
-      const birdBottom = bird.y + bird.h / 2;
+      bird.vy += bird.gravity;
+      bird.y += bird.vy;
 
-      const pLeft = p.x;
-      const pRight = p.x + PIPE_W;
-      const gapTop = p.gapY;
-      const gapBottom = p.gapY + pipeGap;
+      // Chão e teto
+      if (bird.y < 0 || bird.y + bird.size > H) {
+        endGame();
+        return;
+      }
 
-      if (birdRight > pLeft && birdLeft < pRight) {
-        if (birdTop < gapTop || birdBottom > gapBottom) {
-          endGame();
-          return;
+      // Pipes
+      if (frame % 90 === 0) spawnPipe();
+      
+      for (let i = pipes.length - 1; i >= 0; i--) {
+        const p = pipes[i];
+        p.x -= PIPE_SPEED;
+
+        // Colisão
+        if (bird.x + bird.size > p.x && bird.x < p.x + PIPE_W) {
+          if (bird.y < p.top || bird.y + bird.size > p.top + PIPE_GAP) {
+            endGame();
+            return;
+          }
         }
+
+        // Pontuação
+        if (!p.scored && p.x + PIPE_W < bird.x) {
+          p.scored = true;
+          score++;
+        }
+
+        // Remover pipes fora da tela
+        if (p.x + PIPE_W < 0) pipes.splice(i, 1);
       }
 
-      if (!p.passed && p.x + PIPE_W < bird.x) {
-        p.passed = true;
-        pipesPassed++;
-        score = pipesPassed;
-      }
+      frame++;
     }
 
-    pipes = pipes.filter(p => p.x + PIPE_W > -50);
-  }
+    function draw() {
+      // Fundo
+      ctx.fillStyle = '#16213e';
+      ctx.fillRect(0, 0, W, H);
 
-  // ============================================
-  // DESENHO
-  // ============================================
-  function draw() {
-    if (!W || !H) return;
+      // Pipes
+      ctx.fillStyle = '#4ecca3';
+      pipes.forEach(p => {
+        ctx.fillRect(p.x, 0, PIPE_W, p.top);
+        ctx.fillRect(p.x, p.top + PIPE_GAP, PIPE_W, H - p.top - PIPE_GAP);
+      });
 
-    // Fundo
-    ctx.fillStyle = '#70c5ce';
-    ctx.fillRect(0, 0, W, H);
-
-    // Nuvens
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    for (let i = 0; i < 5; i++) {
-      const cx = ((frames * 0.3 + i * 180) % (W + 100)) - 50;
-      const cy = 60 + (i % 3) * 50;
-      ctx.beginPath();
-      ctx.arc(cx, cy, 28, 0, Math.PI * 2);
-      ctx.arc(cx + 28, cy, 22, 0, Math.PI * 2);
-      ctx.arc(cx - 28, cy, 20, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Canos
-    for (const p of pipes) {
-      ctx.fillStyle = '#2e8b57';
-      ctx.fillRect(p.x, 0, PIPE_W, p.gapY);
-      ctx.fillRect(p.x, p.gapY + pipeGap, PIPE_W, H - 50 - (p.gapY + pipeGap));
-      ctx.fillStyle = '#1f6b3f';
-      ctx.fillRect(p.x - 4, p.gapY - 20, PIPE_W + 8, 20);
-      ctx.fillRect(p.x - 4, p.gapY + pipeGap, PIPE_W + 8, 20);
-    }
-
-    // Chão
-    ctx.fillStyle = '#ded895';
-    ctx.fillRect(0, H - 50, W, 50);
-    ctx.fillStyle = '#c9b96c';
-    ctx.fillRect(0, H - 50, W, 7);
-
-    // Pássaro
-    if (bird) {
-      ctx.save();
-      ctx.translate(bird.x, bird.y);
-      const angle = Math.max(-0.5, Math.min(0.9, bird.vy * 0.06));
-      ctx.rotate(angle);
-      ctx.fillStyle = '#f5c518';
-      ctx.beginPath();
-      ctx.ellipse(0, 0, bird.w / 2, bird.h / 2, 0, 0, Math.PI * 2);
-      ctx.fill();
+      // Bird
       ctx.fillStyle = '#e94560';
       ctx.beginPath();
-      ctx.moveTo(bird.w / 2 - 2, -2);
-      ctx.lineTo(bird.w / 2 + 12, 2);
-      ctx.lineTo(bird.w / 2 - 2, 6);
-      ctx.closePath();
+      ctx.arc(bird.x + bird.size/2, bird.y + bird.size/2, bird.size/2, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(bird.w / 4, -4, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#000';
-      ctx.beginPath();
-      ctx.arc(bird.w / 4 + 2, -4, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+
+      // Score
+      ctx.fillStyle = 'white';
+      ctx.font = '32px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(score, W / 2, 60);
+
+      if (gameState === 'menu') {
+        // Já mostrado pelo overlay
+      }
     }
 
-    // Pontuação em jogo
-    ctx.fillStyle = '#fff';
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 4;
-    ctx.font = 'bold 40px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.strokeText(score, W / 2, 60);
-    ctx.fillText(score, W / 2, 60);
-  }
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
 
-  // ============================================
-  // LOOP
-  // ============================================
-  function loop() {
-    update();
-    draw();
-    if (gameRunning) requestAnimationFrame(loop);
-  }
+    async function endGame() {
+      gameState = 'gameover';
+      overlayTitle.textContent = 'Fim de Jogo!';
+      overlayScore.textContent = `Pontuação: ${score}`;
+      overlayBtn.textContent = 'Jogar Novamente';
+      overlayMenuBtn.classList.remove('hidden');
+      overlay.classList.remove('hidden');
 
-  // ============================================
-  // INIT
-  // ============================================
-  resizeCanvas();
-  resetGame();
-  draw();
-  overlayTitle.textContent = '🐦 Flappy Bird';
-  overlayMsg.textContent = 'Clique, toque ou aperte espaço para voar';
-  overlayScore.style.display = 'none';
-  startBtn.textContent = 'Começar';
-  homeBtn.style.display = 'none';
-</script>
+      // Salvar score
+      const { data: { session } } = await supabase.auth.getSession();
+      let username = null;
+      let userId = null;
+      if (session) {
+        userId = session.user.id;
+        const { data: profile } = await supabase.from('profiles').select('username').eq('id', userId).single();
+        username = profile?.username;
+      }
 
+      // Inserir em scores
+      await supabase.from('scores').insert({
+        user_id: userId,
+        username: username,
+        game_name: 'Flappy Amand',
+        score: score
+      });
+
+      // Inserir em activities
+      await supabase.from('activities').insert({
+        user_id: userId,
+        username: username,
+        game_name: 'Flappy Amand',
+        score: score,
+        message: username ? `${username} fez ${score} pontos` : `Um Amandfã fez ${score} pontos`
+      });
+    }
+
+    function startGame() {
+      resetGame();
+      gameState = 'playing';
+      overlay.classList.add('hidden');
+    }
+
+    overlayBtn.onclick = () => {
+      if (gameState === 'gameover') {
+        startGame();
+      } else {
+        startGame();
+      }
+    };
+
+    overlayMenuBtn.onclick = () => location.href = 'index.html';
+    document.getElementById('back-btn').onclick = () => location.href = 'index.html';
+
+    // Input
+    canvas.addEventListener('click', () => {
+      if (gameState === 'playing') {
+        bird.vy = bird.jump;
+      }
+    });
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (gameState === 'playing') bird.vy = bird.jump;
+    }, { passive: false });
+
+    // Iniciar loop
+    resetGame();
+    gameState = 'menu';
+    overlayTitle.textContent = 'Flappy Amand';
+    overlayScore.textContent = 'Clique para começar';
+    overlayBtn.textContent = 'Jogar';
+    overlayMenuBtn.classList.add('hidden');
+    loop();
+  </script>
 </body>
 </html>
