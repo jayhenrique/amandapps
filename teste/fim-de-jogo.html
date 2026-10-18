@@ -29,7 +29,7 @@
             border-radius: 14px;
             width: 100%;
             max-width: 380px;
-            padding: 1.8rem 1.5rem;
+            padding: 1.6rem 1.4rem;
             text-align: center;
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
             animation: panelIn 0.25s ease-out;
@@ -46,7 +46,7 @@
             width: 100%;
             max-width: 300px;
             aspect-ratio: 300 / 250;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.1rem;
             border-radius: 10px;
             overflow: hidden;
             background: #0f3460;
@@ -54,7 +54,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
         .thumb img {
             width: 100%;
@@ -68,65 +67,85 @@
             display: none;
         }
         .thumb.error img { display: none; }
-        .thumb.error .thumb-fallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .thumb.error .thumb-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
 
-        .avatar {
-            width: 96px;
-            height: 96px;
-            margin: 0 auto 0.9rem;
+        /* ===================================================== */
+        /* PERFIL — horizontal: avatar à esquerda, nome à direita */
+        /* Destaque médio (menor que a pontuação)                 */
+        /* ===================================================== */
+        .profile-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 0 auto 1.1rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(15, 52, 96, 0.45);
+            border: 1px solid #2a3a5c;
+            border-radius: 10px;
+            max-width: 300px;
+        }
+
+        .profile-row .avatar {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.6rem;
+            font-size: 1.8rem;
             background: linear-gradient(135deg, #0f3460, #1f2b4d);
-            border: 3px solid #e94560;
-            box-shadow: 0 0 0 6px rgba(233, 69, 96, 0.15);
+            border: 2px solid #e94560;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.12);
         }
-        .panel.anon .avatar {
+        .panel.anon .profile-row .avatar {
             border-color: #2a3a5c;
-            box-shadow: 0 0 0 6px rgba(138, 143, 163, 0.08);
+            box-shadow: 0 0 0 4px rgba(138, 143, 163, 0.06);
         }
 
-        .name {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 0.15rem;
-        }
-        .sub {
-            font-size: 0.8rem;
-            color: #8a8fa3;
-            margin-bottom: 1.2rem;
+        .profile-row .name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #eaeaea;
+            text-align: left;
+            line-height: 1.2;
+            word-break: break-word;
         }
 
+        /* ===================================================== */
+        /* PONTUAÇÃO — destaque principal                        */
+        /* ===================================================== */
         .score-box {
             background: #0f3460;
             border: 1px solid #2a3a5c;
             border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 0.6rem;
+            padding: 1.1rem 1rem;
+            margin-bottom: 1rem;
         }
         .score-label {
             font-size: 0.75rem;
             color: #8a8fa3;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.3rem;
         }
         .score-value {
-            font-size: 2.6rem;
+            font-size: 3.2rem;
             font-weight: 800;
             color: #f5c518;
             line-height: 1;
         }
-        .game {
-            font-size: 0.8rem;
-            color: #8a8fa3;
-            margin-bottom: 1.2rem;
-        }
-        .game strong { color: #eaeaea; }
 
+        /* ===================================================== */
+        /* STATUS                                                */
+        /* ===================================================== */
         .status {
             font-size: 0.78rem;
             min-height: 1.1em;
@@ -135,6 +154,9 @@
         .status.ok { color: #6ee7a8; }
         .status.error { color: #ff7b8a; }
 
+        /* ===================================================== */
+        /* BOTÕES                                                */
+        /* ===================================================== */
         .actions {
             display: flex;
             gap: 0.6rem;
@@ -167,22 +189,25 @@
 
 <div class="wrap">
     <div class="panel" id="panel">
-        <!-- Thumb do jogo (300x250) -->
+        <!-- 1) Thumb do jogo (300x250) -->
         <div class="thumb" id="thumb-wrap">
             <img id="thumb-img" src="" alt="Thumb do jogo">
             <div class="thumb-fallback">🎮</div>
         </div>
 
-        <div class="avatar" id="avatar">🎮</div>
-        <div class="name" id="name">—</div>
-        <div class="sub" id="sub">Resultado da partida</div>
+        <!-- 2) Perfil horizontal (avatar + nome) -->
+        <div class="profile-row" id="profile-row">
+            <div class="avatar" id="avatar">🎮</div>
+            <div class="name" id="name">—</div>
+        </div>
 
+        <!-- 3) Pontuação em destaque -->
         <div class="score-box" id="score-box">
             <div class="score-label">Pontuação</div>
             <div class="score-value" id="score-value">0</div>
         </div>
-        <div class="game">Jogo: <strong id="game-name">—</strong></div>
 
+        <!-- 4) Status + botões -->
         <div class="status" id="status"></div>
 
         <div class="actions" id="actions">
@@ -198,7 +223,7 @@
 
 <script>
     // --------- CONFIG ---------
-    // Página inicial do site (home). Como este arquivo está na raiz, é relativo à raiz.
+    // Home do site — como este arquivo está na raiz, é relativo à raiz.
     const HOME_URL = 'index.html';
 
     // Pasta das thumbs (relativa à raiz do site)
@@ -216,29 +241,29 @@
         console.warn('[fim-de-jogo] sessionStorage inválido:', e);
     }
 
-    const elAvatar = document.getElementById('avatar');
-    const elName = document.getElementById('name');
-    const elScoreBox = document.getElementById('score-box');
-    const elScore = document.getElementById('score-value');
-    const elGame = document.getElementById('game-name');
-    const elStatus = document.getElementById('status');
-    const elNoData = document.getElementById('no-data');
-    const panel = document.getElementById('panel');
+    const elAvatar  = document.getElementById('avatar');
+    const elName    = document.getElementById('name');
+    const elScoreBox= document.getElementById('score-box');
+    const elScore   = document.getElementById('score-value');
+    const elStatus  = document.getElementById('status');
+    const elNoData  = document.getElementById('no-data');
+    const panel     = document.getElementById('panel');
 
     const thumbWrap = document.getElementById('thumb-wrap');
-    const thumbImg = document.getElementById('thumb-img');
+    const thumbImg  = document.getElementById('thumb-img');
 
     let jogoUrl = JOGO_PADRAO_URL;
 
     if (dados && typeof dados.score === 'number') {
+        // --- Perfil (avatar + nome) ---
         elAvatar.textContent = dados.avatar || '🎮';
-        elName.textContent = dados.nome || 'Anônimo';
-        elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
-        elGame.textContent = dados.gameId || 'clickteam';
-        jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
-
+        elName.textContent   = dados.nome || 'Anônimo';
         panel.classList.toggle('anon', !dados.nome || dados.nome === 'Anônimo');
 
+        // --- Pontuação ---
+        elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
+
+        // --- Status ---
         if (dados.salvo) {
             elStatus.textContent = '✔ Pontuação salva!';
             elStatus.className = 'status ok';
@@ -247,27 +272,27 @@
             elStatus.className = 'status error';
         }
 
-        // ---- Thumb: thumb/{gameId}.png ----
+        // --- Thumb: thumb/{gameId}.png ---
         const gameId = dados.gameId || 'clickteam';
-        // encodeURIComponent protege contra caracteres estranhos no id
         const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
         thumbImg.src = thumbUrl;
         thumbImg.alt = `Thumb do jogo ${gameId}`;
 
-        // Se a imagem não existir, cai no fallback
         thumbImg.onerror = () => {
             thumbWrap.classList.add('error');
             thumbImg.removeAttribute('src');
             console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
         };
+
+        // --- URL do "Tentar de novo" ---
+        jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
     } else {
         // Sem dados — esconde tudo que depende do resultado
-        document.getElementById('thumb-wrap').style.display = 'none';
+        document.getElementById('thumb-wrap').style.display  = 'none';
+        document.getElementById('profile-row').style.display = 'none';
         elScoreBox.style.display = 'none';
-        elAvatar.textContent = '🎭';
+        elStatus.style.display   = 'none';
         elName.textContent = 'Sem resultado';
-        elGame.parentElement.style.display = 'none';
-        elStatus.style.display = 'none';
         elNoData.style.display = 'block';
     }
 
@@ -279,6 +304,7 @@
 
     document.getElementById('btn-home').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        // index.html na raiz do site
         window.location.href = HOME_URL;
     });
 </script>
