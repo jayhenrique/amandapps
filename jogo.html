@@ -315,10 +315,7 @@
 
                     <div class="game-info">
                         <h1>${escapeHTML(dados.titulo)}</h1>
-                        <div class="meta">
-                            ${dados.categoria ? `<span class="chip accent">${escapeHTML(dados.categoria)}</span>` : ''}
-                            ${dados.autor ? `<span class="chip">${escapeHTML(dados.autor)}</span>` : ''}
-                        </div>
+
                         ${dados.descricao ? `<p class="descricao">${escapeHTML(dados.descricao)}</p>` : ''}
                         ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
                         <a class="btn-play" href="${playUrl}">▶ PLAY</a>
