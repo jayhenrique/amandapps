@@ -135,12 +135,14 @@
         }
 
         .status {
-            font-size: 0.78rem;
-            min-height: 1.1em;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-height: 1.2em;
             margin-bottom: 1rem;
         }
-        .status.ok { color: #6ee7a8; }
+        .status.ok    { color: #6ee7a8; }
         .status.error { color: #ff7b8a; }
+        .status.info  { color: #8a8fa3; }
 
         .actions {
             display: flex;
@@ -241,6 +243,13 @@
 
     let jogoUrl = JOGO_PADRAO_URL;
 
+    // normaliza a flag: aceita true, "true", 1, "1", false, "false", 0, "0"
+    function normalizarFlag(v) {
+        if (v === true  || v === 'true'  || v === 1 || v === '1') return true;
+        if (v === false || v === 'false' || v === 0 || v === '0') return false;
+        return null; // ausente / desconhecido
+    }
+
     if (dados && typeof dados.score === 'number') {
         // -------- Caminho normal: dados válidos --------
         elAvatar.textContent = dados.avatar || '🎮';
@@ -250,12 +259,29 @@
         elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
         elScore.classList.remove('error');
 
-        if (dados.salvo) {
-            elStatus.textContent = '✔ Pontuação salva!';
+        // -------- Flag de hiscore --------
+        // A fonte da verdade é `dados.salvouHiscore` (repassado pela
+        // receberPontuacaoDoJogo). Se não existir, cai em `dados.salvo`
+        // como compatibilidade com o formato antigo.
+        const flag = normalizarFlag(
+            'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo
+        );
+
+        if (flag === true) {
+            elStatus.textContent = '🏆 Entrou no hiscore!';
             elStatus.className = 'status ok';
-        } else {
-            elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
+        } else if (flag === false) {
+            elStatus.textContent = '🔄 Tente novamente';
             elStatus.className = 'status error';
+        } else {
+            // Sem flag — comportamento antigo (só informativo)
+            if (dados.salvo) {
+                elStatus.textContent = '✔ Pontuação salva!';
+                elStatus.className = 'status ok';
+            } else {
+                elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
+                elStatus.className = 'status error';
+            }
         }
 
         const gameId = dados.gameId || 'clickteam';
