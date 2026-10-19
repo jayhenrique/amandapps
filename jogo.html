@@ -219,7 +219,7 @@
 
     <div class="topbar">
         <div class="logo">ARCADE <span>CENTRAL</span></div>
-        <a class="back" href="/amandapps/">← Voltar para home</a>
+        <a class="back" id="link-home" href="/amandapps/">← Voltar para home</a>
     </div>
 
     <div class="container" id="conteudo">
@@ -236,8 +236,12 @@
         const HOME_URL      = '/amandapps/';
         const THUMB_DIR     = '/amandapps/thumbs-assets';
         const INFO_JSON_URL = '/amandapps/jogos-info.json';
-        // Pasta onde ficam os jogos (o botão PLAY vai para `{JOGO_BASE_PATH}/{id}/index.html`)
-        const JOGO_BASE_PATH = '/amandapps';
+
+        // =====================================================
+        // NOVO ESQUEMA: todos os jogos rodam pelo mesmo arquivo
+        // /jogo_inside.html?jogo=<id>  (na raiz do site)
+        // =====================================================
+        const JOGO_INSIDE_URL = '/jogo_inside.html';
 
         const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
@@ -275,7 +279,6 @@
         // 10º COLOCADO — salva em localStorage (invisível na URL)
         // =====================================================
         function definirDecimoValor(valor, gameId) {
-            // 1) Salva no localStorage (persiste entre páginas do mesmo domínio)
             try {
                 localStorage.setItem('decimo_score', String(valor));
                 localStorage.setItem('decimo_score_game', String(gameId || ''));
@@ -283,10 +286,8 @@
                 console.warn('[jogo] localStorage indisponível:', e);
             }
 
-            // 2) Também deixa numa variável global (para debug no console)
             window.DECIMO_SCORE = valor;
 
-            // 3) Debug visível na página
             let dbg = document.getElementById('debug-decimo');
             if (!dbg) {
                 dbg = document.createElement('div');
@@ -319,6 +320,10 @@
                 return;
             }
 
+            // Atualiza o link "voltar para home" (pode ser customizado)
+            const linkHome = document.getElementById('link-home');
+            if (linkHome) linkHome.href = HOME_URL;
+
             // ---- 1) JSON de informações ----
             let info = null;
             try {
@@ -331,7 +336,6 @@
                 console.warn('[jogo] não foi possível carregar jogos-info.json:', e);
             }
 
-            // Fallback se o gameId não estiver no JSON
             const dados = {
                 titulo:    info?.titulo    || gameId,
                 descricao: info?.descricao || '',
@@ -341,7 +345,13 @@
             };
 
             const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
-            const playUrl  = `${JOGO_BASE_PATH}/${encodeURIComponent(gameId)}/index.html`;
+
+            // =====================================================
+            // MUDANÇA PRINCIPAL:
+            // antes: `${JOGO_BASE_PATH}/${id}/index.html`
+            // agora: `/jogo_inside.html?jogo=${id}`
+            // =====================================================
+            const playUrl = `${JOGO_INSIDE_URL}?jogo=${encodeURIComponent(gameId)}`;
 
             // ---- 2) HTML da página ----
             document.getElementById('conteudo').innerHTML = `
@@ -354,6 +364,7 @@
                     <div class="game-info">
                         <h1>${escapeHTML(dados.titulo)}</h1>
 
+                        ${dados.categoria ? `<div class="meta"><span class="chip accent">${escapeHTML(dados.categoria)}</span></div>` : ''}
                         ${dados.descricao ? `<p class="descricao">${escapeHTML(dados.descricao)}</p>` : ''}
                         ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
                         <a class="btn-play" href="${playUrl}">▶ PLAY</a>
@@ -390,7 +401,7 @@
                 console.warn('[jogo] thumb não encontrada:', thumbUrl);
             };
 
-            // ---- 4) Leaderboard do Supabase ----
+            // ---- 4) Leaderboard ----
             await carregarLeaderboard(gameId);
         }
 
@@ -408,7 +419,7 @@
             if (error) {
                 console.error('[jogo] erro ao buscar leaderboard:', error);
                 tbody.innerHTML = `<tr><td colspan="3" class="empty">Erro ao carregar pontuações.</td></tr>`;
-                definirDecimoValor(0, gameId); // fallback
+                definirDecimoValor(0, gameId);
                 return;
             }
 
@@ -426,9 +437,6 @@
                 </tr>
             `).join('');
 
-            // ---------- 10º colocado ----------
-            // Se a tabela tiver menos de 10 entradas, o valor é 0
-            // (garante que qualquer score novo entre na tabela até ela ficar cheia).
             const valorDecimo = (data.length >= 10) ? (Number(data[9].score) || 0) : 0;
             definirDecimoValor(valorDecimo, gameId);
         }
