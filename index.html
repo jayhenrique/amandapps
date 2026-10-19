@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arcade Central | Minijogos</title>
+
+<!-- ===== PWA ===== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arcade Central">
+<link rel="apple-touch-icon" href="thumbs-assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="thumbs-assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="thumbs-assets/icon-512.png">
+<!-- ================ -->
+
 <style>
   :root {
     --bg: #1a1a2e;
@@ -58,16 +71,14 @@
     display: block;
   }
 
-  /* Agrupa nav + área do usuário + reload na mesma linha à direita */
+  /* Área à direita: usuário + reload na MESMA linha do logo */
   .header-right {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.8rem;
     flex-wrap: wrap;
+    margin-left: auto;
   }
-  nav { display: flex; gap: 1.5rem; font-size: 0.95rem; align-items: center; }
-  nav a { color: var(--text-dim); font-weight: 600; }
-  nav a:hover { color: var(--accent); text-decoration: none; }
 
   .user-area { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; }
   .user-area .user-pill {
@@ -472,22 +483,31 @@
   }
 
   @media (max-width: 600px) {
-    header { flex-direction: column; align-items: flex-start; }
-    .header-right { width: 100%; justify-content: space-between; gap: 1rem; }
-    nav { flex-wrap: wrap; gap: 1rem; }
+    header {
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: nowrap;
+      padding: 0.9rem 1rem;
+      gap: 0.6rem;
+    }
+    .logo img { height: 34px; }
+    .header-right { gap: 0.4rem; margin-left: auto; flex-wrap: nowrap; }
     .container { padding: 1.2rem 1rem; }
     .profile-card { flex-direction: column; align-items: flex-start; text-align: left; }
     .profile-actions { margin-left: 0; }
     .profile-avatar { width: 90px; height: 90px; min-width: 90px; font-size: 3.5rem; }
     .profile-details h3 { font-size: 1.5rem; }
     .avatar-grid { grid-template-columns: repeat(6, 1fr); }
-    .logo img { height: 34px; }
 
     /* Dois jogos por coluna no mobile */
     .game-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 0.8rem;
     }
+
+    .btn-auth { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+    .btn-reload { width: 32px; height: 32px; }
+    .user-area .user-pill { font-size: 0.8rem; padding: 0.28rem 0.6rem; }
   }
 </style>
 </head>
@@ -495,12 +515,9 @@
 
 <header>
   <a class="logo" href="#" id="logo-home" title="Ir para o início" aria-label="Ir para o início">
-    <img src="logoamandapps.png" alt="Amand.Apps">
+    <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
   </a>
   <div class="header-right">
-    <nav>
-      <a href="#jogos">Jogos</a>
-    </nav>
     <div class="user-area" id="user-area">
       <span class="user-pill hidden" id="user-pill" title="Ir para Meu Perfil">🎮 <span id="user-name">—</span></span>
       <button class="btn-auth hidden" id="btn-logout">Sair</button>
@@ -1045,6 +1062,17 @@
     document.getElementById('btn-delete-confirm').addEventListener('click', confirmarExclusao);
 
     alternarTab('login');
+
+    // ============================================
+    // REGISTRO DO SERVICE WORKER (PWA)
+    // ============================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((reg) => console.log('Service Worker registrado:', reg.scope))
+          .catch((err) => console.warn('Falha ao registrar Service Worker:', err));
+      });
+    }
   });
 </script>
 
