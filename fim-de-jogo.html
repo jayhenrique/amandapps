@@ -90,16 +90,31 @@
     button.secundario:hover { background: #475569; }
 
     .mensagem {
-      padding: 12px;
+      padding: 14px;
       border-radius: 8px;
       text-align: center;
       margin-bottom: 16px;
-      font-size: 0.875rem;
+      font-size: 0.95rem;
+      font-weight: 500;
       display: none;
+      line-height: 1.4;
     }
-    .mensagem.sucesso { background: #064e3b; color: #6ee7b7; display: block; }
-    .mensagem.erro    { background: #7f1d1d; color: #fca5a5; display: block; }
-    .mensagem.info    { background: #1e3a8a; color: #93c5fd; display: block; }
+    .mensagem.sucesso { background: #064e3b; color: #6ee7b7; display: block; border: 1px solid #059669; }
+    .mensagem.erro    { background: #7f1d1d; color: #fca5a5; display: block; border: 1px solid #dc2626; }
+    .mensagem.info    { background: #1e3a8a; color: #93c5fd; display: block; border: 1px solid #3b82f6; }
+
+    .mensagem .frase-destaque {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .mensagem .frase-secundaria {
+      display: block;
+      font-size: 0.85rem;
+      opacity: 0.85;
+      font-weight: 400;
+    }
 
     .ranking h2 {
       font-size: 1.1rem;
@@ -180,20 +195,17 @@
         this.chaveStorage = `highscores_${jogoId}`;
       }
 
-      // Retorna o Top 10 atual (ordenado)
       getTopScores() {
         const dados = localStorage.getItem(this.chaveStorage);
         return dados ? JSON.parse(dados) : [];
       }
 
-      // Verifica se o score entraria no Top 10 SEM salvar
       ehTop10(score) {
         const top = this.getTopScores();
         if (top.length < this.maxScores) return true;
         return score > top[top.length - 1].score;
       }
 
-      // Salva o score apenas se for Top 10
       salvarSeForTop10(nome, score) {
         if (!this.ehTop10(score)) {
           return { salvo: false, motivo: 'Score não entrou no Top 10' };
@@ -201,7 +213,7 @@
 
         const top = this.getTopScores();
         const novoRegistro = {
-          id: Date.now() + Math.random(), // id único p/ destacar na UI
+          id: Date.now() + Math.random(),
           nome: nome || 'Anônimo',
           score: score,
           data: new Date().toISOString()
@@ -209,10 +221,7 @@
 
         top.push(novoRegistro);
 
-        // 🔑 ORDENAÇÃO COM DESEMPATE:
-        // 1º critério: maior score primeiro
-        // 2º critério: em caso de empate, data mais recente primeiro
-        //    (por isso b - a na data, e não a - b)
+        // Ordena: maior score primeiro; empate → mais recente primeiro
         top.sort((a, b) => {
           if (b.score !== a.score) return b.score - a.score;
           return new Date(b.data) - new Date(a.data);
@@ -237,26 +246,28 @@
     const JOGO_ID = 'meu-jogo';
     const manager = new HighScoreManager(JOGO_ID, 10);
 
-    const elScoreAtual  = document.getElementById('scoreAtual');
-    const elNomeInput   = document.getElementById('nomeInput');
-    const elBtnJogar    = document.getElementById('btnJogar');
-    const elBtnReset    = document.getElementById('btnReset');
-    const elMensagem    = document.getElementById('mensagem');
-    const elLista       = document.getElementById('listaRanking');
+    const elScoreAtual = document.getElementById('scoreAtual');
+    const elNomeInput  = document.getElementById('nomeInput');
+    const elBtnJogar   = document.getElementById('btnJogar');
+    const elBtnReset   = document.getElementById('btnReset');
+    const elMensagem   = document.getElementById('mensagem');
+    const elLista      = document.getElementById('listaRanking');
 
     let scoreAtual = 0;
 
-    // --- Mensagens ---
-    function mostrarMensagem(texto, tipo = 'info') {
-      elMensagem.textContent = texto;
+    // --- Mensagens (com as duas frases solicitadas) ---
+    function mostrarMensagem(frasePrincipal, fraseSecundaria = '', tipo = 'info') {
       elMensagem.className = `mensagem ${tipo}`;
+      elMensagem.innerHTML = `
+        <span class="frase-destaque">${frasePrincipal}</span>
+        ${fraseSecundaria ? `<span class="frase-secundaria">${fraseSecundaria}</span>` : ''}
+      `;
     }
     function limparMensagem() {
       elMensagem.className = 'mensagem';
-      elMensagem.textContent = '';
+      elMensagem.innerHTML = '';
     }
 
-    // --- Renderização do ranking ---
     function renderizarRanking(idDestaque = null) {
       const top = manager.getTopScores();
       elLista.innerHTML = '';
@@ -285,49 +296,45 @@
       }[c]));
     }
 
-    // --- Simulação de partida ---
+    // --- Partida ---
     function jogar() {
       limparMensagem();
 
-      // Gera um score aleatório (aqui você colocaria a lógica real do jogo)
-      // Para testar empates, alguns valores se repetem:
+      // Score simulado (troque pela lógica real do seu jogo)
       const valoresPossiveis = [100, 250, 500, 750, 1000, 1500, 2000];
       scoreAtual = valoresPossiveis[Math.floor(Math.random() * valoresPossiveis.length)];
-
-      // Pequena variação para deixar mais interessante
       if (Math.random() > 0.5) scoreAtual += Math.floor(Math.random() * 50);
 
       elScoreAtual.textContent = scoreAtual;
 
-      // 🔍 PASSO 1: SEMPRE verifica primeiro se é Top 10
+      // 🔍 PASSO 1: verifica ANTES de salvar
       if (!manager.ehTop10(scoreAtual)) {
+        // ❌ NÃO entrou → não salva + frase solicitada
         const top = manager.getTopScores();
         const piorScore = top[top.length - 1]?.score ?? 0;
+
         mostrarMensagem(
-          `Score ${scoreAtual} não entrou no Top 10 (mínimo atual: ${piorScore + 1}). Nada foi salvo.`,
+          'Jogue novamente e tente entrar no ranking!',
+          `Seu score foi ${scoreAtual}. O mínimo atual para entrar é ${piorScore + 1}.`,
           'erro'
         );
         return;
       }
 
-      // 🔍 PASSO 2: Só pede nome se realmente entrou
+      // ✅ Entrou no Top 10 → pede nome e salva
       const nome = elNomeInput.value.trim() || 'Anônimo';
-
-      // 🔍 PASSO 3: Só então salva
       const resultado = manager.salvarSeForTop10(nome, scoreAtual);
 
       if (resultado.salvo) {
         mostrarMensagem(
-          `🎉 Parabéns ${nome}! Você entrou em ${resultado.posicao}º lugar com ${scoreAtual} pontos!`,
+          'Parabéns, entrou no hiscore!',
+          `${nome}, você ficou em ${resultado.posicao}º lugar com ${scoreAtual} pontos.`,
           'sucesso'
         );
         renderizarRanking(resultado.registro.id);
-      } else {
-        mostrarMensagem('Score não entrou no Top 10. Nada foi salvo.', 'erro');
       }
     }
 
-    // --- Reset ---
     function resetar() {
       if (confirm('Tem certeza que deseja apagar todo o ranking?')) {
         manager.resetar();
@@ -336,14 +343,12 @@
       }
     }
 
-    // --- Eventos ---
     elBtnJogar.addEventListener('click', jogar);
     elBtnReset.addEventListener('click', resetar);
     elNomeInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') jogar();
     });
 
-    // --- Inicialização ---
     renderizarRanking();
   </script>
 </body>
