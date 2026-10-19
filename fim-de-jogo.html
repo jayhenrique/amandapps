@@ -141,6 +141,7 @@
         }
         .status.ok { color: #6ee7a8; }
         .status.error { color: #ff7b8a; }
+        .status.warn { color: #f5c518; }
 
         .actions {
             display: flex;
@@ -208,55 +209,119 @@
     <div class="debug-game-id" id="debug-game-id">game_id: —</div>
 </div>
 
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     // =====================================================
     // CONFIG
     // =====================================================
-    const HOME_URL    = '/amandapps/';                // home na raiz do repo
-    const THUMB_DIR   = '/amandapps/thumbs-assets';   // pasta de thumbs na raiz
-
-    // Fallback caso o sessionStorage esteja vazio
+    const HOME_URL    = '/amandapps/';
+    const THUMB_DIR   = '/amandapps/thumbs-assets';
     const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
 
-    // =====================================================
-    // LER DADOS
-    // =====================================================
-    let dados = null;
-    try {
-        const raw = sessionStorage.getItem('fimDeJogo');
-        if (raw) dados = JSON.parse(raw);
-    } catch (e) {
-        console.warn('[fim-de-jogo] sessionStorage inválido:', e);
-    }
+    const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+    const { createClient } = supabase;
+    const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // =====================================================
+    // ELEMENTOS
+    // =====================================================
     const elAvatar  = document.getElementById('avatar');
     const elName    = document.getElementById('name');
     const elScore   = document.getElementById('score-value');
     const elStatus  = document.getElementById('status');
     const panel     = document.getElementById('panel');
     const elDebugId = document.getElementById('debug-game-id');
-
     const thumbWrap = document.getElementById('thumb-wrap');
     const thumbImg  = document.getElementById('thumb-img');
 
     let jogoUrl = JOGO_PADRAO_URL;
 
-    if (dados && typeof dados.score === 'number') {
-        // -------- Caminho normal: dados válidos --------
+    // =====================================================
+    // HELPERS
+    // =====================================================
+    async function getQuintoLugar(gameId) {
+        // range(4,4) pega só a posição 5 (índice 4).
+        // Retorna valor=null se não houver 5 scores.
+        const { data, error } = await _supabase
+            .from('scores')
+            .select('score')
+            .eq('game_id', gameId)
+            .order('score', { ascending: false })
+            .range(4, 4);
+
+        if (error) return { valor: null, erro: error };
+        if (!data || data.length === 0) return { valor: null, erro: null };
+        return { valor: Number(data[0].score), erro: null };
+    }
+
+    async function salvarSeBaterRecorde(dados) {
+        // 1) busca o 5º colocado
+        const { valor: quinto, erro } = await getQuintoLugar(dados.gameId);
+        if (erro) {
+            console.warn('[fim-de-jogo] erro ao checar 5º lugar:', erro);
+            return { salvo: false, motivo: 'erro_consulta' };
+        }
+
+        // 2) só salva se entrou no top 5 (ou se o top 5 ainda não está cheio)
+        const podeSalvar = (quinto === null) || (dados.score >= quinto);
+        if (!podeSalvar) {
+            return { salvo: false, motivo: 'fora_do_top5', quinto };
+        }
+
+        // 3) insert
+        const nome = (dados.nome || '').trim().slice(0, 20) || 'Anônimo';
+        const { error: errInsert } = await _supabase
+            .from('scores')
+            .insert({ game_id: dados.gameId, player_name: nome, score: dados.score });
+
+        if (errInsert) {
+            console.warn('[fim-de-jogo] erro ao salvar:', errInsert);
+            return { salvo: false, motivo: 'erro_insert', quinto };
+        }
+
+        return { salvo: true, quinto };
+    }
+
+    // =====================================================
+    // INIT
+    // =====================================================
+    async function iniciar() {
+        let dados = null;
+        try {
+            const raw = sessionStorage.getItem('fimDeJogo');
+            if (raw) dados = JSON.parse(raw);
+        } catch (e) {
+            console.warn('[fim-de-jogo] sessionStorage inválido:', e);
+        }
+
+        // ---------------- Sem dados: estado de erro ----------------
+        if (!dados || typeof dados.score !== 'number') {
+            panel.classList.add('anon');
+            elAvatar.textContent = '⚠';
+            elName.textContent   = 'Erro';
+            elScore.textContent  = 'Erro';
+            elScore.classList.add('error');
+            elStatus.textContent = '⚠ Nenhum resultado encontrado.';
+            elStatus.className   = 'status error';
+
+            thumbWrap.classList.add('error');
+            thumbImg.removeAttribute('src');
+            thumbImg.alt = 'Thumb indisponível';
+
+            elDebugId.textContent = 'game_id: —';
+            jogoUrl = JOGO_PADRAO_URL;
+            return;
+        }
+
+        // ---------------- Caminho normal ----------------
         elAvatar.textContent = dados.avatar || '🎮';
         elName.textContent   = dados.nome || 'Anônimo';
         panel.classList.toggle('anon', !dados.nome || dados.nome === 'Anônimo');
 
         elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
         elScore.classList.remove('error');
-
-        if (dados.salvo) {
-            elStatus.textContent = '✔ Pontuação salva!';
-            elStatus.className = 'status ok';
-        } else {
-            elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
-            elStatus.className = 'status error';
-        }
 
         const gameId = dados.gameId || 'clickteam';
         const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
@@ -270,28 +335,24 @@
 
         elDebugId.textContent = `game_id: ${gameId}`;
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
-    } else {
-        // -------- Sem dados: mostra o layout em estado de erro --------
-        panel.classList.add('anon'); // visual neutro, sem destaque de usuário
 
-        elAvatar.textContent = '⚠';
-        elName.textContent   = 'Erro';
+        // ---------------- Checagem + save condicional ----------------
+        elStatus.textContent = 'Verificando ranking...';
+        elStatus.className   = 'status';
 
-        elScore.textContent = 'Erro';
-        elScore.classList.add('error');
+        const resultado = await salvarSeBaterRecorde({ ...dados, gameId });
 
-        elStatus.textContent = '⚠ Nenhum resultado encontrado.';
-        elStatus.className = 'status error';
-
-        // Sem gameId → thumb cai no fallback (🎮) imediatamente
-        thumbWrap.classList.add('error');
-        thumbImg.removeAttribute('src');
-        thumbImg.alt = 'Thumb indisponível';
-
-        elDebugId.textContent = 'game_id: —';
-
-        // Botões continuam funcionando com os fallbacks padrão
-        jogoUrl = JOGO_PADRAO_URL;
+        if (resultado.salvo) {
+            elStatus.textContent = '✔ Pontuação salva no Top 5!';
+            elStatus.className   = 'status ok';
+        } else if (resultado.motivo === 'fora_do_top5') {
+            const q = resultado.quinto;
+            elStatus.textContent = `Você não entrou no Top 5 (5º lugar: ${q.toLocaleString('pt-BR')} pts).`;
+            elStatus.className   = 'status warn';
+        } else {
+            elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
+            elStatus.className   = 'status error';
+        }
     }
 
     // =====================================================
@@ -306,6 +367,11 @@
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
         window.location.href = HOME_URL;
     });
+
+    // =====================================================
+    // START
+    // =====================================================
+    document.addEventListener('DOMContentLoaded', iniciar);
 </script>
 
 </body>
