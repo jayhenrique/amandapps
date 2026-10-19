@@ -4,19 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jogo — Arcade Central</title>
-
-    <!-- CSS global (compartilhado com a index) -->
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- CSS específico desta página (pode mover para jogo.css se quiser) -->
     <style>
-        /* ---------- Layout do detalhe do jogo ---------- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            background: #1A1A2E;
+            color: #eaeaea;
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+            min-height: 100%;
+        }
+
+        a { color: #e94560; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ---------- Header ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            border-bottom: 3px solid #e94560;
+            padding: 0.9rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar .logo { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
+        .topbar .logo span { color: #e94560; }
+        .topbar .back {
+            color: #8a8fa3;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .topbar .back:hover { color: #e94560; text-decoration: none; }
+
+        /* ---------- Container ---------- */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* ---------- Layout principal ---------- */
         .game-header {
             display: grid;
             grid-template-columns: 300px 1fr;
             gap: 1.5rem;
             align-items: start;
-            margin: 1rem 0 2rem;
+            margin-bottom: 2rem;
         }
         @media (max-width: 720px) {
             .game-header { grid-template-columns: 1fr; }
@@ -28,8 +65,8 @@
             aspect-ratio: 300 / 250;
             border-radius: 12px;
             overflow: hidden;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -44,7 +81,7 @@
         }
         .thumb-wrap .thumb-fallback {
             font-size: 5rem;
-            color: var(--text-dim);
+            color: #8a8fa3;
             display: none;
         }
         .thumb-wrap.error img { display: none; }
@@ -61,33 +98,47 @@
             font-weight: 800;
             line-height: 1.15;
             margin-bottom: 0.4rem;
-            color: var(--text-light);
         }
+        .game-info .meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .chip {
+            background: #0f3460;
+            color: #eaeaea;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .chip.accent { background: #e94560; }
         .game-info .descricao {
-            color: var(--text-dim);
+            color: #8a8fa3;
             font-size: 0.95rem;
             line-height: 1.55;
             margin-bottom: 1.2rem;
         }
         .game-info .controles {
-            color: var(--text-dim);
+            color: #8a8fa3;
             font-size: 0.85rem;
             margin-bottom: 1.2rem;
         }
-        .game-info .controles strong { color: var(--text-light); }
+        .game-info .controles strong { color: #eaeaea; }
 
         .btn-play {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: var(--accent);
-            color: var(--text-light);
+            background: #e94560;
+            color: #fff;
             padding: 0.9rem 2rem;
             border-radius: 10px;
             font-weight: 800;
             font-size: 1.1rem;
             letter-spacing: 0.5px;
-            box-shadow: 0 10px 30px var(--shadow-accent);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.35);
             transition: transform 0.12s, box-shadow 0.12s;
             text-decoration: none;
         }
@@ -98,10 +149,25 @@
         }
         .btn-play:active { transform: translateY(0); }
 
-        /* ---------- Leaderboard desta página ---------- */
+        /* ---------- Leaderboard ---------- */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px; height: 1.2rem;
+            background: #e94560;
+            border-radius: 2px;
+        }
+
         .lb {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            background: #16213e;
+            border: 1px solid #2a3a5c;
             border-radius: 12px;
             overflow: hidden;
         }
@@ -113,33 +179,33 @@
         .lb th, .lb td {
             padding: 0.65rem 1rem;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
         }
         .lb th {
-            background: var(--accent2);
+            background: #0f3460;
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--text-dim);
+            color: #8a8fa3;
             font-weight: 700;
         }
         .lb tr:last-child td { border-bottom: none; }
-        .lb .rank { color: var(--text-dim); width: 3rem; }
+        .lb .rank { color: #8a8fa3; width: 3rem; }
         .lb .player { font-weight: 600; }
-        .lb .score { text-align: right; color: var(--gold-dark); font-weight: 700; }
-        .lb tr:nth-child(1) .player { color: var(--gold-dark); }
+        .lb .score { text-align: right; color: #f5c518; font-weight: 700; }
+        .lb tr:nth-child(1) .player { color: #f5c518; }
         .lb tr:nth-child(2) .player { color: #d4d4d4; }
         .lb tr:nth-child(3) .player { color: #cd8f5f; }
         .lb .empty {
             text-align: center;
-            color: var(--text-dim);
+            color: #8a8fa3;
             padding: 1.5rem;
         }
 
         /* ---------- Erro ---------- */
         .erro {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            background: #16213e;
+            border: 1px solid #2a3a5c;
             border-radius: 12px;
             padding: 2rem;
             text-align: center;
@@ -151,238 +217,227 @@
 </head>
 <body>
 
-<!-- Cabeçalho no padrão da home -->
-<header>
-    <a class="logo" href="index.html" title="Ir para o início" aria-label="Ir para o início">
-        <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
-    </a>
-    <div class="header-right">
-        <div class="user-area">
-            <button class="btn-auth" id="btn-go-home">← Voltar</button>
-            <button class="btn-reload" id="btn-reload" title="Recarregar tela" aria-label="Recarregar tela">🔄</button>
-        </div>
+    <div class="topbar">
+        <div class="logo">ARCADE <span>CENTRAL</span></div>
+        <a class="back" href="/amandapps/">← Voltar para home</a>
     </div>
-</header>
 
-<div class="container" id="conteudo">
-    <!-- preenchido via JS -->
-    <p style="color: var(--text-dim);">Carregando...</p>
-</div>
+    <div class="container" id="conteudo">
+        <!-- preenchido via JS -->
+        <p style="color:#8a8fa3;">Carregando...</p>
+    </div>
 
-<footer>
-    Arcade Central &copy; 2026 · Feito com HTML5 + Supabase
-</footer>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // =====================================================
+        // CONFIG
+        // =====================================================
+        const HOME_URL      = '/amandapps/';
+        const THUMB_DIR     = '/amandapps/thumbs-assets';
+        const INFO_JSON_URL = '/amandapps/jogos-info.json';
+        // Pasta onde ficam os jogos (o botão PLAY vai para `{JOGO_BASE_PATH}/{id}/index.html`)
+        const JOGO_BASE_PATH = '/amandapps';
 
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // =====================================================
-    // CONFIG
-    // =====================================================
-    const HOME_URL      = 'index.html';
-    const THUMB_DIR     = 'thumbs-assets';
-    const INFO_JSON_URL = 'jogos-info.json';
-    const JOGO_BASE_PATH = ''; // vazio = relativo à raiz da página; ajuste se os jogos ficarem em subpasta
+        const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
-    const { createClient } = supabase;
-    const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // =====================================================
-    // HELPERS
-    // =====================================================
-    function getGameIdFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
-        if (!id) return null;
-        return id.trim().replace(/[^a-zA-Z0-9_-]/g, '');
-    }
-
-    function escapeHTML(s) {
-        return String(s).replace(/[&<>"']/g, c => ({
-            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-        }[c]));
-    }
-
-    function mostrarErro(msg, detalhe) {
-        document.getElementById('conteudo').innerHTML = `
-            <div class="erro">
-                <strong>${escapeHTML(msg)}</strong>
-                ${detalhe ? `<p>${escapeHTML(detalhe)}</p>` : ''}
-                <a href="${HOME_URL}">← Voltar para home</a>
-            </div>
-        `;
-    }
-
-    // =====================================================
-    // 10º COLOCADO — salva em localStorage (invisível na URL)
-    // =====================================================
-    function definirDecimoValor(valor, gameId) {
-        try {
-            localStorage.setItem('decimo_score', String(valor));
-            localStorage.setItem('decimo_score_game', String(gameId || ''));
-        } catch (e) {
-            console.warn('[jogo] localStorage indisponível:', e);
+        // =====================================================
+        // HELPERS
+        // =====================================================
+        function getGameIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) return null;
+            // Sanitiza: só letras, números, hífen e underline
+            return id.trim().replace(/[^a-zA-Z0-9_-]/g, '');
         }
 
-        window.DECIMO_SCORE = valor;
+        function escapeHTML(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+            }[c]));
+        }
 
-        let dbg = document.getElementById('debug-decimo');
-        if (!dbg) {
-            dbg = document.createElement('div');
-            dbg.id = 'debug-decimo';
-            dbg.style.cssText = `
-                margin-top: 1.5rem;
-                padding: 0.75rem 1rem;
-                background: var(--accent2);
-                border: 1px solid var(--accent);
-                border-radius: 8px;
-                font-family: ui-monospace, monospace;
-                font-size: 0.85rem;
-                color: var(--gold);
-                word-break: break-all;
+        function mostrarErro(msg, detalhe) {
+            document.getElementById('conteudo').innerHTML = `
+                <div class="erro">
+                    <strong>${escapeHTML(msg)}</strong>
+                    ${detalhe ? `<p>${escapeHTML(detalhe)}</p>` : ''}
+                    <a href="${HOME_URL}">← Voltar para home</a>
+                </div>
             `;
-            document.querySelector('.container').appendChild(dbg);
-        }
-        dbg.textContent = `DEBUG → 10º colocado (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('pt-BR')} (raw: ${valor})`;
-
-        console.log('[jogo] 10º colocado salvo em localStorage:', valor, 'game_id:', gameId);
-    }
-
-    // =====================================================
-    // CARREGAR TUDO
-    // =====================================================
-    async function carregar() {
-        const gameId = getGameIdFromURL();
-        if (!gameId) {
-            mostrarErro('Jogo não especificado.', 'A URL precisa do parâmetro ?id=algum_jogo');
-            return;
         }
 
-        let info = null;
-        try {
-            const resp = await fetch(INFO_JSON_URL, { cache: 'no-cache' });
-            if (resp.ok) {
-                const all = await resp.json();
-                info = all[gameId] || null;
+        // =====================================================
+        // 10º COLOCADO — salva em localStorage (invisível na URL)
+        // =====================================================
+        function definirDecimoValor(valor, gameId) {
+            // 1) Salva no localStorage (persiste entre páginas do mesmo domínio)
+            try {
+                localStorage.setItem('decimo_score', String(valor));
+                localStorage.setItem('decimo_score_game', String(gameId || ''));
+            } catch (e) {
+                console.warn('[jogo] localStorage indisponível:', e);
             }
-        } catch (e) {
-            console.warn('[jogo] não foi possível carregar jogos-info.json:', e);
+
+            // 2) Também deixa numa variável global (para debug no console)
+            window.DECIMO_SCORE = valor;
+
+            // 3) Debug visível na página
+            let dbg = document.getElementById('debug-decimo');
+            if (!dbg) {
+                dbg = document.createElement('div');
+                dbg.id = 'debug-decimo';
+                dbg.style.cssText = `
+                    margin-top: 1.5rem;
+                    padding: 0.75rem 1rem;
+                    background: #0f3460;
+                    border: 1px solid #e94560;
+                    border-radius: 8px;
+                    font-family: ui-monospace, monospace;
+                    font-size: 0.85rem;
+                    color: #f5c518;
+                    word-break: break-all;
+                `;
+                document.querySelector('.container').appendChild(dbg);
+            }
+            dbg.textContent = `DEBUG → 10º colocado (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('pt-BR')} (raw: ${valor})`;
+
+            console.log('[jogo] 10º colocado salvo em localStorage:', valor, 'game_id:', gameId);
         }
 
-        const dados = {
-            titulo:    info?.titulo    || gameId,
-            descricao: info?.descricao || '',
-            categoria: info?.categoria || '',
-            controles: info?.controles || '',
-            autor:     info?.autor     || ''
-        };
+        // =====================================================
+        // CARREGAR TUDO
+        // =====================================================
+        async function carregar() {
+            const gameId = getGameIdFromURL();
+            if (!gameId) {
+                mostrarErro('Jogo não especificado.', 'A URL precisa do parâmetro ?id=algum_jogo');
+                return;
+            }
 
-        const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
-        const playUrl  = `${JOGO_BASE_PATH}/${encodeURIComponent(gameId)}/index.html`;
+            // ---- 1) JSON de informações ----
+            let info = null;
+            try {
+                const resp = await fetch(INFO_JSON_URL, { cache: 'no-cache' });
+                if (resp.ok) {
+                    const all = await resp.json();
+                    info = all[gameId] || null;
+                }
+            } catch (e) {
+                console.warn('[jogo] não foi possível carregar jogos-info.json:', e);
+            }
 
-        document.getElementById('conteudo').innerHTML = `
-            <div class="game-header">
-                <div class="thumb-wrap" id="thumb-wrap">
-                    <img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">
-                    <div class="thumb-fallback">🎮</div>
+            // Fallback se o gameId não estiver no JSON
+            const dados = {
+                titulo:    info?.titulo    || gameId,
+                descricao: info?.descricao || '',
+                categoria: info?.categoria || '',
+                controles: info?.controles || '',
+                autor:     info?.autor     || ''
+            };
+
+            const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
+            const playUrl  = `${JOGO_BASE_PATH}/${encodeURIComponent(gameId)}/index.html`;
+
+            // ---- 2) HTML da página ----
+            document.getElementById('conteudo').innerHTML = `
+                <div class="game-header">
+                    <div class="thumb-wrap" id="thumb-wrap">
+                        <img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">
+                        <div class="thumb-fallback">🎮</div>
+                    </div>
+
+                    <div class="game-info">
+                        <h1>${escapeHTML(dados.titulo)}</h1>
+
+                        ${dados.descricao ? `<p class="descricao">${escapeHTML(dados.descricao)}</p>` : ''}
+                        ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
+                        <a class="btn-play" href="${playUrl}">▶ PLAY</a>
+                    </div>
                 </div>
 
-                <div class="game-info">
-                    <h1>${escapeHTML(dados.titulo)}</h1>
-
-                    ${dados.descricao ? `<p class="descricao">${escapeHTML(dados.descricao)}</p>` : ''}
-                    ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
-                    <a class="btn-play" href="${playUrl}">▶ PLAY</a>
+                <h2 class="section-title">Melhores pontuações</h2>
+                <div class="lb">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Jogador</th>
+                                <th style="text-align:right;">Pontos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lb-body">
+                            <tr><td colspan="3" class="empty">Carregando...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
 
-            <h2 class="section-title">Melhores pontuações</h2>
-            <div class="lb">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Jogador</th>
-                            <th style="text-align:right;">Pontos</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lb-body">
-                        <tr><td colspan="3" class="empty">Carregando...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+                <p style="margin-top:1.5rem; font-size:0.7rem; color:#4a5578; font-family:ui-monospace,monospace;">
+                    game_id: ${escapeHTML(gameId)}
+                </p>
+            `;
 
-            <p style="margin-top:1.5rem; font-size:0.7rem; color: rgba(255,255,255,0.25); font-family:ui-monospace,monospace;">
-                game_id: ${escapeHTML(gameId)}
-            </p>
-        `;
+            // ---- 3) Fallback da thumb ----
+            const thumbImg = document.getElementById('thumb-img');
+            const thumbWrap = document.getElementById('thumb-wrap');
+            thumbImg.onerror = () => {
+                thumbWrap.classList.add('error');
+                thumbImg.removeAttribute('src');
+                console.warn('[jogo] thumb não encontrada:', thumbUrl);
+            };
 
-        const thumbImg = document.getElementById('thumb-img');
-        const thumbWrap = document.getElementById('thumb-wrap');
-        thumbImg.onerror = () => {
-            thumbWrap.classList.add('error');
-            thumbImg.removeAttribute('src');
-            console.warn('[jogo] thumb não encontrada:', thumbUrl);
-        };
-
-        await carregarLeaderboard(gameId);
-    }
-
-    async function carregarLeaderboard(gameId) {
-        const tbody = document.getElementById('lb-body');
-        if (!tbody) return;
-
-        const { data, error } = await _supabase
-            .from('scores')
-            .select('player_name, score, created_at')
-            .eq('game_id', gameId)
-            .order('score', { ascending: false })
-            .limit(10);
-
-        if (error) {
-            console.error('[jogo] erro ao buscar leaderboard:', error);
-            tbody.innerHTML = `<tr><td colspan="3" class="empty">Erro ao carregar pontuações.</td></tr>`;
-            definirDecimoValor(0, gameId);
-            return;
+            // ---- 4) Leaderboard do Supabase ----
+            await carregarLeaderboard(gameId);
         }
 
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma pontuação ainda. Seja o primeiro!</td></tr>`;
-            definirDecimoValor(0, gameId);
-            return;
+        async function carregarLeaderboard(gameId) {
+            const tbody = document.getElementById('lb-body');
+            if (!tbody) return;
+
+            const { data, error } = await _supabase
+                .from('scores')
+                .select('player_name, score, created_at')
+                .eq('game_id', gameId)
+                .order('score', { ascending: false })
+                .limit(10);
+
+            if (error) {
+                console.error('[jogo] erro ao buscar leaderboard:', error);
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">Erro ao carregar pontuações.</td></tr>`;
+                definirDecimoValor(0, gameId); // fallback
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma pontuação ainda. Seja o primeiro!</td></tr>`;
+                definirDecimoValor(0, gameId);
+                return;
+            }
+
+            tbody.innerHTML = data.map((row, i) => `
+                <tr>
+                    <td class="rank">${i + 1}</td>
+                    <td class="player">${escapeHTML(row.player_name || 'Um Amanfã')}</td>
+                    <td class="score">${Number(row.score).toLocaleString('pt-BR')}</td>
+                </tr>
+            `).join('');
+
+            // ---------- 10º colocado ----------
+            // Se a tabela tiver menos de 10 entradas, o valor é 0
+            // (garante que qualquer score novo entre na tabela até ela ficar cheia).
+            const valorDecimo = (data.length >= 10) ? (Number(data[9].score) || 0) : 0;
+            definirDecimoValor(valorDecimo, gameId);
         }
 
-        tbody.innerHTML = data.map((row, i) => `
-            <tr>
-                <td class="rank">${i + 1}</td>
-                <td class="player">${escapeHTML(row.player_name || 'Um Amanfã')}</td>
-                <td class="score">${Number(row.score).toLocaleString('pt-BR')}</td>
-            </tr>
-        `).join('');
-
-        const valorDecimo = (data.length >= 10) ? (Number(data[9].score) || 0) : 0;
-        definirDecimoValor(valorDecimo, gameId);
-    }
-
-    // =====================================================
-    // INIT
-    // =====================================================
-    document.addEventListener('DOMContentLoaded', () => {
-        // Botão voltar (header) → home
-        document.getElementById('btn-go-home').addEventListener('click', () => {
-            window.location.href = HOME_URL;
-        });
-
-        // Botão recarregar
-        document.getElementById('btn-reload').addEventListener('click', () => {
-            location.reload();
-        });
-
-        carregar();
-    });
-</script>
+        // =====================================================
+        // INIT
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', carregar);
+    </script>
 
 </body>
 </html>
