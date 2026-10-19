@@ -1,16 +1,9 @@
 {
-  "snake": {
-    "titulo": "Snake Classic",
+  "copter": {
+    "titulo": "Copter Queen",
     "descricao": "Coma maçãs e cresça sem bater na parede. Clássico atemporal do arcade.",
     "categoria": "Arcade",
     "controles": "Setas ou WASD para mover",
-    "autor": "Arcade Central"
-  },
-  "breakout": {
-    "titulo": "Breakout",
-    "descricao": "Quebre todos os tijolos com a bola usando a raquete.",
-    "categoria": "Arcade",
-    "controles": "Setas esquerda/direita ou mouse",
     "autor": "Arcade Central"
   },
   "flappy": {
@@ -18,27 +11,6 @@
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "Espaço ou clique/toque",
-    "autor": "Arcade Central"
-  },
-  "tetris": {
-    "titulo": "Tetris",
-    "descricao": "Encaixe as peças e limpe as linhas antes que o tabuleiro transborde.",
-    "categoria": "Puzzle",
-    "controles": "Setas para mover/rotacionar, Espaço para queda rápida",
-    "autor": "Arcade Central"
-  },
-  "memory": {
-    "titulo": "Jogo da Memória",
-    "descricao": "Encontre todos os pares de cartas no menor tempo possível.",
-    "categoria": "Casual",
-    "controles": "Clique/toque nas cartas",
-    "autor": "Arcade Central"
-  },
-  "2048": {
-    "titulo": "2048",
-    "descricao": "Junte números iguais até chegar em 2048.",
-    "categoria": "Puzzle",
-    "controles": "Setas ou WASD",
     "autor": "Arcade Central"
   },
   "teste": {
