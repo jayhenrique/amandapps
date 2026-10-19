@@ -6,15 +6,15 @@
 <title>Arcade Central | Minijogos</title>
 <style>
   :root {
-    --bg: #1a1a2e;
-    --bg-card: #16213e;
+    --bg: #b80050;
+    --bg-card: #9e0034;
     --bg-card-hover: #1f2b4d;
     --accent: #e94560;
     --accent2: #0f3460;
-    --text: #eaeaea;
-    --text-dim: #8a8fa3;
+    --text: #fd90bc;
+    --text-dim: #eaeaea;
     --gold: #f5c518;
-    --border: #2a3a5c;
+    --border: #b80050;
     --danger: #d63031;
     --danger-hover: #b02525;
   }
@@ -33,8 +33,8 @@
     position: sticky;
     top: 0;
     z-index: 50;
-    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
-    border-bottom: 3px solid var(--accent);
+    background: #1b1b1b;
+    border-bottom: 0px solid var(--accent);
     padding: 1.2rem 2rem;
     display: flex;
     align-items: center;
@@ -42,8 +42,21 @@
     flex-wrap: wrap;
     gap: 1rem;
   }
-  .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
-  .logo span { color: var(--accent); }
+
+  /* Logo como imagem clicável (Home) */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .logo:hover { opacity: 0.85; transform: scale(1.02); text-decoration: none; }
+  .logo img {
+    height: 42px;
+    width: auto;
+    display: block;
+  }
 
   /* Agrupa nav + área do usuário + reload na mesma linha à direita */
   .header-right {
@@ -58,13 +71,14 @@
 
   .user-area { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; }
   .user-area .user-pill {
-    background: var(--accent2);
+    background: #f55394;
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
+    color: #fff;
     cursor: pointer;
   }
   .btn-auth {
@@ -83,12 +97,12 @@
   .btn-reload {
     background: transparent;
     color: var(--text-dim);
-    border: 1px solid var(--border);
+    border: 0px solid var(--border);
     width: 34px;
     height: 34px;
-    border-radius: 6px;
+    border-radius: 0px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 1.5rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -142,7 +156,7 @@
 
   .banner {
     background: var(--bg-card);
-    border: 1px solid var(--border);
+    border: 0px solid var(--border);
     border-left: 5px solid var(--accent);
     border-radius: 8px;
     padding: 1rem 1.5rem;
@@ -156,14 +170,15 @@
     font-weight: 700;
     margin-bottom: 1.2rem;
     display: flex;
+    color: #fff;
     align-items: center;
     gap: 0.6rem;
   }
   .section-title::before {
     content: '';
     width: 4px; height: 1.4rem;
-    background: var(--accent);
-    border-radius: 2px;
+    background: #ffc825;
+    border-radius: 0px;
   }
 
   /* ---------- Grid de jogos (só imagem) ---------- */
@@ -175,8 +190,8 @@
   }
   .game-card {
     background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    border: 0px solid var(--border);
+    border-radius: 0px;
     overflow: hidden;
     transition: transform 0.2s, border-color 0.2s;
     cursor: pointer;
@@ -231,8 +246,8 @@
 
   .activity-feed {
     background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border: 0px solid var(--border);
+    border-radius: 0px;
     padding: 1rem 1.2rem;
     margin-bottom: 3rem;
     font-size: 0.85rem;
@@ -272,8 +287,8 @@
   /* ---------- Seção Meu Perfil ---------- */
   .profile-wrap {
     background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    border: 0px solid var(--border);
+    border-radius: 0px;
     padding: 2rem;
     margin-bottom: 3rem;
   }
@@ -303,7 +318,6 @@
     box-shadow: 0 0 0 6px rgba(233, 69, 96, 0.15);
   }
   .profile-card.anon .profile-avatar {
-    border-color: var(--border);
     box-shadow: 0 0 0 6px rgba(138, 143, 163, 0.08);
   }
 
@@ -312,7 +326,9 @@
     font-weight: 800;
     margin-bottom: 0.2rem;
     line-height: 1.1;
-    color: var(--text);
+    color: #ffc825;
+
+
   }
   .profile-details .profile-email {
     font-size: 0.9rem;
@@ -321,14 +337,15 @@
   }
   .profile-details .profile-tag {
     display: inline-block;
-    background: var(--accent2);
-    color: var(--text);
+    background: #f55394;
+
+    color: #fff;
     padding: 0.2rem 0.7rem;
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 700;
   }
-  .profile-details .profile-tag.anon { background: #333a4d; color: var(--text-dim); }
+  .profile-details .profile-tag.anon { background: #710015; color: var(--text-dim); }
 
   .profile-actions {
     margin-left: auto;
@@ -364,7 +381,7 @@
     flex: 1;
     padding: 0.55rem;
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 0px solid var(--border);
     border-radius: 6px;
     color: var(--text-dim);
     font-weight: 700;
@@ -379,7 +396,7 @@
     width: 100%;
     padding: 0.6rem;
     border-radius: 6px;
-    border: 1px solid var(--border);
+    border:0px solid var(--border);
     background: var(--bg);
     color: var(--text);
     font-size: 0.9rem;
@@ -394,7 +411,7 @@
   }
   .avatar-grid button {
     background: var(--bg);
-    border: 2px solid var(--border);
+    border: 0px solid var(--border);
     border-radius: 8px;
     font-size: 1.4rem;
     padding: 0.4rem 0;
@@ -436,7 +453,7 @@
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
     border-radius: 4px;
-    border: 1px solid var(--border);
+    border: 0px solid var(--border);
     background: var(--bg);
     color: var(--text);
     font-size: 0.85rem;
@@ -468,6 +485,7 @@
     .profile-avatar { width: 90px; height: 90px; min-width: 90px; font-size: 3.5rem; }
     .profile-details h3 { font-size: 1.5rem; }
     .avatar-grid { grid-template-columns: repeat(6, 1fr); }
+    .logo img { height: 34px; }
 
     /* Dois jogos por coluna no mobile */
     .game-grid {
@@ -480,13 +498,13 @@
 <body>
 
 <header>
-  <div class="logo">Amand.<span>APPs</span></div>
+  <a class="logo" href="#" id="logo-home" title="Ir para o início" aria-label="Ir para o início">
+    <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
+  </a>
   <div class="header-right">
-    <nav>
-      <a href="#jogos">Jogos</a>
-    </nav>
+
     <div class="user-area" id="user-area">
-      <span class="user-pill hidden" id="user-pill" title="Ir para Meu Perfil">🎮 <span id="user-name">—</span></span>
+      <span class="user-pill hidden" id="user-pill" title="Ir para Meu Perfil"><span id="user-name">—</span></span>
       <button class="btn-auth hidden" id="btn-logout">Sair</button>
       <button class="btn-auth" id="btn-go-profile">Entrar</button>
       <button class="btn-reload" id="btn-reload" title="Recarregar tela" aria-label="Recarregar tela">🔄</button>
@@ -496,7 +514,7 @@
 
 <div class="container">
 
-  <h2 class="section-title anchor-target" id="jogos">Jogos Disponíveis</h2>
+  <h2 class="section-title anchor-target" id="jogos">Jogos FABULOSOS!</h2>
   <div class="game-grid">
     <a class="game-card" href="jogo.html?id=flappy">
       <img class="game-thumb-img" src="thumbs-assets/flappymini.png" alt="Flappy Dragqueen" loading="lazy">
@@ -555,6 +573,7 @@
 
     <!-- Painel de login/cadastro -->
     <div class="auth-panel" id="auth-panel" style="margin-top:1.5rem;">
+
       <h4>Entre ou crie sua conta</h4>
       <div class="tabs">
         <button class="tab active" data-tab="login" type="button">Entrar</button>
@@ -980,6 +999,16 @@
     _supabase.auth.onAuthStateChange((_event, session) => {
       currentUser = lerPerfilDoUser(session?.user);
       atualizarUIUsuario();
+    });
+
+    // Logo → Home (topo da página)
+    document.getElementById('logo-home').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Limpa o hash da URL (se houver), sem recarregar
+      if (history.replaceState) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
     });
 
     // Header → perfil
