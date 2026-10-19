@@ -17,7 +17,6 @@
         a { color: #e94560; text-decoration: none; }
         a:hover { text-decoration: underline; }
 
-        /* ---------- Header ---------- */
         .topbar {
             position: sticky;
             top: 0;
@@ -40,14 +39,12 @@
         }
         .topbar .back:hover { color: #e94560; text-decoration: none; }
 
-        /* ---------- Container ---------- */
         .container {
             max-width: 960px;
             margin: 0 auto;
             padding: 1.5rem;
         }
 
-        /* ---------- Layout principal ---------- */
         .game-header {
             display: grid;
             grid-template-columns: 300px 1fr;
@@ -149,7 +146,6 @@
         }
         .btn-play:active { transform: translateY(0); }
 
-        /* ---------- Leaderboard ---------- */
         .section-title {
             font-size: 1.2rem;
             font-weight: 700;
@@ -202,7 +198,6 @@
             padding: 1.5rem;
         }
 
-        /* ---------- Erro ---------- */
         .erro {
             background: #16213e;
             border: 1px solid #2a3a5c;
@@ -223,11 +218,9 @@
     </div>
 
     <div class="container" id="conteudo">
-        <!-- preenchido via JS -->
         <p style="color:#8a8fa3;">Carregando...</p>
     </div>
 
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // =====================================================
@@ -238,10 +231,10 @@
         const INFO_JSON_URL = '/amandapps/jogos-info.json';
 
         // =====================================================
-        // NOVO ESQUEMA: todos os jogos rodam pelo mesmo arquivo
-        // /jogo_inside.html?jogo=<id>  (na raiz do site)
+        // CAMINHO DO jogo_inside.html
+        // Está em /amandapps/jogo_inside.html (não na raiz!)
         // =====================================================
-        const JOGO_INSIDE_URL = 'amandapps/jogo_inside.html';
+        const JOGO_INSIDE_URL = '/amandapps/jogo_inside.html';
 
         const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
@@ -255,7 +248,6 @@
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
             if (!id) return null;
-            // Sanitiza: só letras, números, hífen e underline
             return id.trim().replace(/[^a-zA-Z0-9_-]/g, '');
         }
 
@@ -276,7 +268,7 @@
         }
 
         // =====================================================
-        // 10º COLOCADO — salva em localStorage (invisível na URL)
+        // 10º COLOCADO — salva em localStorage
         // =====================================================
         function definirDecimoValor(valor, gameId) {
             try {
@@ -285,7 +277,6 @@
             } catch (e) {
                 console.warn('[jogo] localStorage indisponível:', e);
             }
-
             window.DECIMO_SCORE = valor;
 
             let dbg = document.getElementById('debug-decimo');
@@ -311,7 +302,7 @@
         }
 
         // =====================================================
-        // CARREGAR TUDO
+        // CARREGAR
         // =====================================================
         async function carregar() {
             const gameId = getGameIdFromURL();
@@ -320,11 +311,9 @@
                 return;
             }
 
-            // Atualiza o link "voltar para home" (pode ser customizado)
             const linkHome = document.getElementById('link-home');
             if (linkHome) linkHome.href = HOME_URL;
 
-            // ---- 1) JSON de informações ----
             let info = null;
             try {
                 const resp = await fetch(INFO_JSON_URL, { cache: 'no-cache' });
@@ -347,13 +336,10 @@
             const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
 
             // =====================================================
-            // MUDANÇA PRINCIPAL:
-            // antes: `${JOGO_BASE_PATH}/${id}/index.html`
-            // agora: `/jogo_inside.html?jogo=${id}`
+            // PLAY → /amandapps/jogo_inside.html?jogo=<id>
             // =====================================================
             const playUrl = `${JOGO_INSIDE_URL}?jogo=${encodeURIComponent(gameId)}`;
 
-            // ---- 2) HTML da página ----
             document.getElementById('conteudo').innerHTML = `
                 <div class="game-header">
                     <div class="thumb-wrap" id="thumb-wrap">
@@ -392,7 +378,6 @@
                 </p>
             `;
 
-            // ---- 3) Fallback da thumb ----
             const thumbImg = document.getElementById('thumb-img');
             const thumbWrap = document.getElementById('thumb-wrap');
             thumbImg.onerror = () => {
@@ -401,7 +386,6 @@
                 console.warn('[jogo] thumb não encontrada:', thumbUrl);
             };
 
-            // ---- 4) Leaderboard ----
             await carregarLeaderboard(gameId);
         }
 
@@ -441,9 +425,6 @@
             definirDecimoValor(valorDecimo, gameId);
         }
 
-        // =====================================================
-        // INIT
-        // =====================================================
         document.addEventListener('DOMContentLoaded', carregar);
     </script>
 
