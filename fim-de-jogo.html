@@ -232,6 +232,9 @@
     // Fallback caso o sessionStorage esteja vazio
     const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
 
+    // Nome padrão exibido quando o jogador é anônimo
+    const NOME_ANONIMO = 'Um Amanfã';
+
     // =====================================================
     // LER DADOS
     // =====================================================
@@ -281,11 +284,23 @@
         elDebugFlag.innerHTML = `flag: <span class="${corClasse}">${texto}</span>`;
     }
 
+    // Resolve o nome a exibir: se vier vazio OU "Anônimo"/"Anonimo",
+    // usa o nome padrão "Um Amanfã".
+    function resolverNome(nomeRecebido) {
+        const nome = (nomeRecebido == null) ? '' : String(nomeRecebido).trim();
+        if (!nome || nome.toLowerCase() === 'anônimo' || nome.toLowerCase() === 'anonimo') {
+            return NOME_ANONIMO;
+        }
+        return nome;
+    }
+
     if (dados && typeof dados.score === 'number') {
         // -------- Caminho normal: dados válidos --------
+        const nomeExibicao = resolverNome(dados.nome);
+
         elAvatar.textContent = dados.avatar || '🎮';
-        elName.textContent   = dados.nome || 'Um Amanfã';
-        panel.classList.toggle('anon', !dados.nome || dados.nome === 'Um Amanfã');
+        elName.textContent   = nomeExibicao;
+        panel.classList.toggle('anon', nomeExibicao === NOME_ANONIMO);
 
         elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
         elScore.classList.remove('error');
@@ -362,7 +377,15 @@
     // =====================================================
     document.getElementById('btn-retry').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-        window.location.href = jogoUrl;
+
+        // Preferência: voltar para a tela anterior (a tela do jogo),
+        // que é exatamente de onde o jogador veio.
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            // Fallback: acesso direto à tela de fim de jogo, sem histórico.
+            window.location.href = jogoUrl;
+        }
     });
 
     document.getElementById('btn-home').addEventListener('click', () => {

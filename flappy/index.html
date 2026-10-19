@@ -145,7 +145,7 @@
         // --------- ENVIAR AO SUPABASE ---------
         async function enviarAoBanco(score, gameId) {
             const payload = {
-                player_name: currentUser ? currentUser.username : 'Anônimo',
+                player_name: currentUser ? currentUser.username : 'Um Amanfã',
                 game_id: gameId,
                 score: score,
                 user_id: currentUser ? currentUser.id : null
@@ -165,7 +165,7 @@
             if (navegando) return;
             navegando = true;
 
-            const nome = currentUser ? currentUser.username : 'Anônimo';
+            const nome = currentUser ? currentUser.username : 'Um Amanfã';
             const avatar = currentUser ? currentUser.avatar : '🎭';
 
             try {
