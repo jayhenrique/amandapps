@@ -421,7 +421,7 @@
             tbody.innerHTML = data.map((row, i) => `
                 <tr>
                     <td class="rank">${i + 1}</td>
-                    <td class="player">${escapeHTML(row.player_name || 'Anônimo')}</td>
+                    <td class="player">${escapeHTML(row.player_name || 'Um Amanfã')}</td>
                     <td class="score">${Number(row.score).toLocaleString('pt-BR')}</td>
                 </tr>
             `).join('');
