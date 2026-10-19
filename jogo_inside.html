@@ -19,13 +19,24 @@
       color: #000;
       font-size: small;
     }
-    body {
-      background-color: #1A1A2E;
-      text-align: center;
+
+    /* ---------- CENTRALIZAÇÃO ---------- */
+    html, body {
+      height: 100%;
       margin: 0;
       padding: 0;
+      background-color: #1A1A2E;
+    }
+
+    body {
+      /* Flexbox centraliza o canvas horizontal e verticalmente */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       overflow: hidden;
     }
+
     #bloctxt {
       border-left-width: 5px;
       border-left-style: solid;
@@ -40,14 +51,33 @@
       text-align: left;
       color: #fff;
     }
+
+    /* Wrapper do canvas — flex item centralizado pelo body */
+    #canvasWrap {
+      display: none;              /* vira flex via JS quando o jogo carrega */
+      align-items: center;
+      justify-content: center;
+      max-width: 100vw;
+      max-height: 100vh;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
     #MMFCanvas {
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
       -webkit-tap-highlight-color: transparent;
       display: block;
-      margin: 0 auto;
+      /* Impede o canvas de estourar a tela em dispositivos pequenos */
+      max-width: 100vw;
+      max-height: 100vh;
+      width: auto;
+      height: auto;
+      /* Mantém a proporção original 360x640 */
+      object-fit: contain;
     }
+
     #erroJogo {
       display: none;
       color: #F66;
@@ -55,14 +85,19 @@
       padding: 20px;
       font-size: 14px;
       text-align: center;
-      margin-top: 30vh;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 500px;
     }
+
     #loading {
       position: absolute;
       top: 50%;
-      left: 0;
-      right: 0;
-      transform: translateY(-50%);
+      left: 50%;
+      transform: translate(-50%, -50%);
       color: #aaa;
       font-family: Arial, sans-serif;
       font-size: 14px;
@@ -87,7 +122,7 @@
   <p id="erroDetalhe" style="color:#ccc"></p>
 </div>
 
-<div id="canvasWrap" style="display: none; -webkit-user-select: none; text-align: left; width: 100%;">
+<div id="canvasWrap">
   <canvas id="MMFCanvas" width="360" height="640">
     Your browser does not support Canvas.
   </canvas>
@@ -268,11 +303,12 @@
       return setTimeout(iniciarRuntime, 50);
     }
 
-    // Esconde o "Carregando…" e mostra o canvas
+    // Esconde o "Carregando…" e mostra o canvas centralizado
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
+
     const wrap = document.getElementById('canvasWrap');
-    if (wrap) wrap.style.display = 'inline-block';
+    if (wrap) wrap.style.display = 'flex';  // flex → centraliza dentro do body flex
 
     try {
       new Runtime("MMFCanvas", window.__JOGO__.cch);
