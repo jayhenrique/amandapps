@@ -272,7 +272,7 @@
         }
 
         // =====================================================
-        // 10º COLOCADO — salva para a próxima página
+        // 10º COLOCADO — salva em localStorage (invisível na URL)
         // =====================================================
         function definirDecimoValor(valor, gameId) {
             // 1) Salva no localStorage (persiste entre páginas do mesmo domínio)
@@ -283,24 +283,10 @@
                 console.warn('[jogo] localStorage indisponível:', e);
             }
 
-            // 2) Também deixa numa variável global
+            // 2) Também deixa numa variável global (para debug no console)
             window.DECIMO_SCORE = valor;
 
-            // 3) Atualiza o link do botão PLAY para carregar o valor na URL
-            const btnPlay = document.querySelector('.btn-play');
-            if (btnPlay) {
-                try {
-                    const url = new URL(btnPlay.href, window.location.origin);
-                    url.searchParams.set('decimo', String(valor));
-                    btnPlay.href = url.toString();
-                } catch (e) {
-                    // fallback: concatenação simples
-                    const sep = btnPlay.href.includes('?') ? '&' : '?';
-                    btnPlay.href = btnPlay.href.split('?')[0] + `${sep}decimo=${encodeURIComponent(valor)}`;
-                }
-            }
-
-            // 4) Debug visível na página
+            // 3) Debug visível na página
             let dbg = document.getElementById('debug-decimo');
             if (!dbg) {
                 dbg = document.createElement('div');
@@ -320,7 +306,7 @@
             }
             dbg.textContent = `DEBUG → 10º colocado (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('pt-BR')} (raw: ${valor})`;
 
-            console.log('[jogo] 10º colocado salvo:', valor, 'game_id:', gameId);
+            console.log('[jogo] 10º colocado salvo em localStorage:', valor, 'game_id:', gameId);
         }
 
         // =====================================================
