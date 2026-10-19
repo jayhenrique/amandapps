@@ -284,8 +284,8 @@
     if (dados && typeof dados.score === 'number') {
         // -------- Caminho normal: dados válidos --------
         elAvatar.textContent = dados.avatar || '🎮';
-        elName.textContent   = dados.nome || 'Anônimo';
-        panel.classList.toggle('anon', !dados.nome || dados.nome === 'Anônimo');
+        elName.textContent   = dados.nome || 'Um Amanfã';
+        panel.classList.toggle('anon', !dados.nome || dados.nome === 'Um Amanfã');
 
         elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
         elScore.classList.remove('error');
