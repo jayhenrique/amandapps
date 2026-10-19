@@ -44,6 +44,14 @@
   }
   .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
   .logo span { color: var(--accent); }
+
+  /* Agrupa nav + área do usuário + reload na mesma linha à direita */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
   nav { display: flex; gap: 1.5rem; font-size: 0.95rem; align-items: center; }
   nav a { color: var(--text-dim); font-weight: 600; }
   nav a:hover { color: var(--accent); text-decoration: none; }
@@ -70,6 +78,28 @@
     cursor: pointer;
   }
   .btn-auth:hover { opacity: 0.9; }
+
+  /* Botão de recarregar */
+  .btn-reload {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, transform 0.3s;
+  }
+  .btn-reload:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .btn-reload:active { transform: rotate(180deg); }
+
   .btn-ghost {
     background: transparent;
     color: var(--text-dim);
@@ -430,6 +460,7 @@
 
   @media (max-width: 600px) {
     header { flex-direction: column; align-items: flex-start; }
+    .header-right { width: 100%; justify-content: space-between; gap: 1rem; }
     nav { flex-wrap: wrap; gap: 1rem; }
     .container { padding: 1.2rem 1rem; }
     .profile-card { flex-direction: column; align-items: flex-start; text-align: left; }
@@ -450,13 +481,16 @@
 
 <header>
   <div class="logo">Amand.<span>APPs</span></div>
-  <nav>
-    <a href="#jogos">Jogos</a>
-  </nav>
-  <div class="user-area" id="user-area">
-    <span class="user-pill hidden" id="user-pill" title="Ir para Meu Perfil">🎮 <span id="user-name">—</span></span>
-    <button class="btn-auth hidden" id="btn-logout">Sair</button>
-    <button class="btn-auth" id="btn-go-profile">Entrar</button>
+  <div class="header-right">
+    <nav>
+      <a href="#jogos">Jogos</a>
+    </nav>
+    <div class="user-area" id="user-area">
+      <span class="user-pill hidden" id="user-pill" title="Ir para Meu Perfil">🎮 <span id="user-name">—</span></span>
+      <button class="btn-auth hidden" id="btn-logout">Sair</button>
+      <button class="btn-auth" id="btn-go-profile">Entrar</button>
+      <button class="btn-reload" id="btn-reload" title="Recarregar tela" aria-label="Recarregar tela">🔄</button>
+    </div>
   </div>
 </header>
 
@@ -954,6 +988,11 @@
     });
     document.getElementById('user-pill').addEventListener('click', () => {
       document.getElementById('perfil').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Botão de recarregar tela
+    document.getElementById('btn-reload').addEventListener('click', () => {
+      location.reload();
     });
 
     // Logout
