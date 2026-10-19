@@ -235,9 +235,6 @@
     // Nome padrão exibido quando o jogador é anônimo
     const NOME_ANONIMO = 'Um Amanfã';
 
-    // Chave usada para sinalizar ao Clickteam Fusion que o jogo deve resetar
-    const RESET_KEY = 'precisaResetarJogo';
-
     // =====================================================
     // LER DADOS
     // =====================================================
@@ -297,23 +294,6 @@
         return nome;
     }
 
-    // Adiciona/atualiza o parâmetro ?reset=1 na URL do jogo,
-    // preservando a query string existente.
-    function montarUrlComReset(url) {
-        try {
-            const u = new URL(url, window.location.origin);
-            u.searchParams.set('reset', '1');
-            return u.pathname + u.search + u.hash;
-        } catch (e) {
-            // Fallback manual, caso URL() falhe em algum navegador antigo
-            const hashIdx = url.indexOf('#');
-            const hash = hashIdx >= 0 ? url.slice(hashIdx) : '';
-            const semHash = hashIdx >= 0 ? url.slice(0, hashIdx) : url;
-            const sep = semHash.includes('?') ? '&' : '?';
-            return semHash + sep + 'reset=1' + hash;
-        }
-    }
-
     if (dados && typeof dados.score === 'number') {
         // -------- Caminho normal: dados válidos --------
         const nomeExibicao = resolverNome(dados.nome);
@@ -326,6 +306,9 @@
         elScore.classList.remove('error');
 
         // -------- Flag de hiscore --------
+        // A fonte da verdade é `dados.salvouHiscore` (repassado pela
+        // receberPontuacaoDoJogo). Se não existir, cai em `dados.salvo`
+        // como compatibilidade com o formato antigo.
         const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
         const flag = normalizarFlag(flagBruta);
 
@@ -336,6 +319,7 @@
             elStatus.textContent = '🔄 Tente novamente';
             elStatus.className = 'status error';
         } else {
+            // Sem flag — comportamento antigo (só informativo)
             if (dados.salvo) {
                 elStatus.textContent = '✔ Pontuação salva!';
                 elStatus.className = 'status ok';
@@ -363,7 +347,7 @@
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
     } else {
         // -------- Sem dados: mostra o layout em estado de erro --------
-        panel.classList.add('anon');
+        panel.classList.add('anon'); // visual neutro, sem destaque de usuário
 
         elAvatar.textContent = '⚠';
         elName.textContent   = 'Erro';
@@ -374,14 +358,17 @@
         elStatus.textContent = '⚠ Nenhum resultado encontrado.';
         elStatus.className = 'status error';
 
+        // Sem gameId → thumb cai no fallback (🎮) imediatamente
         thumbWrap.classList.add('error');
         thumbImg.removeAttribute('src');
         thumbImg.alt = 'Thumb indisponível';
 
+        // -------- DEBUG (estado sem dados) --------
         elDebugId.textContent    = 'game_id: —';
         elDebugScore.textContent = 'score: —';
         elDebugFlag.innerHTML    = 'flag: —';
 
+        // Botões continuam funcionando com os fallbacks padrão
         jogoUrl = JOGO_PADRAO_URL;
     }
 
@@ -389,19 +376,16 @@
     // BOTÕES
     // =====================================================
     document.getElementById('btn-retry').addEventListener('click', () => {
-        // 1) Sinaliza ao Fusion (via sessionStorage) que o jogo deve resetar
-        try {
-            sessionStorage.removeItem('fimDeJogo');
-            sessionStorage.setItem(RESET_KEY, '1');
-        } catch (e) {}
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
 
-        // 2) Força o recarregamento completo da página do jogo, do zero.
-        //    - location.replace() descarta o estado anterior e substitui
-        //      a entrada no histórico (o "voltar" não retorna para cá).
-        //    - O parâmetro ?reset=1 também deixa a intenção explícita
-        //      na URL, caso o Fusion prefira ler daí.
-        const destino = montarUrlComReset(jogoUrl);
-        window.location.replace(destino);
+        // Preferência: voltar para a tela anterior (a tela do jogo),
+        // que é exatamente de onde o jogador veio.
+        if (window.history.length > 1) {
+            window.history.go(-2);
+        } else {
+            // Fallback: acesso direto à tela de fim de jogo, sem histórico.
+            window.location.href = jogoUrl;
+        }
     });
 
     document.getElementById('btn-home').addEventListener('click', () => {
