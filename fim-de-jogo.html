@@ -381,7 +381,7 @@
         // Preferência: voltar para a tela anterior (a tela do jogo),
         // que é exatamente de onde o jogador veio.
         if (window.history.length > 1) {
-            window.history.go(-1);
+            window.history.go(-2);
         } else {
             // Fallback: acesso direto à tela de fim de jogo, sem histórico.
             window.location.href = jogoUrl;
