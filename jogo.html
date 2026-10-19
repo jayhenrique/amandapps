@@ -427,9 +427,9 @@
             `).join('');
 
             // ---------- 10º colocado ----------
-            // Se houver menos de 10 registros, pega o último disponível.
-            const decimo = data[9] || data[data.length - 1];
-            const valorDecimo = Number(decimo.score) || 0;
+            // Se a tabela tiver menos de 10 entradas, o valor é 0
+            // (garante que qualquer score novo entre na tabela até ela ficar cheia).
+            const valorDecimo = (data.length >= 10) ? (Number(data[9].score) || 0) : 0;
             definirDecimoValor(valorDecimo, gameId);
         }
 

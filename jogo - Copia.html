@@ -272,6 +272,44 @@
         }
 
         // =====================================================
+        // 10º COLOCADO — salva em localStorage (invisível na URL)
+        // =====================================================
+        function definirDecimoValor(valor, gameId) {
+            // 1) Salva no localStorage (persiste entre páginas do mesmo domínio)
+            try {
+                localStorage.setItem('decimo_score', String(valor));
+                localStorage.setItem('decimo_score_game', String(gameId || ''));
+            } catch (e) {
+                console.warn('[jogo] localStorage indisponível:', e);
+            }
+
+            // 2) Também deixa numa variável global (para debug no console)
+            window.DECIMO_SCORE = valor;
+
+            // 3) Debug visível na página
+            let dbg = document.getElementById('debug-decimo');
+            if (!dbg) {
+                dbg = document.createElement('div');
+                dbg.id = 'debug-decimo';
+                dbg.style.cssText = `
+                    margin-top: 1.5rem;
+                    padding: 0.75rem 1rem;
+                    background: #0f3460;
+                    border: 1px solid #e94560;
+                    border-radius: 8px;
+                    font-family: ui-monospace, monospace;
+                    font-size: 0.85rem;
+                    color: #f5c518;
+                    word-break: break-all;
+                `;
+                document.querySelector('.container').appendChild(dbg);
+            }
+            dbg.textContent = `DEBUG → 10º colocado (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('pt-BR')} (raw: ${valor})`;
+
+            console.log('[jogo] 10º colocado salvo em localStorage:', valor, 'game_id:', gameId);
+        }
+
+        // =====================================================
         // CARREGAR TUDO
         // =====================================================
         async function carregar() {
@@ -370,11 +408,13 @@
             if (error) {
                 console.error('[jogo] erro ao buscar leaderboard:', error);
                 tbody.innerHTML = `<tr><td colspan="3" class="empty">Erro ao carregar pontuações.</td></tr>`;
+                definirDecimoValor(0, gameId); // fallback
                 return;
             }
 
             if (!data || data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma pontuação ainda. Seja o primeiro!</td></tr>`;
+                definirDecimoValor(0, gameId);
                 return;
             }
 
@@ -385,6 +425,12 @@
                     <td class="score">${Number(row.score).toLocaleString('pt-BR')}</td>
                 </tr>
             `).join('');
+
+            // ---------- 10º colocado ----------
+            // Se houver menos de 10 registros, pega o último disponível.
+            const decimo = data[9] || data[data.length - 1];
+            const valorDecimo = Number(decimo.score) || 0;
+            definirDecimoValor(valorDecimo, gameId);
         }
 
         // =====================================================
