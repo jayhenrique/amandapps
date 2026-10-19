@@ -169,7 +169,13 @@
         }
         .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
 
-        /* DEBUG — game ID, fora do layout principal */
+        /* DEBUG — game ID, score e flag (fora do layout principal) */
+        .debug-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
         .debug-game-id {
             font-size: 0.7rem;
             color: #4a5578;
@@ -177,6 +183,8 @@
             letter-spacing: 0.3px;
             user-select: all;
         }
+        .debug-game-id .val-true  { color: #6ee7a8; }
+        .debug-game-id .val-false { color: #ff7b8a; }
     </style>
 </head>
 <body>
@@ -206,10 +214,13 @@
         </div>
     </div>
 
-    <!-- DEBUG: id do jogo, hiscore e flag (fora do card, discreto) -->
-    <div class="debug-game-id" id="debug-game-id">game_id: —</div>
-    <div class="debug-game-id" id="debug-hiscore">hiscore: —</div>
-    <div class="debug-game-id" id="debug-flag">flag: —</div></div>
+    <!-- DEBUG: game_id, score do jogador e flag (fora do card, discreto) -->
+    <div class="debug-block">
+        <div class="debug-game-id" id="debug-game-id">game_id: —</div>
+        <div class="debug-game-id" id="debug-score">score: —</div>
+        <div class="debug-game-id" id="debug-flag">flag: —</div>
+    </div>
+</div>
 
 <script>
     // =====================================================
@@ -232,15 +243,18 @@
         console.warn('[fim-de-jogo] sessionStorage inválido:', e);
     }
 
-    const elAvatar  = document.getElementById('avatar');
-    const elName    = document.getElementById('name');
-    const elScore   = document.getElementById('score-value');
-    const elStatus  = document.getElementById('status');
-    const panel     = document.getElementById('panel');
-    const elDebugId = document.getElementById('debug-game-id');
+    const elAvatar       = document.getElementById('avatar');
+    const elName         = document.getElementById('name');
+    const elScore        = document.getElementById('score-value');
+    const elStatus       = document.getElementById('status');
+    const panel          = document.getElementById('panel');
 
-    const thumbWrap = document.getElementById('thumb-wrap');
-    const thumbImg  = document.getElementById('thumb-img');
+    const elDebugId      = document.getElementById('debug-game-id');
+    const elDebugScore   = document.getElementById('debug-score');
+    const elDebugFlag    = document.getElementById('debug-flag');
+
+    const thumbWrap      = document.getElementById('thumb-wrap');
+    const thumbImg       = document.getElementById('thumb-img');
 
     let jogoUrl = JOGO_PADRAO_URL;
 
@@ -249,6 +263,22 @@
         if (v === true  || v === 'true'  || v === 1 || v === '1') return true;
         if (v === false || v === 'false' || v === 0 || v === '0') return false;
         return null; // ausente / desconhecido
+    }
+
+    // renderiza a flag no debug com cor (verde/vermelho) e valor bruto
+    function renderDebugFlag(valorBruto) {
+        if (valorBruto === undefined) {
+            elDebugFlag.innerHTML = 'flag: —';
+            return;
+        }
+        const normalizado = normalizarFlag(valorBruto);
+        const texto = normalizado === true  ? 'true'
+                    : normalizado === false ? 'false'
+                    : JSON.stringify(valorBruto);
+        const corClasse = normalizado === true  ? 'val-true'
+                        : normalizado === false ? 'val-false'
+                        : '';
+        elDebugFlag.innerHTML = `flag: <span class="${corClasse}">${texto}</span>`;
     }
 
     if (dados && typeof dados.score === 'number') {
@@ -264,9 +294,8 @@
         // A fonte da verdade é `dados.salvouHiscore` (repassado pela
         // receberPontuacaoDoJogo). Se não existir, cai em `dados.salvo`
         // como compatibilidade com o formato antigo.
-        const flag = normalizarFlag(
-            'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo
-        );
+        const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
+        const flag = normalizarFlag(flagBruta);
 
         if (flag === true) {
             elStatus.textContent = '🏆 Entrou no hiscore!';
@@ -295,7 +324,11 @@
             console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
         };
 
-        elDebugId.textContent = `game_id: ${gameId}`;
+        // -------- DEBUG --------
+        elDebugId.textContent    = `game_id: ${gameId}`;
+        elDebugScore.textContent = `score: ${Number(dados.score).toLocaleString('pt-BR')}`;
+        renderDebugFlag(flagBruta);
+
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
     } else {
         // -------- Sem dados: mostra o layout em estado de erro --------
@@ -315,7 +348,10 @@
         thumbImg.removeAttribute('src');
         thumbImg.alt = 'Thumb indisponível';
 
-        elDebugId.textContent = 'game_id: —';
+        // -------- DEBUG (estado sem dados) --------
+        elDebugId.textContent    = 'game_id: —';
+        elDebugScore.textContent = 'score: —';
+        elDebugFlag.innerHTML    = 'flag: —';
 
         // Botões continuam funcionando com os fallbacks padrão
         jogoUrl = JOGO_PADRAO_URL;
