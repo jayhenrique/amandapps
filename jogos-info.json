@@ -20,6 +20,13 @@
     "controles": "clique/toque",
     "autor": "Arcade Central"
   },
+  "icecream": {
+    "titulo": "IceCream Machine",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central"
+  },
   "teste": {
     "titulo": "Jogo de Teste",
     "descricao": "Build de teste do Clickteam Fusion.",
