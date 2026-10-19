@@ -1,355 +1,312 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogo com Top 10 Highscore</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #e2e8f0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .container {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 32px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    .subtitulo {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 0.875rem;
-      margin-bottom: 24px;
-    }
-    .game-area {
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 24px;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .score-display {
-      font-size: 3rem;
-      font-weight: 700;
-      color: #38bdf8;
-      margin: 12px 0;
-      font-variant-numeric: tabular-nums;
-    }
-    .controles {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .controles input {
-      flex: 1;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #475569;
-      background: #0f172a;
-      color: #e2e8f0;
-      font-size: 1rem;
-    }
-    .controles input:focus {
-      outline: none;
-      border-color: #38bdf8;
-    }
-    button {
-      padding: 12px 20px;
-      border-radius: 8px;
-      border: none;
-      background: #38bdf8;
-      color: #0f172a;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:hover { background: #0ea5e9; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    button.secundario {
-      background: #334155;
-      color: #e2e8f0;
-      width: 100%;
-    }
-    button.secundario:hover { background: #475569; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Fim de jogo — Arcade Central</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .mensagem {
-      padding: 14px;
-      border-radius: 8px;
-      text-align: center;
-      margin-bottom: 16px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      display: none;
-      line-height: 1.4;
-    }
-    .mensagem.sucesso { background: #064e3b; color: #6ee7b7; display: block; border: 1px solid #059669; }
-    .mensagem.erro    { background: #7f1d1d; color: #fca5a5; display: block; border: 1px solid #dc2626; }
-    .mensagem.info    { background: #1e3a8a; color: #93c5fd; display: block; border: 1px solid #3b82f6; }
-
-    .mensagem .frase-destaque {
-      display: block;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .mensagem .frase-secundaria {
-      display: block;
-      font-size: 0.85rem;
-      opacity: 0.85;
-      font-weight: 400;
-    }
-
-    .ranking h2 {
-      font-size: 1.1rem;
-      margin-bottom: 12px;
-      color: #cbd5e1;
-    }
-    .ranking ol { list-style: none; }
-    .ranking li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      font-size: 0.9rem;
-    }
-    .ranking li.novo {
-      border-color: #38bdf8;
-      background: #0c4a6e;
-      animation: pulse 1.5s ease-in-out;
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
-      50%      { box-shadow: 0 0 0 8px rgba(56, 189, 248, 0); }
-    }
-    .posicao {
-      font-weight: 700;
-      color: #38bdf8;
-      width: 32px;
-      text-align: center;
-    }
-    .nome { flex: 1; }
-    .pontos { font-weight: 700; font-variant-numeric: tabular-nums; }
-    .vazio {
-      text-align: center;
-      color: #64748b;
-      padding: 20px;
-      font-size: 0.875rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🎮 Top 10 Highscore</h1>
-    <p class="subtitulo">Em caso de empate, o score mais recente fica na frente</p>
-
-    <div class="game-area">
-      <div style="color:#94a3b8; font-size:0.875rem;">SCORE ATUAL</div>
-      <div class="score-display" id="scoreAtual">0</div>
-    </div>
-
-    <div class="controles">
-      <input type="text" id="nomeInput" placeholder="Seu nome" maxlength="15">
-      <button id="btnJogar">Jogar</button>
-    </div>
-
-    <div class="mensagem" id="mensagem"></div>
-
-    <div class="ranking">
-      <h2>🏆 Ranking</h2>
-      <ol id="listaRanking"></ol>
-    </div>
-
-    <br>
-    <button class="secundario" id="btnReset">Resetar Ranking</button>
-  </div>
-
-  <script>
-    // ============================================================
-    // GERENCIADOR DE HIGHSCORE
-    // ============================================================
-    class HighScoreManager {
-      constructor(jogoId, maxScores = 10) {
-        this.jogoId = jogoId;
-        this.maxScores = maxScores;
-        this.chaveStorage = `highscores_${jogoId}`;
-      }
-
-      getTopScores() {
-        const dados = localStorage.getItem(this.chaveStorage);
-        return dados ? JSON.parse(dados) : [];
-      }
-
-      ehTop10(score) {
-        const top = this.getTopScores();
-        if (top.length < this.maxScores) return true;
-        return score > top[top.length - 1].score;
-      }
-
-      salvarSeForTop10(nome, score) {
-        if (!this.ehTop10(score)) {
-          return { salvo: false, motivo: 'Score não entrou no Top 10' };
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #1A1A2E;
+            color: #eaeaea;
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
         }
 
-        const top = this.getTopScores();
-        const novoRegistro = {
-          id: Date.now() + Math.random(),
-          nome: nome || 'Anônimo',
-          score: score,
-          data: new Date().toISOString()
+        .wrap {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            gap: 1rem;
+        }
+
+        .panel {
+            background: #16213e;
+            border: 1px solid #2a3a5c;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 380px;
+            padding: 1.6rem 1.4rem;
+            text-align: center;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+            animation: panelIn 0.25s ease-out;
+        }
+        @keyframes panelIn {
+            from { transform: translateY(15px); opacity: 0; }
+            to   { transform: translateY(0);   opacity: 1; }
+        }
+
+        .thumb {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 300 / 250;
+            margin: 0 auto 1.1rem;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .thumb .thumb-fallback {
+            font-size: 4rem;
+            color: #8a8fa3;
+            display: none;
+        }
+        .thumb.error img { display: none; }
+        .thumb.error .thumb-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .profile-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 0 auto 1.1rem;
+            max-width: 300px;
+        }
+
+        .profile-row .avatar {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #0f3460, #1f2b4d);
+            border: 2px solid #e94560;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.12);
+        }
+        .panel.anon .profile-row .avatar {
+            border-color: #2a3a5c;
+            box-shadow: 0 0 0 4px rgba(138, 143, 163, 0.06);
+        }
+
+        .profile-row .name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #eaeaea;
+            text-align: left;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .score-box {
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            border-radius: 10px;
+            padding: 1.1rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .score-label {
+            font-size: 0.75rem;
+            color: #8a8fa3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+        .score-value {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #f5c518;
+            line-height: 1;
+        }
+        .score-value.error {
+            color: #ff7b8a;
+        }
+
+        .status {
+            font-size: 0.78rem;
+            min-height: 1.1em;
+            margin-bottom: 1rem;
+        }
+        .status.ok { color: #6ee7a8; }
+        .status.error { color: #ff7b8a; }
+
+        .actions {
+            display: flex;
+            gap: 0.6rem;
+        }
+        .actions button {
+            flex: 1;
+            padding: 0.8rem 0.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .actions button:hover { opacity: 0.92; }
+        .actions button:active { transform: scale(0.98); }
+
+        .btn-retry { background: #e94560; color: #fff; }
+        .btn-home  {
+            background: transparent;
+            color: #8a8fa3;
+            border: 1px solid #2a3a5c !important;
+        }
+        .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
+
+        /* DEBUG — game ID, fora do layout principal */
+        .debug-game-id {
+            font-size: 0.7rem;
+            color: #4a5578;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            letter-spacing: 0.3px;
+            user-select: all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="panel" id="panel">
+        <div class="thumb" id="thumb-wrap">
+            <img id="thumb-img" src="" alt="Thumb do jogo">
+            <div class="thumb-fallback">🎮</div>
+        </div>
+
+        <div class="profile-row" id="profile-row">
+            <div class="avatar" id="avatar">🎮</div>
+            <div class="name" id="name">—</div>
+        </div>
+
+        <div class="score-box" id="score-box">
+            <div class="score-label">Pontuação</div>
+            <div class="score-value" id="score-value">0</div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="actions" id="actions">
+            <button type="button" class="btn-retry" id="btn-retry">🔄 Tentar de novo</button>
+            <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
+        </div>
+    </div>
+
+    <!-- DEBUG: id do jogo (fora do card, discreto) -->
+    <div class="debug-game-id" id="debug-game-id">game_id: —</div>
+</div>
+
+<script>
+    // =====================================================
+    // CONFIG
+    // =====================================================
+    const HOME_URL    = '/amandapps/';                // home na raiz do repo
+    const THUMB_DIR   = '/amandapps/thumbs-assets';   // pasta de thumbs na raiz
+
+    // Fallback caso o sessionStorage esteja vazio
+    const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
+
+    // =====================================================
+    // LER DADOS
+    // =====================================================
+    let dados = null;
+    try {
+        const raw = sessionStorage.getItem('fimDeJogo');
+        if (raw) dados = JSON.parse(raw);
+    } catch (e) {
+        console.warn('[fim-de-jogo] sessionStorage inválido:', e);
+    }
+
+    const elAvatar  = document.getElementById('avatar');
+    const elName    = document.getElementById('name');
+    const elScore   = document.getElementById('score-value');
+    const elStatus  = document.getElementById('status');
+    const panel     = document.getElementById('panel');
+    const elDebugId = document.getElementById('debug-game-id');
+
+    const thumbWrap = document.getElementById('thumb-wrap');
+    const thumbImg  = document.getElementById('thumb-img');
+
+    let jogoUrl = JOGO_PADRAO_URL;
+
+    if (dados && typeof dados.score === 'number') {
+        // -------- Caminho normal: dados válidos --------
+        elAvatar.textContent = dados.avatar || '🎮';
+        elName.textContent   = dados.nome || 'Anônimo';
+        panel.classList.toggle('anon', !dados.nome || dados.nome === 'Anônimo');
+
+        elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
+        elScore.classList.remove('error');
+
+        if (dados.salvo) {
+            elStatus.textContent = '✔ Pontuação salva!';
+            elStatus.className = 'status ok';
+        } else {
+            elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
+            elStatus.className = 'status error';
+        }
+
+        const gameId = dados.gameId || 'clickteam';
+        const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
+        thumbImg.src = thumbUrl;
+        thumbImg.alt = `Thumb do jogo ${gameId}`;
+        thumbImg.onerror = () => {
+            thumbWrap.classList.add('error');
+            thumbImg.removeAttribute('src');
+            console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
         };
 
-        top.push(novoRegistro);
+        elDebugId.textContent = `game_id: ${gameId}`;
+        jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
+    } else {
+        // -------- Sem dados: mostra o layout em estado de erro --------
+        panel.classList.add('anon'); // visual neutro, sem destaque de usuário
 
-        // Ordena: maior score primeiro; empate → mais recente primeiro
-        top.sort((a, b) => {
-          if (b.score !== a.score) return b.score - a.score;
-          return new Date(b.data) - new Date(a.data);
-        });
+        elAvatar.textContent = '⚠';
+        elName.textContent   = 'Erro';
 
-        const top10 = top.slice(0, this.maxScores);
-        localStorage.setItem(this.chaveStorage, JSON.stringify(top10));
+        elScore.textContent = 'Erro';
+        elScore.classList.add('error');
 
-        const posicao = top10.findIndex(r => r.id === novoRegistro.id) + 1;
+        elStatus.textContent = '⚠ Nenhum resultado encontrado.';
+        elStatus.className = 'status error';
 
-        return { salvo: true, posicao, top10, registro: novoRegistro };
-      }
+        // Sem gameId → thumb cai no fallback (🎮) imediatamente
+        thumbWrap.classList.add('error');
+        thumbImg.removeAttribute('src');
+        thumbImg.alt = 'Thumb indisponível';
 
-      resetar() {
-        localStorage.removeItem(this.chaveStorage);
-      }
+        elDebugId.textContent = 'game_id: —';
+
+        // Botões continuam funcionando com os fallbacks padrão
+        jogoUrl = JOGO_PADRAO_URL;
     }
 
-    // ============================================================
-    // APLICAÇÃO
-    // ============================================================
-    const JOGO_ID = 'meu-jogo';
-    const manager = new HighScoreManager(JOGO_ID, 10);
-
-    const elScoreAtual = document.getElementById('scoreAtual');
-    const elNomeInput  = document.getElementById('nomeInput');
-    const elBtnJogar   = document.getElementById('btnJogar');
-    const elBtnReset   = document.getElementById('btnReset');
-    const elMensagem   = document.getElementById('mensagem');
-    const elLista      = document.getElementById('listaRanking');
-
-    let scoreAtual = 0;
-
-    // --- Mensagens (com as duas frases solicitadas) ---
-    function mostrarMensagem(frasePrincipal, fraseSecundaria = '', tipo = 'info') {
-      elMensagem.className = `mensagem ${tipo}`;
-      elMensagem.innerHTML = `
-        <span class="frase-destaque">${frasePrincipal}</span>
-        ${fraseSecundaria ? `<span class="frase-secundaria">${fraseSecundaria}</span>` : ''}
-      `;
-    }
-    function limparMensagem() {
-      elMensagem.className = 'mensagem';
-      elMensagem.innerHTML = '';
-    }
-
-    function renderizarRanking(idDestaque = null) {
-      const top = manager.getTopScores();
-      elLista.innerHTML = '';
-
-      if (top.length === 0) {
-        elLista.innerHTML = '<div class="vazio">Nenhum score ainda. Jogue para começar!</div>';
-        return;
-      }
-
-      top.forEach((registro, i) => {
-        const li = document.createElement('li');
-        if (idDestaque && registro.id === idDestaque) li.classList.add('novo');
-
-        li.innerHTML = `
-          <span class="posicao">${i + 1}º</span>
-          <span class="nome">${escapeHtml(registro.nome)}</span>
-          <span class="pontos">${registro.score}</span>
-        `;
-        elLista.appendChild(li);
-      });
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[c]));
-    }
-
-    // --- Partida ---
-    function jogar() {
-      limparMensagem();
-
-      // Score simulado (troque pela lógica real do seu jogo)
-      const valoresPossiveis = [100, 250, 500, 750, 1000, 1500, 2000];
-      scoreAtual = valoresPossiveis[Math.floor(Math.random() * valoresPossiveis.length)];
-      if (Math.random() > 0.5) scoreAtual += Math.floor(Math.random() * 50);
-
-      elScoreAtual.textContent = scoreAtual;
-
-      // 🔍 PASSO 1: verifica ANTES de salvar
-      if (!manager.ehTop10(scoreAtual)) {
-        // ❌ NÃO entrou → não salva + frase solicitada
-        const top = manager.getTopScores();
-        const piorScore = top[top.length - 1]?.score ?? 0;
-
-        mostrarMensagem(
-          'Jogue novamente e tente entrar no ranking!',
-          `Seu score foi ${scoreAtual}. O mínimo atual para entrar é ${piorScore + 1}.`,
-          'erro'
-        );
-        return;
-      }
-
-      // ✅ Entrou no Top 10 → pede nome e salva
-      const nome = elNomeInput.value.trim() || 'Anônimo';
-      const resultado = manager.salvarSeForTop10(nome, scoreAtual);
-
-      if (resultado.salvo) {
-        mostrarMensagem(
-          'Parabéns, entrou no hiscore!',
-          `${nome}, você ficou em ${resultado.posicao}º lugar com ${scoreAtual} pontos.`,
-          'sucesso'
-        );
-        renderizarRanking(resultado.registro.id);
-      }
-    }
-
-    function resetar() {
-      if (confirm('Tem certeza que deseja apagar todo o ranking?')) {
-        manager.resetar();
-        limparMensagem();
-        renderizarRanking();
-      }
-    }
-
-    elBtnJogar.addEventListener('click', jogar);
-    elBtnReset.addEventListener('click', resetar);
-    elNomeInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') jogar();
+    // =====================================================
+    // BOTÕES
+    // =====================================================
+    document.getElementById('btn-retry').addEventListener('click', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.href = jogoUrl;
     });
 
-    renderizarRanking();
-  </script>
+    document.getElementById('btn-home').addEventListener('click', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.href = HOME_URL;
+    });
+</script>
+
 </body>
 </html>
