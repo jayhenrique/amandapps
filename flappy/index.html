@@ -101,7 +101,6 @@
         }
         // RUNTIMESTARTEND
     </script>
-
     <!-- ===================================================== -->
     <!-- PONTE: Fusion → Supabase → página de fim de jogo        -->
     <!-- Nenhum elemento visual é adicionado na página.          -->
@@ -115,14 +114,12 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --------- CONFIG DE NAVEGAÇÃO ---------
-        // Página de fim de jogo (separada)
         const FIM_DE_JOGO_URL = '/amandapps/fim-de-jogo.html';
-        // Página atual (para o "Tentar de novo" saber para onde voltar)
         const JOGO_URL = window.location.pathname.split('/').pop() || 'jogo.html';
 
         // --------- ESTADO ---------
         let currentUser = null;
-        let navegando = false; // evita navegação dupla
+        let navegando = false;
 
         // --------- PERFIL DO USUÁRIO ---------
         function lerPerfilDoUser(user) {
@@ -134,6 +131,15 @@
                 username: meta.username || (user.email ? user.email.split('@')[0] : 'usuário'),
                 avatar: meta.avatar || '🎮'
             };
+        }
+
+        // --------- NORMALIZAR FLAG ---------
+        // Aceita: true, false, "true", "false", 1, 0, "1", "0"
+        // undefined / null / "" / qualquer outra coisa → false
+        function normalizarFlag(v) {
+            if (v === true  || v === 'true'  || v === 1 || v === '1') return true;
+            if (v === false || v === 'false' || v === 0 || v === '0') return false;
+            return false;
         }
 
         // --------- ENVIAR AO SUPABASE ---------
@@ -155,14 +161,13 @@
         }
 
         // --------- IR PARA A PÁGINA DE FIM DE JOGO ---------
-        function irParaFimDeJogo({ score, gameId, salvo }) {
+        function irParaFimDeJogo({ score, gameId, salvo, salvouHiscore }) {
             if (navegando) return;
             navegando = true;
 
             const nome = currentUser ? currentUser.username : 'Anônimo';
             const avatar = currentUser ? currentUser.avatar : '🎭';
 
-            // Guarda os dados que a página de fim de jogo vai mostrar
             try {
                 sessionStorage.setItem('fimDeJogo', JSON.stringify({
                     nome: nome,
@@ -170,35 +175,54 @@
                     score: score,
                     gameId: gameId,
                     salvo: !!salvo,
+                    salvouHiscore: !!salvouHiscore,   // <- flag lida pela página de fim
                     jogoUrl: JOGO_URL
                 }));
             } catch (e) {
                 console.warn('[fim-de-jogo] não foi possível salvar sessionStorage:', e);
             }
 
-            // Navega na mesma aba (sem abrir nova aba/janela)
             window.location.href = FIM_DE_JOGO_URL;
         }
 
         // --------- PONTE FUSION → PÁGINA ---------
-        // No Fusion: window.receberPontuacaoDoJogo(1000);
-        //            window.receberPontuacaoDoJogo(1000, "snake");
-        window.receberPontuacaoDoJogo = async function (score, gameId) {
+        // Uso no Fusion:
+        //   window.receberPontuacaoDoJogo('12', 'flappy', true)   → salva
+        //   window.receberPontuacaoDoJogo('12', 'flappy', false)  → NÃO salva
+        //   window.receberPontuacaoDoJogo('12', 'flappy')         → NÃO salva (default = false)
+        window.receberPontuacaoDoJogo = async function (score, gameId, flag) {
             const pontuacao = Number(score);
             if (!isFinite(pontuacao)) {
-                console.warn('[receberPontuacaoDoJogo] valor inválido:', score);
+                console.warn('[receberPontuacaoDoJogo] score inválido:', score);
                 return;
             }
             const jogo = (gameId && String(gameId)) || 'clickteam';
 
+            // Normaliza a flag — string "false" NÃO vira true
+            const deveSalvar = normalizarFlag(flag);
+
+            console.log('[receberPontuacaoDoJogo] score=%o gameId=%o flag=%o (%s) → deveSalvar=%s',
+                pontuacao, jogo, flag, typeof flag, deveSalvar);
+
             let salvo = false;
-            try {
-                salvo = await enviarAoBanco(pontuacao, jogo);
-            } catch (e) {
-                console.error('[Supabase] Erro ao salvar:', e);
+            if (deveSalvar) {
+                try {
+                    salvo = await enviarAoBanco(pontuacao, jogo);
+                } catch (e) {
+                    console.error('[Supabase] Erro ao salvar:', e);
+                    salvo = false;
+                }
+            } else {
+                console.log('[receberPontuacaoDoJogo] salvamento ignorado (flag=false)');
             }
 
-            irParaFimDeJogo({ score: pontuacao, gameId: jogo, salvo: salvo });
+            // salvouHiscore = true SOMENTE se a flag era true E o insert deu certo
+            irParaFimDeJogo({
+                score: pontuacao,
+                gameId: jogo,
+                salvo: salvo,
+                salvouHiscore: deveSalvar && salvo
+            });
         };
 
         // --------- INICIALIZAÇÃO ---------
@@ -211,6 +235,5 @@
             });
         })();
     </script>
-
 </body>
 </html>
