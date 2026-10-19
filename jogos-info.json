@@ -3,7 +3,7 @@
     "titulo": "Copter Queen",
     "descricao": "Coma maçãs e cresça sem bater na parede. Clássico atemporal do arcade.",
     "categoria": "Arcade",
-    "controles": "Setas ou WASD para mover",
+    "controles": "Espaço ou clique/toque",
     "autor": "Arcade Central"
   },
   "flappy": {
@@ -11,6 +11,13 @@
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "Espaço ou clique/toque",
+    "autor": "Arcade Central"
+  },
+  "snapshot": {
+    "titulo": "Snapshot DIVA",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
     "autor": "Arcade Central"
   },
   "teste": {
