@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="HandheldFriendly" content="true" />
+  <title>Jogo — Amanfã</title>
+
+  <style type="text/css">
+    h1 {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #F00;
+      font-size: x-large;
+    }
+    p {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #000;
+      font-size: small;
+    }
+    body {
+      background-color: #1A1A2E;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #bloctxt {
+      border-left-width: 5px;
+      border-left-style: solid;
+      border-left-color: #F00;
+      padding-left: 10px;
+      position: absolute;
+      left: 50%;
+      width: 600px;
+      margin-left: -300px;
+      top: 50%;
+      transform: translateY(-50%);
+      text-align: left;
+      color: #fff;
+    }
+    #MMFCanvas {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      display: block;
+      margin: 0 auto;
+    }
+    #erroJogo {
+      display: none;
+      color: #F66;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 30vh;
+    }
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      color: #aaa;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+
+  <script>
+    // Fallback para navegadores sem canvas
+    if (!document.createElement("canvas").getContext) {
+      window.open("http://www.clickteam.com/html5-fallback", "_self");
+    }
+  </script>
+</head>
+
+<body>
+
+<div id="loading">Carregando jogo…</div>
+
+<div id="erroJogo">
+  <p style="color:#F66">Não foi possível carregar o jogo.</p>
+  <p id="erroDetalhe" style="color:#ccc"></p>
+</div>
+
+<div id="canvasWrap" style="display: none; -webkit-user-select: none; text-align: left; width: 100%;">
+  <canvas id="MMFCanvas" width="360" height="640">
+    Your browser does not support Canvas.
+  </canvas>
+</div>
+
+<!-- ===================================================== -->
+<!-- 1) Descobre a pasta do jogo ANTES de carregar o Runtime -->
+<!-- ===================================================== -->
+<script>
+(function () {
+  // Lê ?jogo=flappy  (ou ?game=flappy / #flappy)
+  const params = new URLSearchParams(window.location.search);
+  const nomeJogo =
+        params.get('jogo') ||
+        params.get('game') ||
+        (window.location.hash ? window.location.hash.slice(1) : '') ||
+        'flappy'; // fallback padrão
+
+  // Sanitiza (evita path traversal tipo ../../etc)
+  const seguro = /^[a-zA-Z0-9_\-]+$/.test(nomeJogo);
+  const jogo = seguro ? nomeJogo : 'flappy';
+
+  // Caminhos absolutos na raiz do site
+  const baseJogo   = '/amandapps/' + jogo + '/';
+  const runtimeSrc = baseJogo + 'src/Runtime.js';
+  const cchPath    = baseJogo + 'resources/' + jogo + '.cch';
+
+  // Expõe para o resto do arquivo
+  window.__JOGO__ = {
+    nome: jogo,
+    base: baseJogo,
+    runtime: runtimeSrc,
+    cch: cchPath
+  };
+
+  console.log('[jogo_inside] carregando jogo:', jogo, '→', baseJogo);
+
+  // Carrega o Runtime.js DINAMICAMENTE (com onerror)
+  const s = document.createElement('script');
+  s.src = runtimeSrc;
+  s.onerror = function () {
+    console.error('[jogo_inside] falha ao carregar Runtime.js:', runtimeSrc);
+    document.getElementById('loading').style.display = 'none';
+    const el = document.getElementById('erroJogo');
+    document.getElementById('erroDetalhe').textContent =
+      'Verifique se a pasta /amandapps/' + jogo + '/ existe e contém src/Runtime.js';
+    el.style.display = 'block';
+  };
+  document.head.appendChild(s);
+})();
+</script>
+
+<!-- ===================================================== -->
+<!-- 2) Ponte Supabase → página de fim de jogo              -->
+<!-- ===================================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // --------- CONFIG SUPABASE ---------
+  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+  const { createClient } = supabase;
+  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // --------- CONFIG DE NAVEGAÇÃO ---------
+  const FIM_DE_JOGO_URL = '/amandapps/fim-de-jogo.html';
+
+  // --------- ESTADO ---------
+  let currentUser = null;
+  let navegando = false;
+
+  // --------- PERFIL ---------
+  function lerPerfilDoUser(user) {
+    if (!user) return null;
+    const meta = user.user_metadata || {};
+    return {
+      id: user.id,
+      email: user.email,
+      username: meta.username || (user.email ? user.email.split('@')[0] : 'usuário'),
+      avatar: meta.avatar || '🎮'
+    };
+  }
+
+  // --------- NORMALIZAR FLAG ---------
+  function normalizarFlag(v) {
+    if (v === true  || v === 'true'  || v === 1 || v === '1') return true;
+    if (v === false || v === 'false' || v === 0 || v === '0') return false;
+    return false;
+  }
+
+  // --------- ENVIAR AO SUPABASE ---------
+  async function enviarAoBanco(score, gameId) {
+    const payload = {
+      player_name: currentUser ? currentUser.username : 'Um Amanfã',
+      game_id: gameId,
+      score: score,
+      user_id: currentUser ? currentUser.id : null
+    };
+    const { error } = await _supabase.from('scores').insert(payload);
+    if (error) {
+      console.error('[Supabase] Falha ao salvar pontuação:', error);
+      return false;
+    }
+    console.log('[Supabase] Pontuação salva:', payload.player_name, '—', gameId, '—', score);
+    return true;
+  }
+
+  // --------- IR PARA FIM DE JOGO ---------
+  function irParaFimDeJogo({ score, gameId, salvo, salvouHiscore }) {
+    if (navegando) return;
+    navegando = true;
+
+    const nome   = currentUser ? currentUser.username : 'Um Amanfã';
+    const avatar = currentUser ? currentUser.avatar   : '🎭';
+
+    try {
+      sessionStorage.setItem('fimDeJogo', JSON.stringify({
+        nome: nome,
+        avatar: avatar,
+        score: score,
+        gameId: gameId,
+        salvo: !!salvo,
+        salvouHiscore: !!salvouHiscore,
+        jogoUrl: window.location.pathname + window.location.search
+      }));
+    } catch (e) {
+      console.warn('[fim-de-jogo] sessionStorage falhou:', e);
+    }
+
+    window.location.href = FIM_DE_JOGO_URL;
+  }
+
+  // --------- PONTE FUSION → PÁGINA ---------
+  // Uso no Fusion:
+  //   window.receberPontuacaoDoJogo('12', 'flappy', true)   → salva
+  //   window.receberPontuacaoDoJogo('12', 'flappy', false)  → NÃO salva
+  //   window.receberPontuacaoDoJogo('12', 'flappy')         → NÃO salva (default)
+  window.receberPontuacaoDoJogo = async function (score, gameId, flag) {
+    const pontuacao = Number(score);
+    if (!isFinite(pontuacao)) {
+      console.warn('[receberPontuacaoDoJogo] score inválido:', score);
+      return;
+    }
+    // Se o Fusion não mandar gameId, usa o da URL
+    const jogo = (gameId && String(gameId)) || (window.__JOGO__ && window.__JOGO__.nome) || 'clickteam';
+    const deveSalvar = normalizarFlag(flag);
+
+    let salvo = false;
+    if (deveSalvar) {
+      try { salvo = await enviarAoBanco(pontuacao, jogo); }
+      catch (e) { console.error('[Supabase] Erro ao salvar:', e); salvo = false; }
+    }
+
+    irParaFimDeJogo({
+      score: pontuacao,
+      gameId: jogo,
+      salvo: salvo,
+      salvouHiscore: deveSalvar && salvo
+    });
+  };
+
+  // --------- INICIALIZAÇÃO ---------
+  (async function init() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    currentUser = lerPerfilDoUser(session?.user);
+    _supabase.auth.onAuthStateChange(function (_event, session) {
+      currentUser = lerPerfilDoUser(session?.user);
+    });
+  })();
+</script>
+
+<!-- ===================================================== -->
+<!-- 3) Só inicia o Runtime QUANDO Runtime.js carregar      -->
+<!-- ===================================================== -->
+<script>
+  function iniciarRuntime() {
+    if (typeof Runtime === 'undefined') {
+      // Runtime.js ainda não carregou — tenta de novo
+      return setTimeout(iniciarRuntime, 50);
+    }
+
+    // Esconde o "Carregando…" e mostra o canvas
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'none';
+    const wrap = document.getElementById('canvasWrap');
+    if (wrap) wrap.style.display = 'inline-block';
+
+    try {
+      new Runtime("MMFCanvas", window.__JOGO__.cch);
+      console.log('[jogo_inside] Runtime iniciado com', window.__JOGO__.cch);
+    } catch (e) {
+      console.error('[jogo_inside] erro ao iniciar Runtime:', e);
+      const el = document.getElementById('erroJogo');
+      document.getElementById('erroDetalhe').textContent = String(e && e.message ? e.message : e);
+      el.style.display = 'block';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciarRuntime);
+  } else {
+    iniciarRuntime();
+  }
+</script>
+
+</body>
+</html>

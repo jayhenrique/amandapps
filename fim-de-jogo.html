@@ -1,398 +1,108 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Fim de jogo — Arcade Central</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            background: #1A1A2E;
-            color: #eaeaea;
-            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
-        }
-
-        .wrap {
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            gap: 1rem;
-        }
-
-        .panel {
-            background: #16213e;
-            border: 1px solid #2a3a5c;
-            border-radius: 14px;
-            width: 100%;
-            max-width: 380px;
-            padding: 1.6rem 1.4rem;
-            text-align: center;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
-            animation: panelIn 0.25s ease-out;
-        }
-        @keyframes panelIn {
-            from { transform: translateY(15px); opacity: 0; }
-            to   { transform: translateY(0);   opacity: 1; }
-        }
-
-        .thumb {
-            width: 100%;
-            max-width: 300px;
-            aspect-ratio: 300 / 250;
-            margin: 0 auto 1.1rem;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #0f3460;
-            border: 1px solid #2a3a5c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .thumb .thumb-fallback {
-            font-size: 4rem;
-            color: #8a8fa3;
-            display: none;
-        }
-        .thumb.error img { display: none; }
-        .thumb.error .thumb-fallback {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-        }
-
-        .profile-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin: 0 auto 1.1rem;
-            max-width: 300px;
-        }
-
-        .profile-row .avatar {
-            width: 56px;
-            height: 56px;
-            min-width: 56px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, #0f3460, #1f2b4d);
-            border: 2px solid #e94560;
-            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.12);
-        }
-        .panel.anon .profile-row .avatar {
-            border-color: #2a3a5c;
-            box-shadow: 0 0 0 4px rgba(138, 143, 163, 0.06);
-        }
-
-        .profile-row .name {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #eaeaea;
-            text-align: left;
-            line-height: 1.2;
-            word-break: break-word;
-        }
-
-        .score-box {
-            background: #0f3460;
-            border: 1px solid #2a3a5c;
-            border-radius: 10px;
-            padding: 1.1rem 1rem;
-            margin-bottom: 1rem;
-        }
-        .score-label {
-            font-size: 0.75rem;
-            color: #8a8fa3;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.3rem;
-        }
-        .score-value {
-            font-size: 3.2rem;
-            font-weight: 800;
-            color: #f5c518;
-            line-height: 1;
-        }
-        .score-value.error {
-            color: #ff7b8a;
-        }
-
-        .status {
-            font-size: 0.85rem;
-            font-weight: 600;
-            min-height: 1.2em;
-            margin-bottom: 1rem;
-        }
-        .status.ok    { color: #6ee7a8; }
-        .status.error { color: #ff7b8a; }
-        .status.info  { color: #8a8fa3; }
-
-        .actions {
-            display: flex;
-            gap: 0.6rem;
-        }
-        .actions button {
-            flex: 1;
-            padding: 0.8rem 0.5rem;
-            border-radius: 8px;
-            border: none;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: opacity 0.15s, transform 0.1s;
-        }
-        .actions button:hover { opacity: 0.92; }
-        .actions button:active { transform: scale(0.98); }
-
-        .btn-retry { background: #e94560; color: #fff; }
-        .btn-home  {
-            background: transparent;
-            color: #8a8fa3;
-            border: 1px solid #2a3a5c !important;
-        }
-        .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
-
-        /* DEBUG — game ID, score e flag (fora do layout principal) */
-        .debug-block {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-        .debug-game-id {
-            font-size: 0.7rem;
-            color: #4a5578;
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            letter-spacing: 0.3px;
-            user-select: all;
-        }
-        .debug-game-id .val-true  { color: #6ee7a8; }
-        .debug-game-id .val-false { color: #ff7b8a; }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fim de jogo — Amanfã</title>
+  <style>
+    body {
+      background-color: #1A1A2E;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .card {
+      max-width: 420px;
+      margin: 0 auto;
+      background: #16213E;
+      border-radius: 16px;
+      padding: 32px 24px;
+      border-left: 5px solid #F00;
+      text-align: center;
+    }
+    .avatar { font-size: 56px; margin-bottom: 8px; }
+    .nome { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+    .score { font-size: 48px; font-weight: bold; color: #F00; margin: 16px 0; }
+    .label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #aaa; }
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .badge-salvo   { background: #1f6f3f; color: #b6f5c8; }
+    .badge-offline { background: #4a3b1a; color: #f5e0a0; }
+    a.btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 14px 28px;
+      background: #F00;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    a.btn:hover { background: #c00; }
+    a.link {
+      display: block;
+      margin-top: 16px;
+      color: #8ab4f8;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
+  <div class="card">
+    <div class="avatar" id="avatar">🎭</div>
+    <div class="nome" id="nome">Um Amanfã</div>
+    <div class="label">Pontuação</div>
+    <div class="score" id="score">0</div>
+    <div id="badge"></div>
+    <a class="btn" id="btnJogarNovamente" href="/jogo_inside.html">Jogar novamente</a>
+    <a class="link" href="/">Voltar para a home</a>
+  </div>
 
-<div class="wrap">
-    <div class="panel" id="panel">
-        <div class="thumb" id="thumb-wrap">
-            <img id="thumb-img" src="" alt="Thumb do jogo">
-            <div class="thumb-fallback">🎮</div>
-        </div>
+  <script>
+    (function () {
+      let dados = null;
+      try {
+        dados = JSON.parse(sessionStorage.getItem('fimDeJogo') || 'null');
+      } catch (e) {
+        console.warn('sessionStorage inválido:', e);
+      }
 
-        <div class="profile-row" id="profile-row">
-            <div class="avatar" id="avatar">🎮</div>
-            <div class="name" id="name">—</div>
-        </div>
+      if (!dados) {
+        document.getElementById('nome').textContent = 'Nenhum jogo recente';
+        document.getElementById('btnJogarNovamente').href = '/';
+        return;
+      }
 
-        <div class="score-box" id="score-box">
-            <div class="score-label">Pontuação</div>
-            <div class="score-value" id="score-value">0</div>
-        </div>
+      document.getElementById('avatar').textContent = dados.avatar || '🎭';
+      document.getElementById('nome').textContent   = dados.nome   || 'Um Amanfã';
+      document.getElementById('score').textContent  = dados.score  != null ? dados.score : 0;
 
-        <div class="status" id="status"></div>
+      // Botão "Jogar novamente" volta para o MESMO jogo
+      const btn = document.getElementById('btnJogarNovamente');
+      if (dados.jogoUrl) {
+        btn.href = dados.jogoUrl; // ex: /jogo_inside.html?jogo=flappy
+      } else if (dados.gameId) {
+        btn.href = '/jogo_inside.html?jogo=' + encodeURIComponent(dados.gameId);
+      }
 
-        <div class="actions" id="actions">
-            <button type="button" class="btn-retry" id="btn-retry">🔄 Tentar de novo</button>
-            <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
-        </div>
-    </div>
-
-    <!-- DEBUG: game_id, score do jogador e flag (fora do card, discreto) -->
-    <div class="debug-block">
-        <div class="debug-game-id" id="debug-game-id">game_id: —</div>
-        <div class="debug-game-id" id="debug-score">score: —</div>
-        <div class="debug-game-id" id="debug-flag">flag: —</div>
-    </div>
-</div>
-
-<script>
-    // =====================================================
-    // CONFIG
-    // =====================================================
-    const HOME_URL    = '/amandapps/';                // home na raiz do repo
-    const THUMB_DIR   = '/amandapps/thumbs-assets';   // pasta de thumbs na raiz
-
-    // Fallback caso o sessionStorage esteja vazio
-    const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
-
-    // Nome padrão exibido quando o jogador é anônimo
-    const NOME_ANONIMO = 'Um Amanfã';
-
-    // =====================================================
-    // LER DADOS
-    // =====================================================
-    let dados = null;
-    try {
-        const raw = sessionStorage.getItem('fimDeJogo');
-        if (raw) dados = JSON.parse(raw);
-    } catch (e) {
-        console.warn('[fim-de-jogo] sessionStorage inválido:', e);
-    }
-
-    const elAvatar       = document.getElementById('avatar');
-    const elName         = document.getElementById('name');
-    const elScore        = document.getElementById('score-value');
-    const elStatus       = document.getElementById('status');
-    const panel          = document.getElementById('panel');
-
-    const elDebugId      = document.getElementById('debug-game-id');
-    const elDebugScore   = document.getElementById('debug-score');
-    const elDebugFlag    = document.getElementById('debug-flag');
-
-    const thumbWrap      = document.getElementById('thumb-wrap');
-    const thumbImg       = document.getElementById('thumb-img');
-
-    let jogoUrl = JOGO_PADRAO_URL;
-
-    // normaliza a flag: aceita true, "true", 1, "1", false, "false", 0, "0"
-    function normalizarFlag(v) {
-        if (v === true  || v === 'true'  || v === 1 || v === '1') return true;
-        if (v === false || v === 'false' || v === 0 || v === '0') return false;
-        return null; // ausente / desconhecido
-    }
-
-    // renderiza a flag no debug com cor (verde/vermelho) e valor bruto
-    function renderDebugFlag(valorBruto) {
-        if (valorBruto === undefined) {
-            elDebugFlag.innerHTML = 'flag: —';
-            return;
-        }
-        const normalizado = normalizarFlag(valorBruto);
-        const texto = normalizado === true  ? 'true'
-                    : normalizado === false ? 'false'
-                    : JSON.stringify(valorBruto);
-        const corClasse = normalizado === true  ? 'val-true'
-                        : normalizado === false ? 'val-false'
-                        : '';
-        elDebugFlag.innerHTML = `flag: <span class="${corClasse}">${texto}</span>`;
-    }
-
-    // Resolve o nome a exibir: se vier vazio OU "Anônimo"/"Anonimo",
-    // usa o nome padrão "Um Amanfã".
-    function resolverNome(nomeRecebido) {
-        const nome = (nomeRecebido == null) ? '' : String(nomeRecebido).trim();
-        if (!nome || nome.toLowerCase() === 'anônimo' || nome.toLowerCase() === 'anonimo') {
-            return NOME_ANONIMO;
-        }
-        return nome;
-    }
-
-    if (dados && typeof dados.score === 'number') {
-        // -------- Caminho normal: dados válidos --------
-        const nomeExibicao = resolverNome(dados.nome);
-
-        elAvatar.textContent = dados.avatar || '🎮';
-        elName.textContent   = nomeExibicao;
-        panel.classList.toggle('anon', nomeExibicao === NOME_ANONIMO);
-
-        elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
-        elScore.classList.remove('error');
-
-        // -------- Flag de hiscore --------
-        // A fonte da verdade é `dados.salvouHiscore` (repassado pela
-        // receberPontuacaoDoJogo). Se não existir, cai em `dados.salvo`
-        // como compatibilidade com o formato antigo.
-        const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
-        const flag = normalizarFlag(flagBruta);
-
-        if (flag === true) {
-            elStatus.textContent = '🏆 Entrou no hiscore!';
-            elStatus.className = 'status ok';
-        } else if (flag === false) {
-            elStatus.textContent = '🔄 Tente novamente';
-            elStatus.className = 'status error';
-        } else {
-            // Sem flag — comportamento antigo (só informativo)
-            if (dados.salvo) {
-                elStatus.textContent = '✔ Pontuação salva!';
-                elStatus.className = 'status ok';
-            } else {
-                elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
-                elStatus.className = 'status error';
-            }
-        }
-
-        const gameId = dados.gameId || 'clickteam';
-        const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
-        thumbImg.src = thumbUrl;
-        thumbImg.alt = `Thumb do jogo ${gameId}`;
-        thumbImg.onerror = () => {
-            thumbWrap.classList.add('error');
-            thumbImg.removeAttribute('src');
-            console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
-        };
-
-        // -------- DEBUG --------
-        elDebugId.textContent    = `game_id: ${gameId}`;
-        elDebugScore.textContent = `score: ${Number(dados.score).toLocaleString('pt-BR')}`;
-        renderDebugFlag(flagBruta);
-
-        jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
-    } else {
-        // -------- Sem dados: mostra o layout em estado de erro --------
-        panel.classList.add('anon'); // visual neutro, sem destaque de usuário
-
-        elAvatar.textContent = '⚠';
-        elName.textContent   = 'Erro';
-
-        elScore.textContent = 'Erro';
-        elScore.classList.add('error');
-
-        elStatus.textContent = '⚠ Nenhum resultado encontrado.';
-        elStatus.className = 'status error';
-
-        // Sem gameId → thumb cai no fallback (🎮) imediatamente
-        thumbWrap.classList.add('error');
-        thumbImg.removeAttribute('src');
-        thumbImg.alt = 'Thumb indisponível';
-
-        // -------- DEBUG (estado sem dados) --------
-        elDebugId.textContent    = 'game_id: —';
-        elDebugScore.textContent = 'score: —';
-        elDebugFlag.innerHTML    = 'flag: —';
-
-        // Botões continuam funcionando com os fallbacks padrão
-        jogoUrl = JOGO_PADRAO_URL;
-    }
-
-    // =====================================================
-    // BOTÕES
-    // =====================================================
-    document.getElementById('btn-retry').addEventListener('click', () => {
-        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-
-        // Preferência: voltar para a tela anterior (a tela do jogo),
-        // que é exatamente de onde o jogador veio.
-        if (window.history.length > 1) {
-            window.history.go(-2);
-        } else {
-            // Fallback: acesso direto à tela de fim de jogo, sem histórico.
-            window.location.href = jogoUrl;
-        }
-    });
-
-    document.getElementById('btn-home').addEventListener('click', () => {
-        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-        window.location.href = HOME_URL;
-    });
-</script>
-
+      // Badge de status
+      const badge = document.getElementById('badge');
+      if (dados.salvouHiscore) {
+        badge.className = 'badge badge-salvo';
+        badge.textContent = '✔ Pontuação salva no ranking';
+      } else if (dados.salvo === false) {
+        badge.className = 'badge badge-offline';
+        badge.textContent = 'Pontuação não enviada ao ranking';
+      }
+    })();
+  </script>
 </body>
 </html>
