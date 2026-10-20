@@ -17,32 +17,40 @@
         a { color: #e94560; text-decoration: none; }
         a:hover { text-decoration: underline; }
 
-        .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
-            border-bottom: 3px solid #e94560;
-            padding: 0.9rem 1.5rem;
+        /* Botão voltar fixo no canto superior esquerdo */
+        .btn-back {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 50;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
+            justify-content: center;
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 50%;
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            color: #eaeaea;
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            transition: background 0.15s, transform 0.12s, color 0.15s;
         }
-        .topbar .logo { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
-        .topbar .logo span { color: #e94560; }
-        .topbar .back {
-            color: #8a8fa3;
-            font-weight: 600;
-            font-size: 0.9rem;
+        .btn-back:hover {
+            background: #e94560;
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-1px);
         }
-        .topbar .back:hover { color: #e94560; text-decoration: none; }
+        .btn-back:active { transform: translateY(0); }
 
         .container {
             max-width: 960px;
             margin: 0 auto;
             padding: 1.5rem;
+            padding-top: 4.5rem; /* espaço para o botão fixo */
         }
 
         .game-header {
@@ -52,8 +60,67 @@
             align-items: start;
             margin-bottom: 2rem;
         }
+
+        /* ===== MOBILE ===== */
         @media (max-width: 720px) {
-            .game-header { grid-template-columns: 1fr; }
+            .container {
+                padding-top: 1rem;
+            }
+
+            .game-header {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Título na mesma linha do botão voltar */
+            .game-info h1 {
+                font-size: 1.35rem;
+                margin-left: 3.6rem; /* espaço do botão fixo */
+                margin-bottom: 1rem;
+                min-height: 2.6rem;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Esconde as tags/categoria no mobile */
+            .game-info .meta {
+                display: none;
+            }
+
+            /* Descrição compacta */
+            .game-info .descricao {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Play centralizado embaixo da imagem */
+            .game-info {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .game-info .descricao {
+                text-align: left;
+                width: 100%;
+            }
+
+            .btn-play {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+
+            /* Controles embaixo do botão play */
+            .game-info .controles {
+                margin-top: 0.9rem;
+                margin-bottom: 0;
+                text-align: center;
+                width: 100%;
+            }
         }
 
         .thumb-wrap {
@@ -212,10 +279,7 @@
 </head>
 <body>
 
-    <div class="topbar">
-        <div class="logo">ARCADE <span>CENTRAL</span></div>
-        <a class="back" id="link-home" href="/amandapps/">← Voltar para home</a>
-    </div>
+    <a class="btn-back" id="btn-back" href="/amandapps/" aria-label="Voltar">&lt;</a>
 
     <div class="container" id="conteudo">
         <p style="color:#8a8fa3;">Carregando...</p>
@@ -311,8 +375,8 @@
                 return;
             }
 
-            const linkHome = document.getElementById('link-home');
-            if (linkHome) linkHome.href = HOME_URL;
+            const btnBack = document.getElementById('btn-back');
+            if (btnBack) btnBack.href = HOME_URL;
 
             let info = null;
             try {
@@ -352,8 +416,8 @@
 
                         ${dados.categoria ? `<div class="meta"><span class="chip accent">${escapeHTML(dados.categoria)}</span></div>` : ''}
                         ${dados.descricao ? `<p class="descricao">${escapeHTML(dados.descricao)}</p>` : ''}
-                        ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
                         <a class="btn-play" href="${playUrl}">▶ PLAY</a>
+                        ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
                     </div>
                 </div>
 

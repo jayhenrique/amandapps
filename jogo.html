@@ -17,115 +17,42 @@
         a { color: #e94560; text-decoration: none; }
         a:hover { text-decoration: underline; }
 
-        /* Botão voltar fixo no canto superior esquerdo */
-        .btn-back {
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 2.6rem;
-            height: 2.6rem;
-            border-radius: 50%;
-            background: #0f3460;
-            border: 1px solid #2a3a5c;
-            color: #eaeaea;
-            font-size: 1.4rem;
-            font-weight: 700;
-            line-height: 1;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-            transition: background 0.15s, transform 0.12s, color 0.15s;
-        }
-        .btn-back:hover {
-            background: #e94560;
-            color: #fff;
-            text-decoration: none;
-            transform: translateY(-1px);
-        }
-        .btn-back:active { transform: translateY(0); }
-
         .container {
             max-width: 960px;
             margin: 0 auto;
             padding: 1.5rem;
-            padding-top: 4.5rem; /* espaço para o botão fixo */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .game-header {
+        /* ===== LAYOUT PRINCIPAL ===== */
+        .game-layout {
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 1.5rem;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
             align-items: start;
+            width: 100%;
             margin-bottom: 2rem;
         }
 
-        /* ===== MOBILE ===== */
         @media (max-width: 720px) {
-            .container {
-                padding-top: 1rem;
-            }
-
-            .game-header {
+            .game-layout {
                 grid-template-columns: 1fr;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
+                gap: 1.2rem;
             }
+        }
 
-            /* Título na mesma linha do botão voltar */
-            .game-info h1 {
-                font-size: 1.35rem;
-                margin-left: 3.6rem; /* espaço do botão fixo */
-                margin-bottom: 1rem;
-                min-height: 2.6rem;
-                display: flex;
-                align-items: center;
-            }
-
-            /* Esconde as tags/categoria no mobile */
-            .game-info .meta {
-                display: none;
-            }
-
-            /* Descrição compacta */
-            .game-info .descricao {
-                font-size: 0.9rem;
-                margin-bottom: 1rem;
-            }
-
-            /* Play centralizado embaixo da imagem */
-            .game-info {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .game-info .descricao {
-                text-align: left;
-                width: 100%;
-            }
-
-            .btn-play {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
-                margin-top: 0.5rem;
-            }
-
-            /* Controles embaixo do botão play */
-            .game-info .controles {
-                margin-top: 0.9rem;
-                margin-bottom: 0;
-                text-align: center;
-                width: 100%;
-            }
+        /* ===== COLUNA DA IMAGEM ===== */
+        .col-image {
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
         .thumb-wrap {
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             aspect-ratio: 300 / 250;
             border-radius: 12px;
             overflow: hidden;
@@ -157,43 +84,32 @@
             height: 100%;
         }
 
-        .game-info h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 0.4rem;
-        }
-        .game-info .meta {
+        /* ===== COLUNA DE INFORMAÇÕES ===== */
+        .col-info {
+            width: 100%;
             display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+            flex-direction: column;
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.2;
             margin-bottom: 1rem;
         }
-        .chip {
-            background: #0f3460;
-            color: #eaeaea;
-            padding: 0.25rem 0.7rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        .chip.accent { background: #e94560; }
-        .game-info .descricao {
+
+        .descricao {
             color: #8a8fa3;
             font-size: 0.95rem;
             line-height: 1.55;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.5rem;
         }
-        .game-info .controles {
-            color: #8a8fa3;
-            font-size: 0.85rem;
-            margin-bottom: 1.2rem;
-        }
-        .game-info .controles strong { color: #eaeaea; }
 
+        /* ===== BOTÃO PLAY ===== */
         .btn-play {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
             background: #e94560;
             color: #fff;
@@ -205,6 +121,9 @@
             box-shadow: 0 10px 30px rgba(233, 69, 96, 0.35);
             transition: transform 0.12s, box-shadow 0.12s;
             text-decoration: none;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 1rem;
         }
         .btn-play:hover {
             transform: translateY(-2px);
@@ -213,6 +132,62 @@
         }
         .btn-play:active { transform: translateY(0); }
 
+        /* ===== COMO JOGAR ===== */
+        .como-jogar {
+            width: 100%;
+            max-width: 320px;
+            color: #8a8fa3;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .como-jogar strong {
+            display: block;
+            color: #eaeaea;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        /* ===== BOTÃO SAIR ===== */
+        .btn-sair {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f3460;
+            border: 1px solid #2a3a5c;
+            color: #eaeaea;
+            padding: 0.55rem 1.6rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            transition: background 0.15s, transform 0.12s, color 0.15s;
+            text-decoration: none;
+            width: 100%;
+            max-width: 320px;
+        }
+        .btn-sair:hover {
+            background: #e94560;
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+        .btn-sair:active { transform: translateY(0); }
+
+        /* ===== MOBILE: centraliza tudo ===== */
+        @media (max-width: 720px) {
+            .col-info {
+                align-items: center;
+                text-align: center;
+            }
+            .descricao {
+                text-align: left;
+            }
+        }
+
+        /* ===== RANKING ===== */
         .section-title {
             font-size: 1.2rem;
             font-weight: 700;
@@ -220,6 +195,7 @@
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            width: 100%;
         }
         .section-title::before {
             content: '';
@@ -233,6 +209,7 @@
             border: 1px solid #2a3a5c;
             border-radius: 12px;
             overflow: hidden;
+            width: 100%;
         }
         .lb table {
             width: 100%;
@@ -264,22 +241,9 @@
             color: #8a8fa3;
             padding: 1.5rem;
         }
-
-        .erro {
-            background: #16213e;
-            border: 1px solid #2a3a5c;
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            color: #ff7b8a;
-        }
-        .erro strong { display: block; font-size: 1.2rem; margin-bottom: 0.4rem; }
-        .erro a { display: inline-block; margin-top: 1rem; }
     </style>
 </head>
 <body>
-
-    <a class="btn-back" id="btn-back" href="/amandapps/" aria-label="Voltar">&lt;</a>
 
     <div class="container" id="conteudo">
         <p style="color:#8a8fa3;">Carregando...</p>
@@ -321,16 +285,6 @@
             }[c]));
         }
 
-        function mostrarErro(msg, detalhe) {
-            document.getElementById('conteudo').innerHTML = `
-                <div class="erro">
-                    <strong>${escapeHTML(msg)}</strong>
-                    ${detalhe ? `<p>${escapeHTML(detalhe)}</p>` : ''}
-                    <a href="${HOME_URL}">← Voltar para home</a>
-                </div>
-            `;
-        }
-
         // =====================================================
         // 10º COLOCADO — salva em localStorage
         // =====================================================
@@ -357,6 +311,7 @@
                     font-size: 0.85rem;
                     color: #f5c518;
                     word-break: break-all;
+                    width: 100%;
                 `;
                 document.querySelector('.container').appendChild(dbg);
             }
@@ -370,55 +325,66 @@
         // =====================================================
         async function carregar() {
             const gameId = getGameIdFromURL();
-            if (!gameId) {
-                mostrarErro('Jogo não especificado.', 'A URL precisa do parâmetro ?id=algum_jogo');
-                return;
-            }
-
-            const btnBack = document.getElementById('btn-back');
-            if (btnBack) btnBack.href = HOME_URL;
 
             let info = null;
-            try {
-                const resp = await fetch(INFO_JSON_URL, { cache: 'no-cache' });
-                if (resp.ok) {
-                    const all = await resp.json();
-                    info = all[gameId] || null;
+            if (gameId) {
+                try {
+                    const resp = await fetch(INFO_JSON_URL, { cache: 'no-cache' });
+                    if (resp.ok) {
+                        const all = await resp.json();
+                        info = all[gameId] || null;
+                    }
+                } catch (e) {
+                    console.warn('[jogo] não foi possível carregar jogos-info.json:', e);
                 }
-            } catch (e) {
-                console.warn('[jogo] não foi possível carregar jogos-info.json:', e);
             }
 
+            // Valores padrão quando não há jogo / info
             const dados = {
-                titulo:    info?.titulo    || gameId,
-                descricao: info?.descricao || '',
+                titulo:    info?.titulo    || 'Jogo Desconhecido',
+                descricao: info?.descricao || 'Este jogo ainda não possui descrição disponível. Mas você pode jogar e se divertir mesmo assim!',
                 categoria: info?.categoria || '',
-                controles: info?.controles || '',
+                controles: info?.controles || 'Use o mouse e o teclado para jogar.',
                 autor:     info?.autor     || ''
             };
 
-            const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`;
+            const thumbUrl = gameId
+                ? `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`
+                : '';
 
             // =====================================================
             // PLAY → /amandapps/jogo_inside.html?jogo=<id>
             // =====================================================
-            const playUrl = `${JOGO_INSIDE_URL}?jogo=${encodeURIComponent(gameId)}`;
+            const playUrl = gameId
+                ? `${JOGO_INSIDE_URL}?jogo=${encodeURIComponent(gameId)}`
+                : '#';
 
             document.getElementById('conteudo').innerHTML = `
-                <div class="game-header">
-                    <div class="thumb-wrap" id="thumb-wrap">
-                        <img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">
-                        <div class="thumb-fallback">🎮</div>
+                <div class="game-layout">
+
+                    <!-- COLUNA ESQUERDA: IMAGEM -->
+                    <div class="col-image">
+                        <div class="thumb-wrap" id="thumb-wrap">
+                            ${thumbUrl ? `<img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">` : ''}
+                            <div class="thumb-fallback">🎮</div>
+                        </div>
                     </div>
 
-                    <div class="game-info">
-                        <h1>${escapeHTML(dados.titulo)}</h1>
+                    <!-- COLUNA DIREITA: INFO -->
+                    <div class="col-info">
+                        <h1 class="game-title">${escapeHTML(dados.titulo)}</h1>
+                        <p class="descricao">${escapeHTML(dados.descricao)}</p>
 
-                        ${dados.categoria ? `<div class="meta"><span class="chip accent">${escapeHTML(dados.categoria)}</span></div>` : ''}
-                        ${dados.descricao ? `<p class="descricao">${escapeHTML(dados.descricao)}</p>` : ''}
                         <a class="btn-play" href="${playUrl}">▶ PLAY</a>
-                        ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
+
+                        <div class="como-jogar">
+                            <strong>Como jogar</strong>
+                            ${escapeHTML(dados.controles)}
+                        </div>
+
+                        <a class="btn-sair" href="${HOME_URL}">SAIR</a>
                     </div>
+
                 </div>
 
                 <h2 class="section-title">Melhores pontuações</h2>
@@ -436,19 +402,20 @@
                         </tbody>
                     </table>
                 </div>
-
-                <p style="margin-top:1.5rem; font-size:0.7rem; color:#4a5578; font-family:ui-monospace,monospace;">
-                    game_id: ${escapeHTML(gameId)}
-                </p>
             `;
 
+            // Trata erro da thumb (se houver)
             const thumbImg = document.getElementById('thumb-img');
             const thumbWrap = document.getElementById('thumb-wrap');
-            thumbImg.onerror = () => {
+            if (thumbImg) {
+                thumbImg.onerror = () => {
+                    thumbWrap.classList.add('error');
+                    thumbImg.removeAttribute('src');
+                    console.warn('[jogo] thumb não encontrada:', thumbUrl);
+                };
+            } else {
                 thumbWrap.classList.add('error');
-                thumbImg.removeAttribute('src');
-                console.warn('[jogo] thumb não encontrada:', thumbUrl);
-            };
+            }
 
             await carregarLeaderboard(gameId);
         }
@@ -456,6 +423,12 @@
         async function carregarLeaderboard(gameId) {
             const tbody = document.getElementById('lb-body');
             if (!tbody) return;
+
+            if (!gameId) {
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma pontuação disponível.</td></tr>`;
+                definirDecimoValor(0, '');
+                return;
+            }
 
             const { data, error } = await _supabase
                 .from('scores')
