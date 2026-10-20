@@ -10,13 +10,13 @@
         html, body {
             width: 100%;
             height: 100%;
-            background: #1A1A2E;              /* laterais pretas quando a tela é mais larga que a imagem */
+            background: #000;
             color: #eaeaea;
             font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
             overflow: hidden;
         }
 
-        /* ===== PALCO: fundo preto cobre a página inteira ===== */
+        /* ===== PALCO ===== */
         .stage {
             position: relative;
             width: 100%;
@@ -25,7 +25,7 @@
             background: #000;
         }
 
-        /* container centralizado: limita a imagem à altura, sem esticar pros lados */
+        /* container centralizado da imagem */
         .bg-wrap {
             position: absolute;
             inset: 0;
@@ -33,10 +33,10 @@
             align-items: center;
             justify-content: center;
             z-index: 0;
-            background: #000;              /* preto nas laterais */
+            background: #000;
         }
 
-        /* fallback verde (teste) — fica atrás da imagem */
+        /* fallback verde (teste) */
         .bg-wrap::before {
             content: '';
             position: absolute;
@@ -44,9 +44,8 @@
             background: #00b140;
             z-index: -1;
         }
-        .bg-wrap.has-img::before { display: none; }  /* se tem imagem, some o verde */
+        .bg-wrap.has-img::before { display: none; }
 
-        /* imagem: ajustada pela altura, centralizada, sem expandir pros lados */
         .bg-img {
             height: 100%;
             width: auto;
@@ -57,7 +56,6 @@
         }
         .bg-img.hidden { display: none; }
 
-        /* escurecimento para o texto ficar legível por cima da imagem */
         .overlay {
             position: absolute;
             inset: 0;
@@ -71,7 +69,7 @@
             pointer-events: none;
         }
 
-        /* ===== CONTEÚDO SOBREPOSTO ===== */
+        /* ===== CONTEÚDO ===== */
         .content {
             position: relative;
             z-index: 2;
@@ -79,13 +77,12 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;   /* tudo empurrado para baixo */
+            justify-content: flex-end;
             align-items: center;
             gap: 0.55rem;
             padding: 1.5rem 1.2rem 1.4rem;
         }
 
-        /* usuário */
         .profile-row {
             display: flex;
             align-items: center;
@@ -123,10 +120,7 @@
             text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
         }
 
-        /* pontuação */
-        .score-box {
-            text-align: center;
-        }
+        .score-box { text-align: center; }
         .score-label {
             font-size: 0.7rem;
             color: #c7cbe0;
@@ -142,12 +136,8 @@
             line-height: 1;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
         }
-        .score-value.error {
-            color: #ff7b8a;
-            font-size: 2rem;
-        }
+        .score-value.error { color: #ff7b8a; font-size: 2rem; }
 
-        /* status */
         .status {
             font-size: 0.85rem;
             font-weight: 600;
@@ -159,7 +149,6 @@
         .status.error { color: #ff7b8a; }
         .status.info  { color: #8a8fa3; }
 
-        /* ações */
         .actions {
             display: flex;
             gap: 0.6rem;
@@ -190,7 +179,6 @@
         }
         .btn-home:hover { border-color: #8a8fa3 !important; }
 
-        /* DEBUG discreto */
         .debug-block {
             display: flex;
             flex-direction: column;
@@ -213,14 +201,12 @@
 <body>
 
 <div class="stage" id="stage">
-    <!-- container da imagem: centralizado, fundo preto nas laterais -->
     <div class="bg-wrap" id="bg-wrap">
         <img id="bg-img" class="bg-img" src="" alt="Imagem do jogo">
     </div>
 
     <div class="overlay"></div>
 
-    <!-- conteúdo sobreposto -->
     <div class="content" id="content">
         <div class="profile-row" id="profile-row">
             <div class="avatar" id="avatar">🎮</div>
@@ -239,7 +225,6 @@
             <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
         </div>
 
-        <!-- DEBUG: game_id, score e flag -->
         <div class="debug-block">
             <div class="debug-game-id" id="debug-game-id">game_id: —</div>
             <div class="debug-game-id" id="debug-score">score: —</div>
@@ -252,14 +237,28 @@
     // =====================================================
     // CONFIG
     // =====================================================
-    const HOME_URL    = '/amandapps/';                // home na raiz do repo
-    const THUMB_DIR   = '/amandapps/thumbs-assets';   // pasta de thumbs na raiz
-
-    // Fallback caso o sessionStorage esteja vazio
+    const HOME_URL    = '/amandapps/';
+    const THUMB_DIR   = '/amandapps/thumbs-assets';
     const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
-
-    // Nome padrão exibido quando o jogador é anônimo
     const NOME_ANONIMO = 'Um Amanfã';
+
+    // =====================================================
+    // HISTÓRICO: substitui a entrada atual para o "voltar" do
+    // navegador NÃO cair na tela do jogo anterior (quebrada).
+    // Usa replaceState para trocar a URL atual sem empilhar.
+    // =====================================================
+    try {
+        history.replaceState({ fimDeJogo: true }, '', location.href);
+    } catch (e) {
+        console.warn('[fim-de-jogo] replaceState falhou:', e);
+    }
+
+    // Se o jogador apertar "voltar" do navegador, manda para a home
+    // em vez de voltar para a tela do jogo anterior.
+    window.addEventListener('popstate', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.replace(HOME_URL);
+    });
 
     // =====================================================
     // LER DADOS
@@ -277,7 +276,6 @@
     const elScore        = document.getElementById('score-value');
     const elStatus       = document.getElementById('status');
     const content        = document.getElementById('content');
-    const stage          = document.getElementById('stage');
 
     const elDebugId      = document.getElementById('debug-game-id');
     const elDebugScore   = document.getElementById('debug-score');
@@ -288,14 +286,12 @@
 
     let jogoUrl = JOGO_PADRAO_URL;
 
-    // normaliza a flag: aceita true, "true", 1, "1", false, "false", 0, "0"
     function normalizarFlag(v) {
         if (v === true  || v === 'true'  || v === 1 || v === '1') return true;
         if (v === false || v === 'false' || v === 0 || v === '0') return false;
-        return null; // ausente / desconhecido
+        return null;
     }
 
-    // renderiza a flag no debug com cor (verde/vermelho) e valor bruto
     function renderDebugFlag(valorBruto) {
         if (valorBruto === undefined) {
             elDebugFlag.innerHTML = 'flag: —';
@@ -311,8 +307,6 @@
         elDebugFlag.innerHTML = `flag: <span class="${corClasse}">${texto}</span>`;
     }
 
-    // Resolve o nome a exibir: se vier vazio OU "Anônimo"/"Anonimo",
-    // usa o nome padrão "Um Amanfã".
     function resolverNome(nomeRecebido) {
         const nome = (nomeRecebido == null) ? '' : String(nomeRecebido).trim();
         if (!nome || nome.toLowerCase() === 'anônimo' || nome.toLowerCase() === 'anonimo') {
@@ -322,7 +316,6 @@
     }
 
     if (dados && typeof dados.score === 'number') {
-        // -------- Caminho normal: dados válidos --------
         const nomeExibicao = resolverNome(dados.nome);
 
         elAvatar.textContent = dados.avatar || '🎮';
@@ -332,7 +325,6 @@
         elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
         elScore.classList.remove('error');
 
-        // -------- Flag de hiscore --------
         const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
         const flag = normalizarFlag(flagBruta);
 
@@ -357,25 +349,22 @@
         bgImg.src = thumbUrl;
         bgImg.alt = `Imagem do jogo ${gameId}`;
         bgImg.onerror = () => {
-            // sem imagem → esconde a img e deixa o verde de teste aparecer
             bgImg.classList.add('hidden');
             bgWrap.classList.remove('has-img');
             console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
         };
         bgImg.onload = () => {
-            bgWrap.classList.add('has-img');   // tem imagem → some o verde
+            bgWrap.classList.add('has-img');
         };
 
-        // -------- DEBUG --------
         elDebugId.textContent    = `game_id: ${gameId}`;
         elDebugScore.textContent = `score: ${Number(dados.score).toLocaleString('pt-BR')}`;
         renderDebugFlag(flagBruta);
 
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
     } else {
-        // -------- Sem dados: layout em estado de erro (fallback verde) --------
         content.classList.add('anon');
-        bgImg.classList.add('hidden');        // fica só o verde de teste
+        bgImg.classList.add('hidden');
         bgWrap.classList.remove('has-img');
 
         elAvatar.textContent = '⚠';
@@ -387,7 +376,6 @@
         elStatus.textContent = '⚠ Nenhum resultado encontrado.';
         elStatus.className = 'status error';
 
-        // -------- DEBUG (estado sem dados) --------
         elDebugId.textContent    = 'game_id: —';
         elDebugScore.textContent = 'score: —';
         elDebugFlag.innerHTML    = 'flag: —';
@@ -400,17 +388,13 @@
     // =====================================================
     document.getElementById('btn-retry').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-
-        if (window.history.length > 1) {
-            window.history.go(-2);
-        } else {
-            window.location.href = jogoUrl;
-        }
+        // replace: não empilha esta tela no histórico
+        window.location.replace(jogoUrl);
     });
 
     document.getElementById('btn-home').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-        window.location.href = HOME_URL;
+        window.location.replace(HOME_URL);
     });
 </script>
 
