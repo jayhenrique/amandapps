@@ -56,19 +56,6 @@
         }
         .bg-img.hidden { display: none; }
 
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                to bottom,
-                rgba(0, 0, 0, 0.10) 0%,
-                rgba(0, 0, 0, 0.30) 55%,
-                rgba(0, 0, 0, 0.90) 100%
-            );
-            z-index: 1;
-            pointer-events: none;
-        }
-
         /* ===== CONTEÚDO ===== */
         .content {
             position: relative;
@@ -117,7 +104,7 @@
             text-align: left;
             line-height: 1.15;
             word-break: break-word;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
         }
 
         .score-box { text-align: center; }
@@ -205,8 +192,6 @@
         <img id="bg-img" class="bg-img" src="" alt="Imagem do jogo">
     </div>
 
-    <div class="overlay"></div>
-
     <div class="content" id="content">
         <div class="profile-row" id="profile-row">
             <div class="avatar" id="avatar">🎮</div>
@@ -243,9 +228,7 @@
     const NOME_ANONIMO = 'Um Amanfã';
 
     // =====================================================
-    // HISTÓRICO: substitui a entrada atual para o "voltar" do
-    // navegador NÃO cair na tela do jogo anterior (quebrada).
-    // Usa replaceState para trocar a URL atual sem empilhar.
+    // HISTÓRICO
     // =====================================================
     try {
         history.replaceState({ fimDeJogo: true }, '', location.href);
@@ -253,8 +236,6 @@
         console.warn('[fim-de-jogo] replaceState falhou:', e);
     }
 
-    // Se o jogador apertar "voltar" do navegador, manda para a home
-    // em vez de voltar para a tela do jogo anterior.
     window.addEventListener('popstate', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
         window.location.replace(HOME_URL);
@@ -388,7 +369,6 @@
     // =====================================================
     document.getElementById('btn-retry').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
-        // replace: não empilha esta tela no histórico
         window.location.replace(jogoUrl);
     });
 
