@@ -60,8 +60,67 @@
             align-items: start;
             margin-bottom: 2rem;
         }
+
+        /* ===== MOBILE ===== */
         @media (max-width: 720px) {
-            .game-header { grid-template-columns: 1fr; }
+            .container {
+                padding-top: 1rem;
+            }
+
+            .game-header {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Título na mesma linha do botão voltar */
+            .game-info h1 {
+                font-size: 1.35rem;
+                margin-left: 3.6rem; /* espaço do botão fixo */
+                margin-bottom: 1rem;
+                min-height: 2.6rem;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Esconde as tags/categoria no mobile */
+            .game-info .meta {
+                display: none;
+            }
+
+            /* Descrição compacta */
+            .game-info .descricao {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Play centralizado embaixo da imagem */
+            .game-info {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .game-info .descricao {
+                text-align: left;
+                width: 100%;
+            }
+
+            .btn-play {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+
+            /* Controles embaixo do botão play */
+            .game-info .controles {
+                margin-top: 0.9rem;
+                margin-bottom: 0;
+                text-align: center;
+                width: 100%;
+            }
         }
 
         .thumb-wrap {
@@ -357,8 +416,8 @@
 
                         ${dados.categoria ? `<div class="meta"><span class="chip accent">${escapeHTML(dados.categoria)}</span></div>` : ''}
                         ${dados.descricao ? `<p class="descricao">${escapeHTML(dados.descricao)}</p>` : ''}
-                        ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
                         <a class="btn-play" href="${playUrl}">▶ PLAY</a>
+                        ${dados.controles ? `<p class="controles"><strong>Controles:</strong> ${escapeHTML(dados.controles)}</p>` : ''}
                     </div>
                 </div>
 
