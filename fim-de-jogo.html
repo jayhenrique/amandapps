@@ -70,44 +70,15 @@
             padding: 1.5rem 1.2rem 1.4rem;
         }
 
-        .profile-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.55rem;
-            max-width: 360px;
-            width: 100%;
+        /* score box with semi-transparent background */
+        .score-box {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(3px);
+            border-radius: 10px;
+            padding: 0.5rem 1.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
-        .profile-row .avatar {
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            background: linear-gradient(135deg, #0f3460, #1f2b4d);
-            border: 2px solid #e94560;
-            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.12);
-        }
-        .anon .profile-row .avatar {
-            border-color: #2a3a5c;
-            box-shadow: 0 0 0 3px rgba(138, 143, 163, 0.06);
-        }
-
-        .profile-row .name {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #eaeaea;
-            text-align: left;
-            line-height: 1.15;
-            word-break: break-word;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
-        }
-
-        .score-box { text-align: center; }
         .score-label {
             font-size: 0.7rem;
             color: #c7cbe0;
@@ -124,6 +95,51 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
         }
         .score-value.error { color: #ff7b8a; font-size: 2rem; }
+
+        /* name input row */
+        .name-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 360px;
+        }
+        .name-row.hidden { display: none; }
+
+        .name-input {
+            flex: 1;
+            min-width: 0;
+            padding: 0.65rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #2a3a5c;
+            background: rgba(22, 33, 62, 0.85);
+            backdrop-filter: blur(4px);
+            color: #eaeaea;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .name-input::placeholder { color: #8a8fa3; font-weight: 400; }
+        .name-input:focus { border-color: #e94560; }
+
+        .btn-send {
+            padding: 0.65rem 0.9rem;
+            border-radius: 8px;
+            border: none;
+            background: #f5c518;
+            color: #111;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.15s, transform 0.1s;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        }
+        .btn-send:hover { opacity: 0.92; }
+        .btn-send:active { transform: scale(0.98); }
+        .btn-send:disabled { opacity: 0.5; cursor: default; }
 
         .status {
             font-size: 0.85rem;
@@ -193,18 +209,30 @@
     </div>
 
     <div class="content" id="content">
-        <div class="profile-row" id="profile-row">
-            <div class="avatar" id="avatar">🎮</div>
-            <div class="name" id="name">—</div>
-        </div>
-
+        <!-- 1) SCORE BOX -->
         <div class="score-box" id="score-box">
             <div class="score-label">Score</div>
             <div class="score-value" id="score-value">0</div>
         </div>
 
+        <!-- 2) NAME INPUT (only when high score) -->
+        <div class="name-row hidden" id="name-row">
+            <input
+                type="text"
+                id="name-input"
+                class="name-input"
+                placeholder="insert your name"
+                maxlength="8"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+            >
+            <button type="button" class="btn-send" id="btn-send">Send Score</button>
+        </div>
+
         <div class="status" id="status"></div>
 
+        <!-- 3) ACTIONS -->
         <div class="actions" id="actions">
             <button type="button" class="btn-retry" id="btn-retry">🔄 Try again</button>
             <button type="button" class="btn-home" id="btn-home">🏠 Back to home</button>
@@ -225,7 +253,8 @@
     const HOME_URL    = '/amandapps/';
     const THUMB_DIR   = '/amandapps/thumbs-assets';
     const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
-    const NOME_ANONIMO = 'An Amanfã';
+    const NOME_PADRAO = 'Amanfã';
+    const NOME_STORAGE_KEY = 'amanfa_player_name';
 
     // =====================================================
     // HISTORY
@@ -252,11 +281,12 @@
         console.warn('[fim-de-jogo] invalid sessionStorage:', e);
     }
 
-    const elAvatar       = document.getElementById('avatar');
-    const elName         = document.getElementById('name');
     const elScore        = document.getElementById('score-value');
     const elStatus       = document.getElementById('status');
     const content        = document.getElementById('content');
+    const elNameRow      = document.getElementById('name-row');
+    const elNameInput    = document.getElementById('name-input');
+    const elBtnSend      = document.getElementById('btn-send');
 
     const elDebugId      = document.getElementById('debug-game-id');
     const elDebugScore   = document.getElementById('debug-score');
@@ -288,34 +318,62 @@
         elDebugFlag.innerHTML = `flag: <span class="${corClasse}">${texto}</span>`;
     }
 
-    function resolverNome(nomeRecebido) {
-        const nome = (nomeRecebido == null) ? '' : String(nomeRecebido).trim();
-        if (!nome || nome.toLowerCase() === 'anônimo' || nome.toLowerCase() === 'anonimo') {
-            return NOME_ANONIMO;
-        }
-        return nome;
+    // Sanitize name: only letters, numbers and spaces; max 8 chars
+    function sanitizeName(raw) {
+        let s = (raw == null) ? '' : String(raw);
+        s = s.replace(/[^A-Za-z0-9 ]/g, '');
+        s = s.slice(0, 8).trim();
+        return s;
     }
 
+    // Save the name to localStorage (persists across games)
+    function saveName(name) {
+        try {
+            localStorage.setItem(NOME_STORAGE_KEY, name);
+        } catch (e) {
+            console.warn('[fim-de-jogo] could not save name:', e);
+        }
+    }
+
+    // Load stored name (or empty string)
+    function loadStoredName() {
+        try {
+            const stored = localStorage.getItem(NOME_STORAGE_KEY);
+            return stored ? sanitizeName(stored) : '';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    // =====================================================
+    // RENDER
+    // =====================================================
     if (dados && typeof dados.score === 'number') {
-        const nomeExibicao = resolverNome(dados.nome);
-
-        elAvatar.textContent = dados.avatar || '🎮';
-        elName.textContent   = nomeExibicao;
-        content.classList.toggle('anon', nomeExibicao === NOME_ANONIMO);
-
         elScore.textContent = Number(dados.score).toLocaleString('en-US');
         elScore.classList.remove('error');
 
         const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
         const flag = normalizarFlag(flagBruta);
+        const isHighScore = flag === true;
 
-        if (flag === true) {
-            elStatus.textContent = '🏆 You made it to the high score!';
+        if (isHighScore) {
+            // Show the name input + send button
+            elNameRow.classList.remove('hidden');
+            elStatus.textContent = '🏆 You made it to the high score! Insert your name.';
             elStatus.className = 'status ok';
+
+            // Pre-fill with stored name (if any)
+            const stored = loadStoredName();
+            if (stored) {
+                elNameInput.value = stored;
+            }
+            elNameInput.focus();
         } else if (flag === false) {
+            elNameRow.classList.add('hidden');
             elStatus.textContent = '🔄 Try again';
             elStatus.className = 'status error';
         } else {
+            elNameRow.classList.add('hidden');
             if (dados.salvo) {
                 elStatus.textContent = '✔ Score saved!';
                 elStatus.className = 'status ok';
@@ -348,12 +406,10 @@
         bgImg.classList.add('hidden');
         bgWrap.classList.remove('has-img');
 
-        elAvatar.textContent = '⚠';
-        elName.textContent   = 'Error';
-
         elScore.textContent = 'Error';
         elScore.classList.add('error');
 
+        elNameRow.classList.add('hidden');
         elStatus.textContent = '⚠ No results found.';
         elStatus.className = 'status error';
 
@@ -363,6 +419,42 @@
 
         jogoUrl = JOGO_PADRAO_URL;
     }
+
+    // =====================================================
+    // NAME INPUT — live sanitization
+    // =====================================================
+    elNameInput.addEventListener('input', () => {
+        const clean = sanitizeName(elNameInput.value);
+        if (clean !== elNameInput.value) {
+            const pos = elNameInput.selectionStart;
+            elNameInput.value = clean;
+            // keep cursor roughly in place
+            try { elNameInput.setSelectionRange(Math.min(pos, clean.length), Math.min(pos, clean.length)); } catch (e) {}
+        }
+    });
+
+    // =====================================================
+    // SEND SCORE
+    // =====================================================
+    elBtnSend.addEventListener('click', () => {
+        const finalName = sanitizeName(elNameInput.value) || NOME_PADRAO;
+        saveName(finalName);
+
+        // Persist the name into the fimDeJogo data so other pages can pick it up
+        try {
+            const updated = Object.assign({}, dados || {}, {
+                nome: finalName,
+                salvouHiscore: true
+            });
+            sessionStorage.setItem('fimDeJogo', JSON.stringify(updated));
+        } catch (e) {
+            console.warn('[fim-de-jogo] could not update sessionStorage:', e);
+        }
+
+        elNameRow.classList.add('hidden');
+        elStatus.textContent = `✔ Score saved as ${finalName}!`;
+        elStatus.className = 'status ok';
+    });
 
     // =====================================================
     // BUTTONS
