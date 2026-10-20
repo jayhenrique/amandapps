@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Fim de jogo — Arcade Central</title>
+    <title>Game Over — Arcade Central</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -16,7 +16,7 @@
             overflow: hidden;
         }
 
-        /* ===== PALCO ===== */
+        /* ===== STAGE ===== */
         .stage {
             position: relative;
             width: 100%;
@@ -25,7 +25,7 @@
             background: #000;
         }
 
-        /* container centralizado da imagem */
+        /* centered image container */
         .bg-wrap {
             position: absolute;
             inset: 0;
@@ -36,7 +36,7 @@
             background: #000;
         }
 
-        /* fallback verde (teste) */
+        /* green fallback (test) */
         .bg-wrap::before {
             content: '';
             position: absolute;
@@ -56,7 +56,7 @@
         }
         .bg-img.hidden { display: none; }
 
-        /* ===== CONTEÚDO ===== */
+        /* ===== CONTENT ===== */
         .content {
             position: relative;
             z-index: 2;
@@ -189,7 +189,7 @@
 
 <div class="stage" id="stage">
     <div class="bg-wrap" id="bg-wrap">
-        <img id="bg-img" class="bg-img" src="" alt="Imagem do jogo">
+        <img id="bg-img" class="bg-img" src="" alt="Game image">
     </div>
 
     <div class="content" id="content">
@@ -199,15 +199,15 @@
         </div>
 
         <div class="score-box" id="score-box">
-            <div class="score-label">Pontuação</div>
+            <div class="score-label">Score</div>
             <div class="score-value" id="score-value">0</div>
         </div>
 
         <div class="status" id="status"></div>
 
         <div class="actions" id="actions">
-            <button type="button" class="btn-retry" id="btn-retry">🔄 Tentar de novo</button>
-            <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
+            <button type="button" class="btn-retry" id="btn-retry">🔄 Try again</button>
+            <button type="button" class="btn-home" id="btn-home">🏠 Back to home</button>
         </div>
 
         <div class="debug-block">
@@ -225,15 +225,15 @@
     const HOME_URL    = '/amandapps/';
     const THUMB_DIR   = '/amandapps/thumbs-assets';
     const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
-    const NOME_ANONIMO = 'Um Amanfã';
+    const NOME_ANONIMO = 'An Amanfã';
 
     // =====================================================
-    // HISTÓRICO
+    // HISTORY
     // =====================================================
     try {
         history.replaceState({ fimDeJogo: true }, '', location.href);
     } catch (e) {
-        console.warn('[fim-de-jogo] replaceState falhou:', e);
+        console.warn('[fim-de-jogo] replaceState failed:', e);
     }
 
     window.addEventListener('popstate', () => {
@@ -242,14 +242,14 @@
     });
 
     // =====================================================
-    // LER DADOS
+    // READ DATA
     // =====================================================
     let dados = null;
     try {
         const raw = sessionStorage.getItem('fimDeJogo');
         if (raw) dados = JSON.parse(raw);
     } catch (e) {
-        console.warn('[fim-de-jogo] sessionStorage inválido:', e);
+        console.warn('[fim-de-jogo] invalid sessionStorage:', e);
     }
 
     const elAvatar       = document.getElementById('avatar');
@@ -303,24 +303,24 @@
         elName.textContent   = nomeExibicao;
         content.classList.toggle('anon', nomeExibicao === NOME_ANONIMO);
 
-        elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
+        elScore.textContent = Number(dados.score).toLocaleString('en-US');
         elScore.classList.remove('error');
 
         const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
         const flag = normalizarFlag(flagBruta);
 
         if (flag === true) {
-            elStatus.textContent = '🏆 Entrou no hiscore!';
+            elStatus.textContent = '🏆 You made it to the high score!';
             elStatus.className = 'status ok';
         } else if (flag === false) {
-            elStatus.textContent = '🔄 Tente novamente';
+            elStatus.textContent = '🔄 Try again';
             elStatus.className = 'status error';
         } else {
             if (dados.salvo) {
-                elStatus.textContent = '✔ Pontuação salva!';
+                elStatus.textContent = '✔ Score saved!';
                 elStatus.className = 'status ok';
             } else {
-                elStatus.textContent = '⚠ Não foi possível salvar a pontuação.';
+                elStatus.textContent = '⚠ Could not save the score.';
                 elStatus.className = 'status error';
             }
         }
@@ -328,18 +328,18 @@
         const gameId = dados.gameId || 'clickteam';
         const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}end.png`;
         bgImg.src = thumbUrl;
-        bgImg.alt = `Imagem do jogo ${gameId}`;
+        bgImg.alt = `Image of game ${gameId}`;
         bgImg.onerror = () => {
             bgImg.classList.add('hidden');
             bgWrap.classList.remove('has-img');
-            console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
+            console.warn('[fim-de-jogo] thumb not found:', thumbUrl);
         };
         bgImg.onload = () => {
             bgWrap.classList.add('has-img');
         };
 
         elDebugId.textContent    = `game_id: ${gameId}`;
-        elDebugScore.textContent = `score: ${Number(dados.score).toLocaleString('pt-BR')}`;
+        elDebugScore.textContent = `score: ${Number(dados.score).toLocaleString('en-US')}`;
         renderDebugFlag(flagBruta);
 
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
@@ -349,12 +349,12 @@
         bgWrap.classList.remove('has-img');
 
         elAvatar.textContent = '⚠';
-        elName.textContent   = 'Erro';
+        elName.textContent   = 'Error';
 
-        elScore.textContent = 'Erro';
+        elScore.textContent = 'Error';
         elScore.classList.add('error');
 
-        elStatus.textContent = '⚠ Nenhum resultado encontrado.';
+        elStatus.textContent = '⚠ No results found.';
         elStatus.className = 'status error';
 
         elDebugId.textContent    = 'game_id: —';
@@ -365,7 +365,7 @@
     }
 
     // =====================================================
-    // BOTÕES
+    // BUTTONS
     // =====================================================
     document.getElementById('btn-retry').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}

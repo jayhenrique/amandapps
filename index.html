@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -482,6 +482,33 @@
     margin-top: 2rem;
   }
 
+  /* PWA reminder banner */
+  .pwa-reminder {
+    background: rgba(233, 69, 96, 0.08);
+    border: 1px solid rgba(233, 69, 96, 0.3);
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+  .pwa-reminder .pwa-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+  .pwa-reminder strong {
+    color: var(--accent);
+  }
+  .pwa-reminder .pwa-sub {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+
   @media (max-width: 600px) {
     header {
       flex-direction: row;
@@ -514,22 +541,31 @@
 <body>
 
 <header>
-  <a class="logo" href="#" id="logo-home" title="Ir para o início" aria-label="Ir para o início">
+  <a class="logo" href="#" id="logo-home" title="Go to top" aria-label="Go to top">
     <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
   </a>
   <div class="header-right">
     <div class="user-area" id="user-area">
-      <span class="user-pill hidden" id="user-pill" title="Ir para Meu Perfil">🎮 <span id="user-name">—</span></span>
-      <button class="btn-auth hidden" id="btn-logout">Sair</button>
-      <button class="btn-auth" id="btn-go-profile">Entrar</button>
-      <button class="btn-reload" id="btn-reload" title="Recarregar tela" aria-label="Recarregar tela">🔄</button>
+      <span class="user-pill hidden" id="user-pill" title="Go to My Profile">🎮 <span id="user-name">—</span></span>
+      <button class="btn-auth hidden" id="btn-logout">Logout</button>
+      <button class="btn-auth" id="btn-go-profile">Login</button>
+      <button class="btn-reload" id="btn-reload" title="Reload page" aria-label="Reload page">🔄</button>
     </div>
   </div>
 </header>
 
 <div class="container">
 
-  <h2 class="section-title anchor-target" id="jogos">Jogos Disponíveis</h2>
+  <!-- PWA reminder -->
+  <div class="pwa-reminder">
+    <span class="pwa-icon">📲</span>
+    <span>
+      <strong>Install this app on your device!</strong>
+      <span class="pwa-sub">Add it to your home screen for a full‑screen, app‑like experience.</span>
+    </span>
+  </div>
+
+  <h2 class="section-title anchor-target" id="jogos">Available Games</h2>
   <div class="game-grid">
     <a class="game-card" href="jogo.html?id=flappy">
       <img class="game-thumb-img" src="thumbs-assets/flappymini.png" alt="Flappy Dragqueen" loading="lazy">
@@ -548,16 +584,16 @@
     </a>
   </div>
 
-  <h2 class="section-title">Atividade Recente</h2>
+  <h2 class="section-title">Recent Activity</h2>
   <div class="activity-feed" id="activity-feed">
-    <p>Carregando atividades do Supabase...</p>
+    <p>Loading recent activity from Supabase...</p>
   </div>
 
 
   <!-- ======================================== -->
-  <!-- MEU PERFIL                               -->
+  <!-- MY PROFILE                               -->
   <!-- ======================================== -->
-  <h2 class="section-title anchor-target" id="perfil">Meu Perfil</h2>
+  <h2 class="section-title anchor-target" id="perfil">My Profile</h2>
   <div class="profile-wrap">
 
     <!-- Card do usuário logado -->
@@ -567,20 +603,20 @@
         <div class="profile-details">
           <h3 id="profile-username-el">—</h3>
           <div class="profile-email" id="profile-email-el">—</div>
-          <span class="profile-tag">✔ Logado</span>
+          <span class="profile-tag">✔ Logged in</span>
         </div>
         <div class="profile-actions">
-          <button class="btn-ghost" id="btn-logout-2">Sair da conta</button>
-          <button class="btn-danger" id="btn-delete-start">Apagar perfil</button>
+          <button class="btn-ghost" id="btn-logout-2">Log out</button>
+          <button class="btn-danger" id="btn-delete-start">Delete profile</button>
         </div>
       </div>
 
       <!-- Confirmação inline (sem modal) -->
       <div class="danger-zone" id="danger-zone">
-        <p>⚠️ <strong>Tem certeza?</strong> Isso apaga permanentemente sua conta, seu perfil e todas as suas pontuações. Não dá para desfazer.</p>
+        <p>⚠️ <strong>Are you sure?</strong> This will permanently delete your account, profile, and all your scores. This cannot be undone.</p>
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-          <button class="btn-danger confirm" id="btn-delete-confirm">Confirmar exclusão</button>
-          <button class="btn-ghost" id="btn-delete-cancel">Cancelar</button>
+          <button class="btn-danger confirm" id="btn-delete-confirm">Confirm deletion</button>
+          <button class="btn-ghost" id="btn-delete-cancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -589,24 +625,24 @@
     <div class="profile-card anon" id="profile-card-anon">
       <div class="profile-avatar">🎭</div>
       <div class="profile-details">
-        <h3>Um Amanfã</h3>
-        <div class="profile-email">Você pode jogar sem criar conta — suas pontuações aparecerão como "Um Amanfã".</div>
-        <span class="profile-tag anon">Visitante</span>
+        <h3>An Amanfã</h3>
+        <div class="profile-email">You can play without creating an account — your scores will appear as "An Amanfã".</div>
+        <span class="profile-tag anon">Guest</span>
       </div>
     </div>
 
     <!-- Painel de login/cadastro -->
     <div class="auth-panel" id="auth-panel" style="margin-top:1.5rem;">
-      <h4>Entre ou crie sua conta</h4>
+      <h4>Log in or create your account</h4>
       <div class="tabs">
-        <button class="tab active" data-tab="login" type="button">Entrar</button>
-        <button class="tab" data-tab="signup" type="button">Cadastrar</button>
+        <button class="tab active" data-tab="login" type="button">Log in</button>
+        <button class="tab" data-tab="signup" type="button">Sign up</button>
       </div>
 
       <form id="form-login">
         <label>Email</label>
         <input type="email" id="login-email" required autocomplete="email">
-        <label>Senha</label>
+        <label>Password</label>
         <input type="password" id="login-password" required autocomplete="current-password">
       </form>
 
@@ -615,16 +651,16 @@
         <input type="text" id="signup-username" required minlength="3" autocomplete="username">
         <label>Email</label>
         <input type="email" id="signup-email" required autocomplete="email">
-        <label>Senha (mín. 6 caracteres)</label>
+        <label>Password (min. 6 characters)</label>
         <input type="password" id="signup-password" required minlength="6" autocomplete="new-password">
-        <label>Escolha um avatar</label>
+        <label>Choose an avatar</label>
         <div class="avatar-grid" id="avatar-grid"></div>
       </form>
 
       <div class="auth-msg" id="auth-msg"></div>
 
       <div class="auth-actions">
-        <button type="button" class="primary" id="btn-submit-auth">Entrar</button>
+        <button type="button" class="primary" id="btn-submit-auth">Log in</button>
       </div>
     </div>
 
@@ -632,25 +668,25 @@
 
   <!-- Formulário de teste -->
   <div class="test-form">
-    <h3>🧪 Enviar pontuação de teste</h3>
-    <input type="text" id="test-player" placeholder="Seu nome" value="JogadorTeste">
+    <h3>🧪 Submit a test score</h3>
+    <input type="text" id="test-player" placeholder="Your name" value="TestPlayer">
     <select id="test-game">
       <option value="snake">Snake</option>
       <option value="breakout">Breakout</option>
       <option value="flappy">Flappy</option>
       <option value="tetris">Tetris</option>
-      <option value="memory">Memória</option>
+      <option value="memory">Memory</option>
       <option value="2048">2048</option>
     </select>
-    <input type="number" id="test-score" placeholder="Pontuação" value="1000">
-    <button onclick="enviarPontuacao()">Enviar</button>
+    <input type="number" id="test-score" placeholder="Score" value="1000">
+    <button onclick="enviarPontuacao()">Submit</button>
     <span id="test-status" style="font-size:0.8rem; color:var(--text-dim); margin-left:0.5rem;"></span>
   </div>
 
 </div>
 
 <footer>
-  Arcade Central &copy; 2026 · Feito com HTML5 + Supabase
+  Arcade Central &copy; 2026 · Made with HTML5 + Supabase
 </footer>
 
 <!-- Biblioteca do Supabase via CDN -->
@@ -658,7 +694,7 @@
 
 <script>
   // ============================================
-  // CONFIGURAÇÃO
+  // CONFIGURATION
   // ============================================
   const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
@@ -667,12 +703,12 @@
   const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ============================================
-  // ESTADO
+  // STATE
   // ============================================
   let currentUser = null;
 
   // Mapa game_id -> título legível (preenchido a partir de jogos-info.json)
-  let NOMES_JOGOS = {};
+  let GAME_NAMES = {};
 
   function lerPerfilDoUser(user) {
     if (!user) return null;
@@ -680,13 +716,13 @@
     return {
       id: user.id,
       email: user.email,
-      username: meta.username || (user.email ? user.email.split('@')[0] : 'usuário'),
+      username: meta.username || (user.email ? user.email.split('@')[0] : 'user'),
       avatar: meta.avatar || '🎮'
     };
   }
 
   // ============================================
-  // CARREGAMENTO DE jogos-info.json
+  // LOAD jogos-info.json
   // ============================================
   async function carregarNomesJogos() {
     try {
@@ -695,21 +731,21 @@
       const data = await res.json();
 
       // Transforma { flappy: { titulo: '...' }, ... } em { flappy: 'Flappy DragQueen', ... }
-      NOMES_JOGOS = Object.fromEntries(
+      GAME_NAMES = Object.fromEntries(
         Object.entries(data).map(([id, info]) => [id, info && info.titulo ? info.titulo : id])
       );
     } catch (e) {
-      console.warn('Não foi possível carregar jogos-info.json:', e);
-      NOMES_JOGOS = {};
+      console.warn('Could not load jogos-info.json:', e);
+      GAME_NAMES = {};
     }
   }
 
   function nomeDoJogo(gameId) {
-    return NOMES_JOGOS[gameId] || gameId;
+    return GAME_NAMES[gameId] || gameId;
   }
 
   // ============================================
-  // UI DE USUÁRIO
+  // USER UI
   // ============================================
   function atualizarUIUsuario() {
     const pill = document.getElementById('user-pill');
@@ -726,7 +762,7 @@
     // Sempre reseta o estado de confirmação ao re-renderizar
     if (dangerZone) dangerZone.classList.remove('show');
     if (btnDeleteStart) {
-      btnDeleteStart.textContent = 'Apagar perfil';
+      btnDeleteStart.textContent = 'Delete profile';
       btnDeleteStart.classList.remove('confirm');
     }
 
@@ -754,7 +790,7 @@
   }
 
   // ============================================
-  // FORMULÁRIO INLINE DE LOGIN / CADASTRO
+  // INLINE LOGIN / SIGNUP FORM
   // ============================================
   const AVATARES = ['🎮','🐍','🦊','🐼','🦄','🐉','👾','🤖','🐸','🦁','🐙','🦉','🐺','🦖','😎','👻'];
   let avatarSelecionado = '🎮';
@@ -778,7 +814,7 @@
     document.querySelectorAll('.auth-panel .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
     document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
     document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
-    document.getElementById('btn-submit-auth').textContent = tab === 'login' ? 'Entrar' : 'Cadastrar';
+    document.getElementById('btn-submit-auth').textContent = tab === 'login' ? 'Log in' : 'Sign up';
     const msg = document.getElementById('auth-msg');
     msg.textContent = '';
     msg.className = 'auth-msg';
@@ -794,45 +830,45 @@
     if (authTab === 'login') {
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
-      if (!email || !password) { setMsg('Preencha email e senha.', 'error'); return; }
+      if (!email || !password) { setMsg('Please enter email and password.', 'error'); return; }
 
-      setMsg('Entrando...');
+      setMsg('Logging in...');
       const { error } = await _supabase.auth.signInWithPassword({ email, password });
-      if (error) { setMsg('Erro: ' + error.message, 'error'); return; }
-      setMsg('Login feito!', 'ok');
+      if (error) { setMsg('Error: ' + error.message, 'error'); return; }
+      setMsg('Logged in!', 'ok');
     } else {
       const username = document.getElementById('signup-username').value.trim();
       const email = document.getElementById('signup-email').value.trim();
       const password = document.getElementById('signup-password').value;
 
-      if (!username || username.length < 3) { setMsg('Username precisa ter ao menos 3 caracteres.', 'error'); return; }
-      if (!email || !password || password.length < 6) { setMsg('Preencha todos os campos (senha ≥ 6).', 'error'); return; }
+      if (!username || username.length < 3) { setMsg('Username must be at least 3 characters.', 'error'); return; }
+      if (!email || !password || password.length < 6) { setMsg('Please fill all fields (password ≥ 6).', 'error'); return; }
 
-      setMsg('Criando conta...');
+      setMsg('Creating account...');
       const { data, error } = await _supabase.auth.signUp({
         email,
         password,
         options: { data: { username, avatar: avatarSelecionado } }
       });
 
-      if (error) { setMsg('Erro: ' + error.message, 'error'); return; }
+      if (error) { setMsg('Error: ' + error.message, 'error'); return; }
 
       if (data.session) {
-        setMsg('Conta criada e logado!', 'ok');
+        setMsg('Account created and logged in!', 'ok');
       } else {
-        setMsg('Conta criada! Verifique seu email para confirmar.', 'ok');
+        setMsg('Account created! Check your email to confirm.', 'ok');
       }
     }
   }
 
   // ============================================
-  // APAGAR PERFIL
+  // DELETE PROFILE
   // ============================================
   function iniciarConfirmacaoExclusao() {
     const zone = document.getElementById('danger-zone');
     const btn = document.getElementById('btn-delete-start');
     zone.classList.add('show');
-    btn.textContent = 'Confirme abaixo ↓';
+    btn.textContent = 'Confirm below ↓';
     btn.classList.add('confirm');
     zone.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -841,7 +877,7 @@
     const zone = document.getElementById('danger-zone');
     const btn = document.getElementById('btn-delete-start');
     zone.classList.remove('show');
-    btn.textContent = 'Apagar perfil';
+    btn.textContent = 'Delete profile';
     btn.classList.remove('confirm');
   }
 
@@ -849,41 +885,41 @@
     if (!currentUser) return;
     const btnConfirm = document.getElementById('btn-delete-confirm');
     btnConfirm.disabled = true;
-    btnConfirm.textContent = 'Apagando...';
+    btnConfirm.textContent = 'Deleting...';
 
     try {
-      // 1) Apaga pontuações do usuário
+      // 1) Delete user scores
       const { error: errScores } = await _supabase
         .from('scores')
         .delete()
         .eq('user_id', currentUser.id);
-      if (errScores) throw new Error('Erro ao apagar pontuações: ' + errScores.message);
+      if (errScores) throw new Error('Error deleting scores: ' + errScores.message);
 
-      // 2) Apaga o perfil (se a tabela profiles existir)
+      // 2) Delete profile (if profiles table exists)
       const { error: errProfile } = await _supabase
         .from('profiles')
         .delete()
         .eq('id', currentUser.id);
-      // Se a tabela não existir, ignora o erro (o RPC abaixo cuida da conta)
+      // If the table doesn't exist, ignore the error (the RPC below handles the account)
       if (errProfile && !/does not exist|schema cache/i.test(errProfile.message)) {
-        throw new Error('Erro ao apagar perfil: ' + errProfile.message);
+        throw new Error('Error deleting profile: ' + errProfile.message);
       }
 
-      // 3) Chama a RPC que apaga a conta em auth.users
+      // 3) Call RPC that deletes the auth.users account
       const { error: errRpc } = await _supabase.rpc('delete_own_account');
-      if (errRpc) throw new Error('Erro ao apagar conta: ' + errRpc.message);
+      if (errRpc) throw new Error('Error deleting account: ' + errRpc.message);
 
-      // 4) Logout local
+      // 4) Local logout
       await _supabase.auth.signOut();
       currentUser = null;
       atualizarUIUsuario();
 
-      // Feedback visual
+      // Visual feedback
       const msg = document.getElementById('auth-msg');
-      msg.textContent = 'Perfil apagado com sucesso.';
+      msg.textContent = 'Profile deleted successfully.';
       msg.className = 'auth-msg ok';
 
-      // Recarrega placares/atividade (as pontuações foram removidas)
+      // Reload leaderboards/activity (scores were removed)
       await carregarPlacares();
       await carregarAtividade();
     } catch (e) {
@@ -893,12 +929,12 @@
       msg.className = 'auth-msg error';
     } finally {
       btnConfirm.disabled = false;
-      btnConfirm.textContent = 'Confirmar exclusão';
+      btnConfirm.textContent = 'Confirm deletion';
     }
   }
 
   // ============================================
-  // FUNÇÕES DE PONTUAÇÃO
+  // SCORE FUNCTIONS
   // ============================================
   async function carregarPlacares() {
     const cards = document.querySelectorAll('.lb-card');
@@ -906,10 +942,10 @@
       const gameId = card.dataset.gameId;
       const tbody = card.querySelector('.lb-body');
 
-      // Atualiza o título do card com o nome vindo do JSON
+      // Update the card title with the name from JSON
       const h4 = card.querySelector('h4');
       if (h4) {
-        // Mantém o emoji atual, se houver, e troca só o texto
+        // Keep the current emoji, if any, and replace only the text
         const emojiMatch = h4.textContent.match(/^(\S+)\s+/);
         const emoji = emojiMatch ? emojiMatch[1] + ' ' : '';
         h4.textContent = emoji + nomeDoJogo(gameId);
@@ -923,12 +959,12 @@
         .limit(5);
 
       if (error) {
-        console.error('Erro ao buscar placar do jogo', gameId, error);
-        tbody.innerHTML = '<tr><td colspan="3">Erro ao carregar.</td></tr>';
+        console.error('Error fetching leaderboard for game', gameId, error);
+        tbody.innerHTML = '<tr><td colspan="3">Error loading.</td></tr>';
         continue;
       }
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3">Nenhuma pontuação ainda.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3">No scores yet.</td></tr>';
         continue;
       }
 
@@ -951,16 +987,16 @@
       .limit(10);
 
     if (error) {
-      feed.innerHTML = '<p>Erro ao carregar atividades.</p>';
+      feed.innerHTML = '<p>Error loading activity.</p>';
       return;
     }
     if (!data || data.length === 0) {
-      feed.innerHTML = '<p>Nenhuma atividade recente.</p>';
+      feed.innerHTML = '<p>No recent activity.</p>';
       return;
     }
 
     feed.innerHTML = data.map(row => `
-      <p><strong>${row.player_name}</strong> jogou <strong>${nomeDoJogo(row.game_id)}</strong> e fez <strong>${row.score} pontos</strong>!</p>
+      <p><strong>${row.player_name}</strong> played <strong>${nomeDoJogo(row.game_id)}</strong> and scored <strong>${row.score} points</strong>!</p>
     `).join('');
   }
 
@@ -970,15 +1006,15 @@
     const score = parseInt(document.getElementById('test-score').value, 10);
     const status = document.getElementById('test-status');
 
-    if (isNaN(score)) { status.textContent = 'Preencha a pontuação.'; return; }
+    if (isNaN(score)) { status.textContent = 'Please enter a score.'; return; }
 
     let player;
     if (currentUser) {
       player = currentUser.username;
-    } else if (manualPlayer && manualPlayer !== 'JogadorTeste') {
+    } else if (manualPlayer && manualPlayer !== 'TestPlayer') {
       player = manualPlayer;
     } else {
-      player = 'Um Amanfã';
+      player = 'An Amanfã';
     }
 
     const payload = {
@@ -988,28 +1024,28 @@
       user_id: currentUser ? currentUser.id : null
     };
 
-    status.textContent = 'Enviando...';
+    status.textContent = 'Sending...';
     const { error } = await _supabase.from('scores').insert(payload);
 
     if (error) {
       console.error(error);
-      status.textContent = 'Erro ao enviar: ' + error.message;
+      status.textContent = 'Error sending: ' + error.message;
       return;
     }
 
-    status.textContent = currentUser ? 'Pontuação enviada como ' + player + '!' : 'Pontuação enviada como Um Amanfã!';
+    status.textContent = currentUser ? 'Score submitted as ' + player + '!' : 'Score submitted as An Amanfã!';
     await carregarPlacares();
     await carregarAtividade();
     setTimeout(() => { status.textContent = ''; }, 2500);
   }
 
   // ============================================
-  // INICIALIZAÇÃO
+  // INIT
   // ============================================
   document.addEventListener('DOMContentLoaded', async () => {
     montarGradeAvatares();
 
-    // Carrega o JSON de nomes ANTES de renderizar placares/atividade
+    // Load the JSON of names BEFORE rendering leaderboards/activity
     await carregarNomesJogos();
 
     carregarPlacares();
@@ -1024,17 +1060,17 @@
       atualizarUIUsuario();
     });
 
-    // Logo → Home (topo da página)
+    // Logo → Home (top of page)
     document.getElementById('logo-home').addEventListener('click', (e) => {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      // Limpa o hash da URL (se houver), sem recarregar
+      // Clear URL hash (if any), without reloading
       if (history.replaceState) {
         history.replaceState(null, '', window.location.pathname + window.location.search);
       }
     });
 
-    // Header → perfil
+    // Header → profile
     document.getElementById('btn-go-profile').addEventListener('click', () => {
       document.getElementById('perfil').scrollIntoView({ behavior: 'smooth' });
     });
@@ -1042,7 +1078,7 @@
       document.getElementById('perfil').scrollIntoView({ behavior: 'smooth' });
     });
 
-    // Botão de recarregar tela
+    // Reload button
     document.getElementById('btn-reload').addEventListener('click', () => {
       location.reload();
     });
@@ -1062,7 +1098,7 @@
     });
     document.getElementById('btn-submit-auth').addEventListener('click', submeterAuth);
 
-    // Exclusão de perfil
+    // Profile deletion
     document.getElementById('btn-delete-start').addEventListener('click', iniciarConfirmacaoExclusao);
     document.getElementById('btn-delete-cancel').addEventListener('click', cancelarExclusao);
     document.getElementById('btn-delete-confirm').addEventListener('click', confirmarExclusao);
@@ -1070,13 +1106,13 @@
     alternarTab('login');
 
     // ============================================
-    // REGISTRO DO SERVICE WORKER (PWA)
+    // SERVICE WORKER REGISTRATION (PWA)
     // ============================================
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-          .then((reg) => console.log('Service Worker registrado:', reg.scope))
-          .catch((err) => console.warn('Falha ao registrar Service Worker:', err));
+          .then((reg) => console.log('Service Worker registered:', reg.scope))
+          .catch((err) => console.warn('Service Worker registration failed:', err));
       });
     }
   });
