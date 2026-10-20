@@ -21,7 +21,14 @@
     "autor": "Arcade Central"
   },
   "icecream": {
-    "titulo": "IceCream Machine",
+    "titulo": "IceCreamy Machine",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central"
+  },
+  "doubledrag": {
+    "titulo": "Double DragQueens",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "clique/toque",
