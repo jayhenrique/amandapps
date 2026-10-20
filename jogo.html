@@ -105,6 +105,26 @@
             margin-bottom: 1.5rem;
         }
 
+        /* ===== "PLAYING AS" hint ===== */
+        .playing-as {
+            font-size: 0.82rem;
+            color: #8a8fa3;
+            margin-bottom: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .playing-as strong {
+            color: #f5c518;
+            font-weight: 700;
+        }
+        .playing-as a {
+            font-size: 0.78rem;
+            color: #e94560;
+            margin-left: 0.2rem;
+        }
+
         /* ===== BOTÃO PLAY ===== */
         .btn-play {
             display: inline-flex;
@@ -185,6 +205,7 @@
             .descricao {
                 text-align: left;
             }
+            .playing-as { justify-content: center; }
         }
 
         /* ===== RANKING ===== */
@@ -258,16 +279,34 @@
         const THUMB_DIR     = '/amandapps/thumbs-assets';
         const INFO_JSON_URL = '/amandapps/jogos-info.json';
 
-        // =====================================================
-        // CAMINHO DO jogo_inside.html
-        // Está em /amandapps/jogo_inside.html (não na raiz!)
-        // =====================================================
+        // jogo_inside.html fica em /amandapps/jogo_inside.html
         const JOGO_INSIDE_URL = '/amandapps/jogo_inside.html';
 
         const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // =====================================================
+        // NOME DO JOGADOR (compartilhado com index/jogo_inside/fim-de-jogo)
+        // =====================================================
+        const NOME_STORAGE_KEY = 'amanfa_player_name';
+        const NOME_PADRAO = 'Amanfã';
+
+        function sanitizeName(raw) {
+            let s = (raw == null) ? '' : String(raw);
+            s = s.replace(/[^A-Za-z0-9 ]/g, '');
+            s = s.slice(0, 8).trim();
+            return s;
+        }
+        function getPlayerName() {
+            try {
+                const stored = sanitizeName(localStorage.getItem(NOME_STORAGE_KEY) || '');
+                return stored || NOME_PADRAO;
+            } catch (e) {
+                return NOME_PADRAO;
+            }
+        }
 
         // =====================================================
         // HELPERS
@@ -339,7 +378,6 @@
                 }
             }
 
-            // Valores padrão quando não há jogo / info
             const dados = {
                 titulo:    info?.titulo    || 'Jogo Desconhecido',
                 descricao: info?.descricao || 'Este jogo ainda não possui descrição disponível. Mas você pode jogar e se divertir mesmo assim!',
@@ -352,12 +390,11 @@
                 ? `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`
                 : '';
 
-            // =====================================================
-            // PLAY → /amandapps/jogo_inside.html?jogo=<id>
-            // =====================================================
             const playUrl = gameId
                 ? `${JOGO_INSIDE_URL}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
+
+            const nomeJogador = escapeHTML(getPlayerName());
 
             document.getElementById('conteudo').innerHTML = `
                 <div class="game-layout">
@@ -374,6 +411,11 @@
                     <div class="col-info">
                         <h1 class="game-title">${escapeHTML(dados.titulo)}</h1>
                         <p class="descricao">${escapeHTML(dados.descricao)}</p>
+
+                        <div class="playing-as">
+                            🎮 Playing as <strong>${nomeJogador}</strong>
+                            <a href="${HOME_URL}#perfil">change</a>
+                        </div>
 
                         <a class="btn-play" href="${playUrl}">▶ PLAY</a>
 
@@ -404,7 +446,7 @@
                 </div>
             `;
 
-            // Trata erro da thumb (se houver)
+            // Trata erro da thumb
             const thumbImg = document.getElementById('thumb-img');
             const thumbWrap = document.getElementById('thumb-wrap');
             if (thumbImg) {
@@ -453,7 +495,7 @@
             tbody.innerHTML = data.map((row, i) => `
                 <tr>
                     <td class="rank">${i + 1}</td>
-                    <td class="player">${escapeHTML(row.player_name || 'Um Amanfã')}</td>
+                    <td class="player">${escapeHTML(row.player_name || NOME_PADRAO)}</td>
                     <td class="score">${Number(row.score).toLocaleString('pt-BR')}</td>
                 </tr>
             `).join('');
