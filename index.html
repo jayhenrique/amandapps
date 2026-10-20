@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Arcade Central">
+<meta name="apple-mobile-web-app-title" content="Amand.APPs ARCADE">
 <link rel="apple-touch-icon" href="thumbs-assets/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="thumbs-assets/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="thumbs-assets/icon-512.png">
@@ -496,6 +496,12 @@
     align-items: center;
     gap: 0.7rem;
     flex-wrap: wrap;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .pwa-reminder:hover {
+    background: rgba(233, 69, 96, 0.14);
+    border-color: rgba(233, 69, 96, 0.5);
   }
   .pwa-reminder .pwa-icon {
     font-size: 1.4rem;
@@ -508,6 +514,121 @@
     color: var(--text-dim);
     font-size: 0.82rem;
   }
+
+  /* ---------- Modal de instalação PWA ---------- */
+  .pwa-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+  .pwa-modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .pwa-modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.2s;
+  }
+  .pwa-modal-overlay.open .pwa-modal {
+    transform: translateY(0) scale(1);
+  }
+  .pwa-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--accent2);
+    border-radius: 14px 14px 0 0;
+  }
+  .pwa-modal-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .pwa-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.1rem 0.4rem;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .pwa-modal-close:hover {
+    color: var(--accent);
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .pwa-modal-body {
+    padding: 1.4rem;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+  .pwa-modal-body p { margin-bottom: 1rem; }
+  .pwa-modal-body h4 {
+    color: var(--text);
+    font-size: 0.95rem;
+    margin: 1.2rem 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .pwa-modal-body h4:first-of-type { margin-top: 0; }
+  .pwa-modal-body ol {
+    margin-left: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  .pwa-modal-body ol li {
+    margin-bottom: 0.4rem;
+    line-height: 1.45;
+  }
+  .pwa-modal-body .pwa-note {
+    background: rgba(233, 69, 96, 0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem;
+    color: var(--text);
+    font-size: 0.84rem;
+    margin-top: 1rem;
+  }
+  .pwa-modal-footer {
+    padding: 0 1.4rem 1.4rem;
+  }
+  .pwa-modal-footer button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .pwa-modal-footer button:hover { opacity: 0.9; }
 
   @media (max-width: 600px) {
     header {
@@ -535,6 +656,9 @@
     .btn-auth { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
     .btn-reload { width: 32px; height: 32px; }
     .user-area .user-pill { font-size: 0.8rem; padding: 0.28rem 0.6rem; }
+
+    .pwa-reminder { font-size: 0.82rem; padding: 0.75rem 1rem; }
+    .pwa-reminder .pwa-sub { font-size: 0.75rem; }
   }
 </style>
 </head>
@@ -556,12 +680,12 @@
 
 <div class="container">
 
-  <!-- PWA reminder -->
-  <div class="pwa-reminder">
+  <!-- PWA reminder (clickable, hidden when running as PWA) -->
+  <div class="pwa-reminder" id="pwa-reminder" role="button" tabindex="0" aria-label="How to install this app">
     <span class="pwa-icon">📲</span>
     <span>
       <strong>Install this app on your device!</strong>
-      <span class="pwa-sub">Add it to your home screen for a full‑screen, app‑like experience.</span>
+      <span class="pwa-sub">Tap here to see how — add it to your home screen for a full‑screen, app‑like experience.</span>
     </span>
   </div>
 
@@ -686,8 +810,50 @@
 </div>
 
 <footer>
-  Arcade Central &copy; 2026 · Made with HTML5 + Supabase
+  Amand.APPs ARCADE &copy; 2026 · Made with HTML5 + Supabase
 </footer>
+
+<!-- ======================================== -->
+<!-- PWA INSTALL INSTRUCTIONS MODAL           -->
+<!-- ======================================== -->
+<div class="pwa-modal-overlay" id="pwa-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title">
+  <div class="pwa-modal">
+    <div class="pwa-modal-header">
+      <h3 id="pwa-modal-title">📲 Install Amand.APPs ARCADE</h3>
+      <button class="pwa-modal-close" id="pwa-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="pwa-modal-body">
+      <p>Install this app on your device to play full‑screen, with a home‑screen icon and a native app‑like experience.</p>
+
+      <h4>🤖 Android (Chrome / Edge)</h4>
+      <ol>
+        <li>Tap the <strong>⋮</strong> menu in the top‑right corner.</li>
+        <li>Select <strong>“Install app”</strong> or <strong>“Add to Home screen”</strong>.</li>
+        <li>Confirm by tapping <strong>“Install”</strong>.</li>
+      </ol>
+
+      <h4>🍎 iPhone / iPad (Safari)</h4>
+      <ol>
+        <li>Tap the <strong>Share</strong> button (square with an arrow).</li>
+        <li>Scroll down and tap <strong>“Add to Home Screen”</strong>.</li>
+        <li>Tap <strong>“Add”</strong> in the top‑right corner.</li>
+      </ol>
+
+      <h4>💻 Desktop (Chrome / Edge)</h4>
+      <ol>
+        <li>Click the <strong>install icon</strong> (⊕ or a monitor with an arrow) in the address bar.</li>
+        <li>Click <strong>“Install”</strong> in the popup.</li>
+      </ol>
+
+      <div class="pwa-note">
+        💡 After installing, the app opens in its own window — no browser bars, just the arcade!
+      </div>
+    </div>
+    <div class="pwa-modal-footer">
+      <button id="pwa-modal-ok">Got it!</button>
+    </div>
+  </div>
+</div>
 
 <!-- Biblioteca do Supabase via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1040,10 +1206,66 @@
   }
 
   // ============================================
+  // PWA DETECTION & MODAL
+  // ============================================
+  function isRunningAsPWA() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: minimal-ui)').matches ||
+           window.matchMedia('(display-mode: fullscreen)').matches ||
+           window.navigator.standalone === true;
+  }
+
+  function setupPWABanner() {
+    const banner = document.getElementById('pwa-reminder');
+    if (!banner) return;
+
+    // Hide banner if already running as installed PWA
+    if (isRunningAsPWA()) {
+      banner.classList.add('hidden');
+      return;
+    }
+
+    const overlay = document.getElementById('pwa-modal-overlay');
+    const closeBtn = document.getElementById('pwa-modal-close');
+    const okBtn = document.getElementById('pwa-modal-ok');
+
+    function openModal() {
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    banner.addEventListener('click', openModal);
+    banner.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    okBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+    });
+
+    // Re-check display mode in case user installs/uninstalls in real time
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', (ev) => {
+      if (ev.matches) banner.classList.add('hidden');
+    });
+  }
+
+  // ============================================
   // INIT
   // ============================================
   document.addEventListener('DOMContentLoaded', async () => {
     montarGradeAvatares();
+
+    // Setup PWA banner + modal
+    setupPWABanner();
 
     // Load the JSON of names BEFORE rendering leaderboards/activity
     await carregarNomesJogos();
