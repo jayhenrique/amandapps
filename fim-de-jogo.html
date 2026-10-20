@@ -13,148 +13,158 @@
             background: #1A1A2E;
             color: #eaeaea;
             font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+            overflow: hidden;
         }
 
-        .wrap {
-            min-height: 100%;
+        /* ===== ESTRUTURA PRINCIPAL ===== */
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            gap: 1rem;
         }
 
-        .panel {
-            background: #16213e;
-            border: 1px solid #2a3a5c;
-            border-radius: 14px;
+        /* ===== 60% SUPERIOR: IMAGEM DE FUNDO ===== */
+        .hero {
+            position: relative;
+            flex: 0 0 60%;
             width: 100%;
-            max-width: 380px;
-            padding: 1.6rem 1.4rem;
-            text-align: center;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
-            animation: panelIn 0.25s ease-out;
-        }
-        @keyframes panelIn {
-            from { transform: translateY(15px); opacity: 0; }
-            to   { transform: translateY(0);   opacity: 1; }
-        }
-
-        .thumb {
-            width: 100%;
-            max-width: 300px;
-            aspect-ratio: 300 / 250;
-            margin: 0 auto 1.1rem;
-            border-radius: 10px;
-            overflow: hidden;
             background: #0f3460;
-            border: 1px solid #2a3a5c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
         }
-        .thumb img {
+
+        .hero img {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
-        .thumb .thumb-fallback {
-            font-size: 4rem;
-            color: #8a8fa3;
+
+        /* fallback quando a imagem não existe */
+        .hero .hero-fallback {
+            position: absolute;
+            inset: 0;
             display: none;
-        }
-        .thumb.error img { display: none; }
-        .thumb.error .thumb-fallback {
-            display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            height: 100%;
+            font-size: 6rem;
+            color: #8a8fa3;
+            background: linear-gradient(160deg, #0f3460, #16213e);
+        }
+        .hero.error img { display: none; }
+        .hero.error .hero-fallback { display: flex; }
+
+        /* gradiente para suavizar a transição entre imagem e área inferior */
+        .hero::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, transparent, rgba(26, 26, 46, 0.95));
+            pointer-events: none;
         }
 
+        /* ===== 40% INFERIOR: INFORMAÇÕES ===== */
+        .info {
+            position: relative;
+            flex: 1 1 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            padding: 0.9rem 1.2rem 1.2rem;
+            background: #1A1A2E;
+        }
+
+        /* usuário */
         .profile-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.75rem;
-            margin: 0 auto 1.1rem;
-            max-width: 300px;
+            gap: 0.55rem;
+            max-width: 360px;
+            width: 100%;
         }
 
         .profile-row .avatar {
-            width: 56px;
-            height: 56px;
-            min-width: 56px;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.15rem;
             background: linear-gradient(135deg, #0f3460, #1f2b4d);
             border: 2px solid #e94560;
-            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.12);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.12);
         }
-        .panel.anon .profile-row .avatar {
+        .anon .profile-row .avatar {
             border-color: #2a3a5c;
-            box-shadow: 0 0 0 4px rgba(138, 143, 163, 0.06);
+            box-shadow: 0 0 0 3px rgba(138, 143, 163, 0.06);
         }
 
         .profile-row .name {
-            font-size: 1.15rem;
+            font-size: 1.35rem;
             font-weight: 700;
             color: #eaeaea;
             text-align: left;
-            line-height: 1.2;
+            line-height: 1.15;
             word-break: break-word;
         }
 
+        /* pontuação */
         .score-box {
-            background: #0f3460;
-            border: 1px solid #2a3a5c;
-            border-radius: 10px;
-            padding: 1.1rem 1rem;
-            margin-bottom: 1rem;
+            text-align: center;
         }
         .score-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #8a8fa3;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.3rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.1rem;
         }
         .score-value {
-            font-size: 3.2rem;
+            font-size: 2.6rem;
             font-weight: 800;
             color: #f5c518;
             line-height: 1;
         }
         .score-value.error {
             color: #ff7b8a;
+            font-size: 2rem;
         }
 
+        /* status */
         .status {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
             min-height: 1.2em;
-            margin-bottom: 1rem;
+            text-align: center;
         }
         .status.ok    { color: #6ee7a8; }
         .status.error { color: #ff7b8a; }
         .status.info  { color: #8a8fa3; }
 
+        /* ações */
         .actions {
             display: flex;
             gap: 0.6rem;
+            width: 100%;
+            max-width: 360px;
+            margin-top: 0.2rem;
         }
         .actions button {
             flex: 1;
-            padding: 0.8rem 0.5rem;
+            padding: 0.75rem 0.5rem;
             border-radius: 8px;
             border: none;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             cursor: pointer;
             transition: opacity 0.15s, transform 0.1s;
         }
@@ -169,15 +179,16 @@
         }
         .btn-home:hover { color: #eaeaea; border-color: #8a8fa3 !important; }
 
-        /* DEBUG — game ID, score e flag (fora do layout principal) */
+        /* DEBUG discreto */
         .debug-block {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 1px;
+            margin-top: 0.25rem;
         }
         .debug-game-id {
-            font-size: 0.7rem;
+            font-size: 0.62rem;
             color: #4a5578;
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             letter-spacing: 0.3px;
@@ -189,13 +200,15 @@
 </head>
 <body>
 
-<div class="wrap">
-    <div class="panel" id="panel">
-        <div class="thumb" id="thumb-wrap">
-            <img id="thumb-img" src="" alt="Thumb do jogo">
-            <div class="thumb-fallback">🎮</div>
-        </div>
+<div class="stage">
+    <!-- 60% superior: imagem -->
+    <div class="hero" id="hero">
+        <img id="hero-img" src="" alt="Imagem do jogo">
+        <div class="hero-fallback">🎮</div>
+    </div>
 
+    <!-- 40% inferior: informações -->
+    <div class="info" id="info">
         <div class="profile-row" id="profile-row">
             <div class="avatar" id="avatar">🎮</div>
             <div class="name" id="name">—</div>
@@ -212,13 +225,13 @@
             <button type="button" class="btn-retry" id="btn-retry">🔄 Tentar de novo</button>
             <button type="button" class="btn-home" id="btn-home">🏠 Voltar para home</button>
         </div>
-    </div>
 
-    <!-- DEBUG: game_id, score do jogador e flag (fora do card, discreto) -->
-    <div class="debug-block">
-        <div class="debug-game-id" id="debug-game-id">game_id: —</div>
-        <div class="debug-game-id" id="debug-score">score: —</div>
-        <div class="debug-game-id" id="debug-flag">flag: —</div>
+        <!-- DEBUG: game_id, score e flag -->
+        <div class="debug-block">
+            <div class="debug-game-id" id="debug-game-id">game_id: —</div>
+            <div class="debug-game-id" id="debug-score">score: —</div>
+            <div class="debug-game-id" id="debug-flag">flag: —</div>
+        </div>
     </div>
 </div>
 
@@ -250,14 +263,14 @@
     const elName         = document.getElementById('name');
     const elScore        = document.getElementById('score-value');
     const elStatus       = document.getElementById('status');
-    const panel          = document.getElementById('panel');
+    const info           = document.getElementById('info');
 
     const elDebugId      = document.getElementById('debug-game-id');
     const elDebugScore   = document.getElementById('debug-score');
     const elDebugFlag    = document.getElementById('debug-flag');
 
-    const thumbWrap      = document.getElementById('thumb-wrap');
-    const thumbImg       = document.getElementById('thumb-img');
+    const heroWrap       = document.getElementById('hero');
+    const heroImg        = document.getElementById('hero-img');
 
     let jogoUrl = JOGO_PADRAO_URL;
 
@@ -300,15 +313,12 @@
 
         elAvatar.textContent = dados.avatar || '🎮';
         elName.textContent   = nomeExibicao;
-        panel.classList.toggle('anon', nomeExibicao === NOME_ANONIMO);
+        info.classList.toggle('anon', nomeExibicao === NOME_ANONIMO);
 
         elScore.textContent = Number(dados.score).toLocaleString('pt-BR');
         elScore.classList.remove('error');
 
         // -------- Flag de hiscore --------
-        // A fonte da verdade é `dados.salvouHiscore` (repassado pela
-        // receberPontuacaoDoJogo). Se não existir, cai em `dados.salvo`
-        // como compatibilidade com o formato antigo.
         const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
         const flag = normalizarFlag(flagBruta);
 
@@ -319,7 +329,6 @@
             elStatus.textContent = '🔄 Tente novamente';
             elStatus.className = 'status error';
         } else {
-            // Sem flag — comportamento antigo (só informativo)
             if (dados.salvo) {
                 elStatus.textContent = '✔ Pontuação salva!';
                 elStatus.className = 'status ok';
@@ -331,11 +340,11 @@
 
         const gameId = dados.gameId || 'clickteam';
         const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}end.png`;
-        thumbImg.src = thumbUrl;
-        thumbImg.alt = `Thumb do jogo ${gameId}`;
-        thumbImg.onerror = () => {
-            thumbWrap.classList.add('error');
-            thumbImg.removeAttribute('src');
+        heroImg.src = thumbUrl;
+        heroImg.alt = `Imagem do jogo ${gameId}`;
+        heroImg.onerror = () => {
+            heroWrap.classList.add('error');
+            heroImg.removeAttribute('src');
             console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
         };
 
@@ -347,7 +356,7 @@
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
     } else {
         // -------- Sem dados: mostra o layout em estado de erro --------
-        panel.classList.add('anon'); // visual neutro, sem destaque de usuário
+        info.classList.add('anon');
 
         elAvatar.textContent = '⚠';
         elName.textContent   = 'Erro';
@@ -358,17 +367,15 @@
         elStatus.textContent = '⚠ Nenhum resultado encontrado.';
         elStatus.className = 'status error';
 
-        // Sem gameId → thumb cai no fallback (🎮) imediatamente
-        thumbWrap.classList.add('error');
-        thumbImg.removeAttribute('src');
-        thumbImg.alt = 'Thumb indisponível';
+        heroWrap.classList.add('error');
+        heroImg.removeAttribute('src');
+        heroImg.alt = 'Imagem indisponível';
 
         // -------- DEBUG (estado sem dados) --------
         elDebugId.textContent    = 'game_id: —';
         elDebugScore.textContent = 'score: —';
         elDebugFlag.innerHTML    = 'flag: —';
 
-        // Botões continuam funcionando com os fallbacks padrão
         jogoUrl = JOGO_PADRAO_URL;
     }
 
@@ -378,12 +385,9 @@
     document.getElementById('btn-retry').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
 
-        // Preferência: voltar para a tela anterior (a tela do jogo),
-        // que é exatamente de onde o jogador veio.
         if (window.history.length > 1) {
             window.history.go(-2);
         } else {
-            // Fallback: acesso direto à tela de fim de jogo, sem histórico.
             window.location.href = jogoUrl;
         }
     });
