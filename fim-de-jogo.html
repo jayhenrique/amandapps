@@ -10,31 +10,50 @@
         html, body {
             width: 100%;
             height: 100%;
-            background: #1A1A2E;
+            background: #000;              /* laterais pretas quando a tela é mais larga que a imagem */
             color: #eaeaea;
             font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
             overflow: hidden;
         }
 
-        /* ===== PALCO: imagem de fundo cobre a página inteira ===== */
+        /* ===== PALCO: fundo preto cobre a página inteira ===== */
         .stage {
             position: relative;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #00b140; /* fallback verde (teste) */
+            background: #000;
         }
 
-        /* imagem de fundo: do topo ao fim da página */
-        .bg-img {
+        /* container centralizado: limita a imagem à altura, sem esticar pros lados */
+        .bg-wrap {
             position: absolute;
             inset: 0;
-            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 0;
+            background: #000;              /* preto nas laterais */
+        }
+
+        /* fallback verde (teste) — fica atrás da imagem */
+        .bg-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #00b140;
+            z-index: -1;
+        }
+        .bg-wrap.has-img::before { display: none; }  /* se tem imagem, some o verde */
+
+        /* imagem: ajustada pela altura, centralizada, sem expandir pros lados */
+        .bg-img {
             height: 100%;
-            object-fit: cover;       /* preenche toda a tela */
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
             object-position: center;
             display: block;
-            z-index: 0;
         }
         .bg-img.hidden { display: none; }
 
@@ -44,9 +63,9 @@
             inset: 0;
             background: linear-gradient(
                 to bottom,
-                rgba(26, 26, 46, 0.15) 0%,
-                rgba(26, 26, 46, 0.35) 50%,
-                rgba(26, 26, 46, 0.92) 100%
+                rgba(0, 0, 0, 0.10) 0%,
+                rgba(0, 0, 0, 0.30) 55%,
+                rgba(0, 0, 0, 0.90) 100%
             );
             z-index: 1;
             pointer-events: none;
@@ -194,8 +213,11 @@
 <body>
 
 <div class="stage" id="stage">
-    <!-- imagem de fundo: cobre a página inteira -->
-    <img id="bg-img" class="bg-img" src="" alt="Imagem do jogo">
+    <!-- container da imagem: centralizado, fundo preto nas laterais -->
+    <div class="bg-wrap" id="bg-wrap">
+        <img id="bg-img" class="bg-img" src="" alt="Imagem do jogo">
+    </div>
+
     <div class="overlay"></div>
 
     <!-- conteúdo sobreposto -->
@@ -261,6 +283,7 @@
     const elDebugScore   = document.getElementById('debug-score');
     const elDebugFlag    = document.getElementById('debug-flag');
 
+    const bgWrap         = document.getElementById('bg-wrap');
     const bgImg          = document.getElementById('bg-img');
 
     let jogoUrl = JOGO_PADRAO_URL;
@@ -334,9 +357,13 @@
         bgImg.src = thumbUrl;
         bgImg.alt = `Imagem do jogo ${gameId}`;
         bgImg.onerror = () => {
-            // sem imagem → esconde a img e deixa o fallback verde do .stage aparecer
+            // sem imagem → esconde a img e deixa o verde de teste aparecer
             bgImg.classList.add('hidden');
+            bgWrap.classList.remove('has-img');
             console.warn('[fim-de-jogo] thumb não encontrada:', thumbUrl);
+        };
+        bgImg.onload = () => {
+            bgWrap.classList.add('has-img');   // tem imagem → some o verde
         };
 
         // -------- DEBUG --------
@@ -348,7 +375,8 @@
     } else {
         // -------- Sem dados: layout em estado de erro (fallback verde) --------
         content.classList.add('anon');
-        bgImg.classList.add('hidden'); // fica só o verde de teste
+        bgImg.classList.add('hidden');        // fica só o verde de teste
+        bgWrap.classList.remove('has-img');
 
         elAvatar.textContent = '⚠';
         elName.textContent   = 'Erro';
