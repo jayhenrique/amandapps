@@ -128,12 +128,19 @@
     gap: 1.2rem;
     margin-bottom: 3rem;
   }
+  .game-grid .empty-msg {
+    grid-column: 1 / -1;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 2rem;
+  }
   .game-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 10px;
     overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
+    transition: transform 0.2s, border-color 0.2s, opacity 0.2s;
     cursor: pointer;
     display: block;
     color: inherit;
@@ -143,6 +150,14 @@
     transform: translateY(-4px);
     border-color: var(--accent);
     text-decoration: none;
+  }
+  .game-card.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .game-card.is-disabled:hover {
+    transform: none;
+    border-color: var(--border);
   }
   .game-thumb-img {
     width: 100%;
@@ -432,22 +447,9 @@
   </div>
 
   <h2 class="section-title anchor-target" id="jogos">Available Games</h2>
-  <div class="game-grid">
-    <a class="game-card" href="jogo.html?id=flappy">
-      <img class="game-thumb-img" src="thumbs-assets/flappymini.png" alt="Flappy Dragqueen" loading="lazy">
-    </a>
-    <a class="game-card" href="jogo.html?id=copter">
-      <img class="game-thumb-img" src="thumbs-assets/coptermini.png" alt="Copter Queen" loading="lazy">
-    </a>
-    <a class="game-card" href="jogo.html?id=snapshot">
-      <img class="game-thumb-img" src="thumbs-assets/snapshotmini.png" alt="Snapshot DIVA" loading="lazy">
-    </a>
-    <a class="game-card" href="jogo.html?id=icecream">
-      <img class="game-thumb-img" src="thumbs-assets/icecreammini.png" alt="IceCream Machine" loading="lazy">
-    </a>
-    <a class="game-card" href="jogo.html?id=doubledrag">
-      <img class="game-thumb-img" src="thumbs-assets/doubledragmini.png" alt="Double Dragqueens" loading="lazy">
-    </a>
+  <!-- Grid preenchido via JS a partir de jogos-info.json -->
+  <div class="game-grid" id="game-grid">
+    <div class="empty-msg">Loading games…</div>
   </div>
 
   <h2 class="section-title">Recent Activity</h2>
@@ -533,7 +535,8 @@
   const NOME_STORAGE_KEY = 'amanfa_player_name';
   const NOME_PADRAO = 'Amanfã';
 
-  // Mapa game_id -> título legível (de jogos-info.json)
+  // Dados completos do JSON e mapa game_id -> título
+  let JOGOS = {};
   let GAME_NAMES = {};
 
   // ============================================
@@ -565,23 +568,87 @@
   }
 
   // ============================================
-  // LOAD jogos-info.json
+  // LOAD jogos-info.json (com grid dinâmico)
   // ============================================
   async function carregarNomesJogos() {
     try {
-      const res = await fetch('jogos-info.json');
+      // Cache-busting: garante que jogos novos apareçam mesmo com SW antigo
+      const res = await fetch('jogos-info.json?v=' + Date.now(), { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
+
+      JOGOS = data;
       GAME_NAMES = Object.fromEntries(
-        Object.entries(data).map(([id, info]) => [id, info && info.titulo ? info.titulo : id])
+        Object.entries(data).map(([id, info]) => [id, (info && info.titulo) ? info.titulo : id])
       );
+
+      renderizarGridJogos();
     } catch (e) {
       console.warn('Could not load jogos-info.json:', e);
+      JOGOS = {};
       GAME_NAMES = {};
+      const grid = document.getElementById('game-grid');
+      if (grid) {
+        grid.innerHTML = '<div class="empty-msg">Could not load the games list.</div>';
+      }
     }
   }
+
   function nomeDoJogo(gameId) {
     return GAME_NAMES[gameId] || gameId;
+  }
+
+  // ============================================
+  // GRID DINÂMICO
+  // ============================================
+  function thumbDoJogo(id, info) {
+    return (info && info.thumb) ? info.thumb : `thumbs-assets/${id}mini.png`;
+  }
+
+  function isJogoTeste(info) {
+    return ((info && info.categoria) || '').toLowerCase() === 'teste';
+  }
+
+  function renderizarGridJogos() {
+    const grid = document.getElementById('game-grid');
+    if (!grid) return;
+
+    // Filtra jogos de teste e ordena por "ordem" (alfabético como fallback)
+    const ids = Object.keys(JOGOS)
+      .filter(id => !isJogoTeste(JOGOS[id]))   // ← remova esta linha para exibir jogos de teste
+      .sort((a, b) => {
+        const oa = Number(JOGOS[a]?.ordem ?? 999);
+        const ob = Number(JOGOS[b]?.ordem ?? 999);
+        return oa - ob || a.localeCompare(b);
+      });
+
+    if (ids.length === 0) {
+      grid.innerHTML = '<div class="empty-msg">No games available.</div>';
+      return;
+    }
+
+    grid.innerHTML = ids.map(id => {
+      const info = JOGOS[id] || {};
+      const titulo = info.titulo || id;
+      const thumb = thumbDoJogo(id, info);
+      const href = `jogo.html?id=${encodeURIComponent(id)}`;
+
+      return `
+        <a class="game-card" href="${href}" title="${escapeHtml(titulo)}" aria-label="${escapeHtml(titulo)}">
+          <img class="game-thumb-img"
+               src="${escapeHtml(thumb)}"
+               alt="${escapeHtml(titulo)}"
+               loading="lazy"
+               onerror="this.onerror=null;this.src='thumbs-assets/icon-192.png';">
+        </a>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
   }
 
   // ============================================
@@ -620,7 +687,7 @@
       tbody.innerHTML = data.map((row, index) => `
         <tr>
           <td class="rank">${index + 1}</td>
-          <td class="player">${row.player_name}</td>
+          <td class="player">${escapeHtml(row.player_name)}</td>
           <td class="score">${row.score}</td>
         </tr>
       `).join('');
@@ -639,7 +706,7 @@
     if (!data || data.length === 0) { feed.innerHTML = '<p>No recent activity.</p>'; return; }
 
     feed.innerHTML = data.map(row => `
-      <p><strong>${row.player_name}</strong> played <strong>${nomeDoJogo(row.game_id)}</strong> and scored <strong>${row.score} points</strong>!</p>
+      <p><strong>${escapeHtml(row.player_name)}</strong> played <strong>${escapeHtml(nomeDoJogo(row.game_id))}</strong> and scored <strong>${row.score} points</strong>!</p>
     `).join('');
   }
 
@@ -690,7 +757,6 @@
     carregarPlacares();
     carregarAtividade();
 
-    // Nome salvo no localStorage
     atualizarUINome();
 
     // Logo → Home (topo da página)

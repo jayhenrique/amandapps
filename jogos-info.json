@@ -4,41 +4,62 @@
     "descricao": "Coma maçãs e cresça sem bater na parede. Clássico atemporal do arcade.",
     "categoria": "Arcade",
     "controles": "Espaço ou clique/toque",
-    "autor": "Arcade Central"
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/coptermini.png",
+    "ordem": 1
   },
   "flappy": {
     "titulo": "Flappy DragQueen",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "Espaço ou clique/toque",
-    "autor": "Arcade Central"
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/flappymini.png",
+    "ordem": 2
   },
   "snapshot": {
     "titulo": "Snapshot DIVA",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "clique/toque",
-    "autor": "Arcade Central"
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/snapshotmini.png",
+    "ordem": 3
   },
   "icecream": {
     "titulo": "IceCreamy Machine",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "clique/toque",
-    "autor": "Arcade Central"
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/icecreammini.png",
+    "ordem": 4
   },
   "doubledrag": {
     "titulo": "Double DragQueens",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "clique/toque",
-    "autor": "Arcade Central"
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/doubledragmini.png",
+    "ordem": 5
+  },
+  "samurai": {
+    "titulo": "Samurai Flash",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/samuraimini.png",
+    "ordem": 6
   },
   "teste": {
     "titulo": "Jogo de Teste",
     "descricao": "Build de teste do Clickteam Fusion.",
     "categoria": "Teste",
     "controles": "Varia conforme o jogo",
-    "autor": "Arcade Central"
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/icon-192.png",
+    "ordem": 99
   }
 }

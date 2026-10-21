@@ -1,49 +1,75 @@
-const CACHE_NAME = 'arcade-central-v1';
-const ASSETS = [
+// sw.js — Arcade Central PWA
+const CACHE_NAME = 'arcade-central-v2'; // ← suba a versão ao alterar arquivos cacheados
+const PRECACHE = [
   './',
   './index.html',
   './manifest.json',
-  './thumbs-assets/logoamandapps.png',
-  './thumbs-assets/flappymini.png',
-  './thumbs-assets/coptermini.png',
-  './thumbs-assets/snapshotmini.png',
   './thumbs-assets/icon-192.png',
-  './thumbs-assets/icon-512.png'
+  './thumbs-assets/icon-512.png',
+  './thumbs-assets/logoamandapps.png'
+  // NÃO coloque jogos-info.json aqui para não prender a lista de jogos
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE))
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    )
   );
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Só lida com GET do mesmo domínio (não intercepta Supabase / CDN)
   const req = event.request;
-  if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      const fetchPromise = fetch(req)
+  // Só mexe em GET do mesmo origin
+  if (req.method !== 'GET' || url.origin !== location.origin) return;
+
+  // jogos-info.json → network-first (garante lista sempre atualizada)
+  if (url.pathname.endsWith('/jogos-info.json')) {
+    event.respondWith(
+      fetch(req, { cache: 'no-store' })
         .then((res) => {
-          if (res && res.status === 200) {
-            const clone = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
-          }
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, copy));
           return res;
         })
-        .catch(() => cached);
-      return cached || fetchPromise;
-    })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // HTML e JS → network-first (pega atualizações, cai pro cache offline)
+  if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('.js')) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req) || caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Imagens e outros assets → cache-first
+  event.respondWith(
+    caches.match(req).then((cached) =>
+      cached ||
+      fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+        return res;
+      })
+    )
   );
 });
