@@ -1,0 +1,11 @@
+{
+  "name": "Jogo — Amanfã",
+  "short_name": "Amanfã",
+  "description": "Jogo feito no Clickteam Fusion",
+  "start_url": "jogo_inside.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#1A1A2E",
+  "theme_color": "#000000"
+}
