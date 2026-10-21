@@ -32,20 +32,27 @@
       text-align: left; color: #fff;
     }
 
+<<<<<<< HEAD
     /* Wrapper com tamanho EXATO da tela. O canvas é posicionado
        absolutamente no centro e girado; o wrapper reserva o espaço
        pós-rotação via width/height calculados em JS. */
+=======
+>>>>>>> parent of 275cb92 (jog inside muda de orientacao)
     #canvasWrap {
       display: none;
       position: relative;
       align-items: center; justify-content: center;
       -webkit-user-select: none; user-select: none;
+<<<<<<< HEAD
       overflow: hidden;
       flex: 0 0 auto;
+=======
+>>>>>>> parent of 275cb92 (jog inside muda de orientacao)
     }
 
     #MMFCanvas {
       touch-action: none; user-select: none; -webkit-user-select: none;
+<<<<<<< HEAD
       -webkit-tap-highlight-color: transparent;
       display: block;
       position: absolute;
@@ -53,6 +60,11 @@
       transform-origin: center center;
       /* width/height/transform definidos via JS */
       image-rendering: auto;
+=======
+      -webkit-tap-highlight-color: transparent; display: block;
+      max-width: 100vw; max-height: 100vh;
+      width: auto; height: auto; object-fit: contain;
+>>>>>>> parent of 275cb92 (jog inside muda de orientacao)
     }
 
     #erroJogo {
@@ -104,21 +116,18 @@
   const seguro = /^[a-zA-Z0-9_\-]+$/.test(nomeJogo);
   const jogo = seguro ? nomeJogo : 'flappy';
 
+<<<<<<< HEAD
   const orientParam = (params.get('orient') || '').toLowerCase();
   const orientacaoForcada = (orientParam === 'landscape' || orientParam === 'portrait') ? orientParam : null;
 
+=======
+>>>>>>> parent of 275cb92 (jog inside muda de orientacao)
   const baseJogo   = '/amandapps/' + jogo + '/';
   const runtimeSrc = baseJogo + 'src/Runtime.js';
   const cchPath    = baseJogo + 'resources/' + jogo + '.cch';
 
-  window.__JOGO__ = {
-    nome: jogo,
-    base: baseJogo,
-    runtime: runtimeSrc,
-    cch: cchPath,
-    orientacaoForcada: orientacaoForcada
-  };
-  console.log('[jogo_inside] carregando jogo:', jogo, '→', baseJogo, '| orientação forçada:', orientacaoForcada);
+  window.__JOGO__ = { nome: jogo, base: baseJogo, runtime: runtimeSrc, cch: cchPath };
+  console.log('[jogo_inside] carregando jogo:', jogo, '→', baseJogo);
 
   const s = document.createElement('script');
   s.src = runtimeSrc;
@@ -190,7 +199,7 @@
     navegando = true;
     try {
       sessionStorage.setItem('fimDeJogo', JSON.stringify({
-        nome: getPlayerName(),
+        nome: getPlayerName(),        // nome já salvo no dispositivo (ou "Amanfã")
         avatar: '🎮',
         score: score,
         gameId: gameId,
@@ -204,6 +213,14 @@
     window.location.href = FIM_DE_JOGO_URL;
   }
 
+<<<<<<< HEAD
+=======
+  // --------- PONTE FUSION → PÁGINA ---------
+  // Uso no Fusion:
+  //   window.receberPontuacaoDoJogo('12', 'flappy', true)   → salva
+  //   window.receberPontuacaoDoJogo('12', 'flappy', false)  → NÃO salva
+  //   window.receberPontuacaoDoJogo('12', 'flappy')         → NÃO salva (default)
+>>>>>>> parent of 275cb92 (jog inside muda de orientacao)
   window.receberPontuacaoDoJogo = async function (score, gameId, flag) {
     const pontuacao = Number(score);
     if (!isFinite(pontuacao)) {
@@ -228,6 +245,7 @@
   };
 </script>
 
+<<<<<<< HEAD
 <!-- 3) Runtime + orientação -->
 <script>
   // -------- Detecção de dispositivo móvel --------
@@ -356,6 +374,10 @@
     ro.observe(canvas);
   }
 
+=======
+<!-- 3) Só inicia o Runtime quando Runtime.js carregar -->
+<script>
+>>>>>>> parent of 275cb92 (jog inside muda de orientacao)
   function iniciarRuntime() {
     if (typeof Runtime === 'undefined') {
       return setTimeout(iniciarRuntime, 50);
@@ -369,12 +391,15 @@
     try {
       new Runtime("MMFCanvas", window.__JOGO__.cch);
       console.log('[jogo_inside] Runtime iniciado com', window.__JOGO__.cch);
+<<<<<<< HEAD
 
       // Dá um tempo para o Fusion definir width/height do canvas
       setTimeout(function () {
         aplicarOrientacao();
         observarCanvas();
       }, 150);
+=======
+>>>>>>> parent of 275cb92 (jog inside muda de orientacao)
     } catch (e) {
       console.error('[jogo_inside] erro ao iniciar Runtime:', e);
       const el = document.getElementById('erroJogo');
