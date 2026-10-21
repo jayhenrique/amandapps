@@ -1,0 +1,11 @@
+{
+  "name": "Samurai Game",
+  "short_name": "Samurai",
+  "description": "Jogo feito no Clickteam Fusion",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#000000"
+}
