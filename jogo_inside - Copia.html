@@ -28,13 +28,11 @@
       text-align: left; color: #fff;
     }
 
-    /* Wrapper que centraliza o canvas e permite rotação */
     #canvasWrap {
       display: none;
       align-items: center; justify-content: center;
       max-width: 100vw; max-height: 100vh;
       -webkit-user-select: none; user-select: none;
-      overflow: hidden;
     }
 
     #MMFCanvas {
@@ -42,7 +40,6 @@
       -webkit-tap-highlight-color: transparent; display: block;
       max-width: 100vw; max-height: 100vh;
       width: auto; height: auto; object-fit: contain;
-      transform-origin: center center;
     }
 
     #erroJogo {
@@ -94,22 +91,12 @@
   const seguro = /^[a-zA-Z0-9_\-]+$/.test(nomeJogo);
   const jogo = seguro ? nomeJogo : 'flappy';
 
-  // Permite forçar a orientação via querystring (?orient=landscape|portrait)
-  const orientParam = (params.get('orient') || '').toLowerCase();
-  const orientacaoForcada = (orientParam === 'landscape' || orientParam === 'portrait') ? orientParam : null;
-
   const baseJogo   = '/amandapps/' + jogo + '/';
   const runtimeSrc = baseJogo + 'src/Runtime.js';
   const cchPath    = baseJogo + 'resources/' + jogo + '.cch';
 
-  window.__JOGO__ = {
-    nome: jogo,
-    base: baseJogo,
-    runtime: runtimeSrc,
-    cch: cchPath,
-    orientacaoForcada: orientacaoForcada
-  };
-  console.log('[jogo_inside] carregando jogo:', jogo, '→', baseJogo, '| orientação forçada:', orientacaoForcada);
+  window.__JOGO__ = { nome: jogo, base: baseJogo, runtime: runtimeSrc, cch: cchPath };
+  console.log('[jogo_inside] carregando jogo:', jogo, '→', baseJogo);
 
   const s = document.createElement('script');
   s.src = runtimeSrc;
@@ -190,7 +177,7 @@
 
     try {
       sessionStorage.setItem('fimDeJogo', JSON.stringify({
-        nome: getPlayerName(),
+        nome: getPlayerName(),        // nome já salvo no dispositivo (ou "Amanfã")
         avatar: '🎮',
         score: score,
         gameId: gameId,
@@ -206,6 +193,10 @@
   }
 
   // --------- PONTE FUSION → PÁGINA ---------
+  // Uso no Fusion:
+  //   window.receberPontuacaoDoJogo('12', 'flappy', true)   → salva
+  //   window.receberPontuacaoDoJogo('12', 'flappy', false)  → NÃO salva
+  //   window.receberPontuacaoDoJogo('12', 'flappy')         → NÃO salva (default)
   window.receberPontuacaoDoJogo = async function (score, gameId, flag) {
     const pontuacao = Number(score);
     if (!isFinite(pontuacao)) {
@@ -230,99 +221,8 @@
   };
 </script>
 
-<!-- 3) Inicia o Runtime + lógica de orientação (retrato/landscape) -->
+<!-- 3) Só inicia o Runtime quando Runtime.js carregar -->
 <script>
-  // -------- Lógica de orientação --------
-  // O Fusion normalmente define o tamanho do canvas de acordo com o jogo.
-  // Se o jogo for landscape (largura > altura), giramos o canvas 90° para
-  // caber na tela em retrato, e vice-versa. Se o jogo for retrato, fica normal.
-
-  function aplicarOrientacao() {
-    const canvas = document.getElementById('MMFCanvas');
-    const wrap = document.getElementById('canvasWrap');
-    if (!canvas || !wrap) return;
-
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    // Dimensões lógicas do jogo (definidas pelo canvas original)
-    const lw = canvas.width  || 360;
-    const lh = canvas.height || 640;
-
-    // Se o usuário forçou orientação, respeitamos
-    const forcada = window.__JOGO__ && window.__JOGO__.orientacaoForcada;
-
-    let ehLandscape;
-    if (forcada === 'landscape') ehLandscape = true;
-    else if (forcada === 'portrait') ehLandscape = false;
-    else ehLandscape = lw > lh; // detecção automática
-
-    // Limpa estilos anteriores
-    canvas.style.transform = '';
-    canvas.style.width = '';
-    canvas.style.height = '';
-    canvas.style.maxWidth = '';
-    canvas.style.maxHeight = '';
-    wrap.style.width = '';
-    wrap.style.height = '';
-
-    if (!ehLandscape) {
-      // ---- Jogo em retrato: comportamento original ----
-      wrap.style.width = vw + 'px';
-      wrap.style.height = vh + 'px';
-      canvas.style.maxWidth = vw + 'px';
-      canvas.style.maxHeight = vh + 'px';
-      canvas.style.width = 'auto';
-      canvas.style.height = 'auto';
-      canvas.style.transform = 'none';
-      console.log('[orientacao] retrato (natural)');
-    } else {
-      // ---- Jogo em landscape: girar 90° ----
-      // Após girar, a largura visual do canvas vira a altura lógica (lh)
-      // e a altura visual vira a largura lógica (lw).
-      // Precisamos encaixar "lh x lw" dentro de "vw x vh".
-
-      const escala = Math.min(vw / lh, vh / lw);
-
-      // Dimensões finais do canvas (antes da rotação)
-      const cw = lw * escala; // largura do canvas após escala (antes de girar)
-      const ch = lh * escala; // altura do canvas após escala (antes de girar)
-
-      // Como vamos girar, o espaço ocupado na tela será ch (largura) x cw (altura)
-      // Centralizamos com o wrap do tamanho da tela e usamos transform.
-
-      wrap.style.width = vw + 'px';
-      wrap.style.height = vh + 'px';
-
-      canvas.style.width = cw + 'px';
-      canvas.style.height = ch + 'px';
-      canvas.style.maxWidth = 'none';
-      canvas.style.maxHeight = 'none';
-      canvas.style.transform = 'rotate(90deg)';
-      // O transform-origin já é center center no CSS
-
-      console.log('[orientacao] landscape → rotacionado 90° | escala:', escala.toFixed(3));
-    }
-  }
-
-  // Reaplica ao redimensionar / mudar orientação
-  window.addEventListener('resize', aplicarOrientacao);
-  window.addEventListener('orientationchange', function () {
-    // pequeno delay para o navegador atualizar innerWidth/innerHeight
-    setTimeout(aplicarOrientacao, 150);
-  });
-
-  // Observa mudanças de tamanho do canvas (o Fusion pode redimensionar)
-  function observarCanvas() {
-    const canvas = document.getElementById('MMFCanvas');
-    if (!canvas || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(function () {
-      // Reaplica a orientação quando o canvas muda de tamanho
-      aplicarOrientacao();
-    });
-    ro.observe(canvas);
-  }
-
   function iniciarRuntime() {
     if (typeof Runtime === 'undefined') {
       return setTimeout(iniciarRuntime, 50);
@@ -336,14 +236,6 @@
     try {
       new Runtime("MMFCanvas", window.__JOGO__.cch);
       console.log('[jogo_inside] Runtime iniciado com', window.__JOGO__.cch);
-
-      // Após o Runtime iniciar, aplica a orientação e começa a observar
-      // (damos um pequeno delay para o Fusion definir width/height do canvas)
-      setTimeout(function () {
-        aplicarOrientacao();
-        observarCanvas();
-      }, 100);
-
     } catch (e) {
       console.error('[jogo_inside] erro ao iniciar Runtime:', e);
       const el = document.getElementById('erroJogo');
