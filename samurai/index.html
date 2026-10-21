@@ -12,14 +12,11 @@
 	  color: #000;
 	  font-size: small;
   }
-  html, body {
+  body {
 	  background-color: #FFF;
       text-align: center;
       margin: 0;
       padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
   }
   #bloctxt {
 	  border-left-width: 5px;
@@ -27,40 +24,11 @@
 	  border-left-color: #F00;
 	  padding-left: 10px;
 	  position: absolute;
-	  left: 50%;
+	  left: 50%%;
 	  width: 600px;
-	  margin-left: -260px;
-	  text-align: left;
-  }
-
-  /* Overlay que pede para o usuário girar o dispositivo (fallback iOS / navegadores sem lock) */
-  #rotate-overlay {
-	  display: none;
-	  position: fixed;
-	  top: 0; left: 0;
-	  width: 100vw; height: 100vh;
-	  background: #000;
-	  color: #fff;
-	  z-index: 9999;
-	  text-align: center;
-	  font-family: Arial, Helvetica, sans-serif;
-	  font-size: 20px;
-	  padding-top: 40vh;
-	  box-sizing: border-box;
-  }
-  #rotate-overlay .icon {
-	  font-size: 64px;
-	  display: block;
-	  margin-bottom: 20px;
-	  animation: rotateAnim 2s infinite;
-  }
-  @keyframes rotateAnim {
-	  0%   { transform: rotate(0deg); }
-	  50%  { transform: rotate(90deg); }
-	  100% { transform: rotate(0deg); }
+	  margin-left: -260px
   }
 </style>
-
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
@@ -69,11 +37,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="HandheldFriendly" content="true" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#000000" />
-
-  <!-- Manifesto do PWA -->
-  <link rel="manifest" href="manifest.json" />
 
   <title>Clickteam Fusion Developer 2.5+ HTML5 Runtime</title>
 
@@ -111,12 +74,6 @@
 
 <body>
 
-<!-- Overlay de fallback: aparece quando o dispositivo está em modo retrato -->
-<div id="rotate-overlay">
-  <span class="icon">📱</span>
-  Por favor, gire o dispositivo.
-</div>
-
 <div style="display: inline-block; -webkit-user-select: none; text-align: left;">
     <canvas id="MMFCanvas" width="640" height="400">
     	Your browser does not support Canvas.
@@ -124,77 +81,14 @@
 </div>
 
 <script>
-    // ============================================================
-    // 1) Registro do Service Worker (PWA)
-    //    Se NÃO quiser usar SW, apague este bloco inteiro.
-    // ============================================================
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-            navigator.serviceWorker.register('sw.js').catch(function (err) {
-                console.log('Service Worker não registrado:', err);
-            });
-        });
-    }
-
-    // ============================================================
-    // 2) Trava de orientação (funciona em Android/Chrome)
-    //    Tenta entrar em tela cheia primeiro, pois é requisito
-    //    na maioria dos navegadores para permitir orientation.lock.
-    // ============================================================
-    function lockOrientation() {
-        var canvas = document.getElementById("MMFCanvas");
-        var tryLock = function () {
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock("landscape").catch(function (error) {
-                    console.log("Bloqueio de orientação não suportado/falhou:", error);
-                });
-            }
-        };
-        if (canvas && canvas.requestFullscreen) {
-            canvas.requestFullscreen().then(tryLock).catch(tryLock);
-        } else if (canvas && canvas.webkitRequestFullscreen) {
-            canvas.webkitRequestFullscreen();
-            tryLock();
-        } else {
-            tryLock();
-        }
-    }
-
-    // ============================================================
-    // 3) Fallback visual: mostra overlay se estiver em retrato
-    // ============================================================
-    function checkOrientation() {
-        var overlay = document.getElementById('rotate-overlay');
-        // O jogo é landscape -> exibe overlay quando o device está em portrait
-        if (window.matchMedia("(orientation: portrait)").matches) {
-            overlay.style.display = 'block';
-        } else {
-            overlay.style.display = 'none';
-        }
-    }
-
-    // ============================================================
-    // 4) RUNTIMESTART — inicia o jogo do Clickteam Fusion
-    // ============================================================
+    // RUNTIMESTART
+    // This is where the HTML5 runtime is actually started
     window.addEventListener("load", windowLoaded, false);
     function windowLoaded()
     {
-        // Tenta travar a orientação assim que a página carrega
-        lockOrientation();
-
-        // Verifica a orientação inicial e fica ouvindo mudanças
-        checkOrientation();
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', function () {
-            // Pequeno delay: alguns browsers só atualizam a orientação depois
-            setTimeout(checkOrientation, 200);
-        });
-
-        // Tenta travar novamente ao entrar em fullscreen
-        document.addEventListener('fullscreenchange', lockOrientation);
-        document.addEventListener('webkitfullscreenchange', lockOrientation);
-
-        // Inicia o runtime do Clickteam
+        // Calls the runtime
+        // First parameter : name of the canvas element
+        // Second parameter : path to the cch file. Images and sounds must lay beside this file
         new Runtime("MMFCanvas", "resources/samurai.cch");
     }
     // RUNTIMESTARTEND
