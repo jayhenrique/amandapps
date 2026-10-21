@@ -279,8 +279,9 @@
         const THUMB_DIR     = '/amandapps/thumbs-assets';
         const INFO_JSON_URL = '/amandapps/jogos-info.json';
 
-        // jogo_inside.html fica em /amandapps/jogo_inside.html
-        const JOGO_INSIDE_URL = '/amandapps/jogo_inside.html';
+        // Páginas que embutem o jogo, uma para cada orientação
+        const JOGO_INSIDE_URL   = '/amandapps/jogo_inside.html';   // retrato (vertical)
+        const JOGO_INSIDE_H_URL = '/amandapps/jogo_inside_h.html'; // horizontal (landscape)
 
         const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
@@ -288,7 +289,7 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // =====================================================
-        // NOME DO JOGADOR (compartilhado com index/jogo_inside/fim-de-jogo)
+        // NOME DO JOGADOR
         // =====================================================
         const NOME_STORAGE_KEY = 'amanfa_player_name';
         const NOME_PADRAO = 'Amanfã';
@@ -322,6 +323,44 @@
             return String(s).replace(/[&<>"']/g, c => ({
                 '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
             }[c]));
+        }
+
+        // =====================================================
+        // ORIENTAÇÃO DO JOGO
+        // -----------------------------------------------------
+        // Lê do JSON e devolve 'h' (horizontal) ou 'v' (vertical).
+        // Aceita várias chaves comuns e vários valores possíveis.
+        // Padrão: 'v' (retrato), mantendo o comportamento antigo.
+        // =====================================================
+        function obterOrientacao(info) {
+            if (!info) return 'v';
+
+            // Possíveis chaves que podem indicar a orientação
+            const chaves = [
+                'orientacao', 'orientação', 'orientation',
+                'formato', 'layout', 'modo', 'mode',
+                'tela', 'screen', 'display'
+            ];
+
+            let valor = null;
+            for (const chave of chaves) {
+                if (info[chave] != null) {
+                    valor = String(info[chave]).toLowerCase().trim();
+                    break;
+                }
+            }
+
+            if (!valor) return 'v';
+
+            // Normaliza valores
+            const horizontais = ['h', 'horz', 'horizontal', 'landscape', 'paisagem', 'wide', '16:9', '4:3'];
+            const verticais   = ['v', 'vert', 'vertical', 'portrait', 'retrato', 'tall', '9:16'];
+
+            if (horizontais.some(v => valor === v || valor.includes(v))) return 'h';
+            if (verticais.some(v => valor === v || valor.includes(v)))   return 'v';
+
+            console.warn('[jogo] valor de orientação desconhecido:', valor, '— usando padrão (vertical)');
+            return 'v';
         }
 
         // =====================================================
@@ -386,13 +425,19 @@
                 autor:     info?.autor     || ''
             };
 
+            // ---- ORIENTAÇÃO: escolhe qual página embute o jogo ----
+            const orientacao = obterOrientacao(info);
+            const paginaJogo = (orientacao === 'h') ? JOGO_INSIDE_H_URL : JOGO_INSIDE_URL;
+
             const thumbUrl = gameId
                 ? `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`
                 : '';
 
             const playUrl = gameId
-                ? `${JOGO_INSIDE_URL}?jogo=${encodeURIComponent(gameId)}`
+                ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
+
+            console.log('[jogo] gameId:', gameId, '| orientação:', orientacao, '| página:', paginaJogo);
 
             const nomeJogador = escapeHTML(getPlayerName());
 
@@ -417,7 +462,7 @@
                             <a href="${HOME_URL}#perfil">change</a>
                         </div>
 
-                        <a class="btn-play" href="${playUrl}">▶ PLAY</a>
+                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
 
                         <div class="como-jogar">
                             <strong>Como jogar</strong>

@@ -51,6 +51,7 @@
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/samuraimini.png",
+    "orientacao": "h",
     "ordem": 6
   },
   "teste": {
