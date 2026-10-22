@@ -13,6 +13,7 @@
   --border: #e0a800;
   --danger: #b80050;
   --danger-hover: #8f0040;
+  --font-display: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -124,10 +125,12 @@ header {
 .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 .anchor-target { scroll-margin-top: 100px; }
 
-/* ---------- Section title ---------- */
+/* ---------- Section title (Baloo 2) ---------- */
 .section-title {
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
   margin-bottom: 1.2rem;
   display: flex;
   align-items: center;
@@ -135,6 +138,7 @@ header {
   gap: 0.6rem;
   color: var(--accent);
   text-align: center;
+  line-height: 1.2;
 }
 .section-title::before {
   content: '🩷';
@@ -221,9 +225,10 @@ header {
   overflow: hidden;
 }
 .lb-card h4 {
+  font-family: var(--font-display);
   background: var(--accent2);
   padding: 0.6rem 1rem;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text);
 }
@@ -252,7 +257,8 @@ header {
 }
 .name-details { flex: 1; min-width: 220px; }
 .name-details h3 {
-  font-size: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
   font-weight: 800;
   margin-bottom: 0.4rem;
   line-height: 1.1;
@@ -383,7 +389,14 @@ footer {
   border-radius: 14px 14px 0 0;
   color: var(--text);
 }
-.pwa-modal-header h3 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+.pwa-modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .pwa-modal-close {
   background: transparent; border: none; color: var(--text-dim);
   font-size: 1.4rem; line-height: 1; cursor: pointer;
@@ -394,7 +407,9 @@ footer {
 .pwa-modal-body { padding: 1.4rem; font-size: 0.9rem; color: var(--text-dim); }
 .pwa-modal-body p { margin-bottom: 1rem; }
 .pwa-modal-body h4 {
-  color: var(--text); font-size: 0.95rem; margin: 1.2rem 0 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text); font-size: 1rem; margin: 1.2rem 0 0.5rem;
   display: flex; align-items: center; gap: 0.45rem;
 }
 .pwa-modal-body h4:first-of-type { margin-top: 0; }
@@ -427,7 +442,9 @@ footer {
   .header-right { gap: 0.3rem; margin-left: auto; flex-wrap: nowrap; }
   .container { padding: 1.2rem 1rem; }
   .name-card { flex-direction: column; align-items: flex-start; text-align: left; }
-  .name-details h3 { font-size: 1.3rem; }
+  .name-details h3 { font-size: 1.5rem; }
+
+  .section-title { font-size: 1.45rem; }
 
   .game-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
 
