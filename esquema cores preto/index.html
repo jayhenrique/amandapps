@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amand.APPs ARCADE</title>
+
+<!-- ===== PWA ===== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Amand.APPs ARCADE">
+<link rel="apple-touch-icon" href="thumbs-assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="thumbs-assets/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="thumbs-assets/icon-512.png">
+<!-- ================ -->
+
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --bg-card: #16213e;
+    --bg-card-hover: #1f2b4d;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --text: #eaeaea;
+    --text-dim: #8a8fa3;
+    --gold: #f5c518;
+    --border: #2a3a5c;
+    --danger: #d63031;
+    --danger-hover: #b02525;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    border-bottom: 3px solid var(--accent);
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .logo:hover { opacity: 0.85; transform: scale(1.02); text-decoration: none; }
+  .logo img { height: 42px; width: auto; display: block; }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+
+  .user-area { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; }
+  .user-area .user-pill {
+    background: var(--accent2);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+
+  .btn-reload {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, transform 0.3s;
+  }
+  .btn-reload:hover { color: var(--accent); border-color: var(--accent); }
+  .btn-reload:active { transform: rotate(180deg); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .anchor-target { scroll-margin-top: 100px; }
+
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .section-title::before {
+    content: '';
+    width: 4px; height: 1.4rem;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ---------- Grid de jogos ---------- */
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+  .game-grid .empty-msg {
+    grid-column: 1 / -1;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 2rem;
+  }
+  .game-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s, opacity 0.2s;
+    cursor: pointer;
+    display: block;
+    color: inherit;
+    aspect-ratio: 1 / 1;
+  }
+  .game-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+  .game-card.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .game-card.is-disabled:hover {
+    transform: none;
+    border-color: var(--border);
+  }
+  .game-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .activity-feed {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 3rem;
+    font-size: 0.85rem;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .activity-feed p { padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-dim); }
+  .activity-feed p:last-child { border-bottom: none; }
+  .activity-feed strong { color: var(--text); }
+
+  .leaderboards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+  .lb-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .lb-card h4 {
+    background: var(--accent2);
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .lb-card table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .lb-card td { padding: 0.4rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .lb-card tr:last-child td { border-bottom: none; }
+  .lb-card .rank { color: var(--text-dim); width: 2rem; }
+  .lb-card .player { font-weight: 600; }
+  .lb-card .score { text-align: right; color: var(--gold); font-weight: 700; }
+  .lb-card tr:nth-child(1) .player { color: var(--gold); }
+
+  /* ---------- Seção "Your Name" (sem login) ---------- */
+  .profile-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .name-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .name-avatar {
+    width: 110px;
+    height: 110px;
+    min-width: 110px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.5rem;
+    background: linear-gradient(135deg, #0f3460, #1f2b4d);
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 0 6px rgba(233, 69, 96, 0.15);
+  }
+  .name-details { flex: 1; min-width: 220px; }
+  .name-details h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+    line-height: 1.1;
+    color: var(--text);
+  }
+  .name-details p {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    margin-bottom: 0.8rem;
+  }
+  .name-form {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .name-form input[type="text"] {
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    width: 180px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .name-form input[type="text"]:focus { border-color: var(--accent); }
+  .name-form input::placeholder { color: var(--text-dim); font-weight: 400; }
+  .name-form button {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .name-form button:hover { opacity: 0.92; }
+  .name-form button:active { transform: scale(0.98); }
+  .name-form button.ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .name-form button.ghost:hover { color: var(--accent); border-color: var(--accent); }
+  .name-msg { font-size: 0.82rem; margin-top: 0.6rem; min-height: 1.1em; }
+  .name-msg.ok    { color: #6ee7a8; }
+  .name-msg.error { color: #ff7b8a; }
+
+  .hidden { display: none !important; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  /* PWA reminder banner */
+  .pwa-reminder {
+    background: rgba(233, 69, 96, 0.08);
+    border: 1px solid rgba(233, 69, 96, 0.3);
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .pwa-reminder:hover {
+    background: rgba(233, 69, 96, 0.14);
+    border-color: rgba(233, 69, 96, 0.5);
+  }
+  .pwa-reminder .pwa-icon { font-size: 1.4rem; line-height: 1; }
+  .pwa-reminder strong { color: var(--accent); }
+  .pwa-reminder .pwa-sub { color: var(--text-dim); font-size: 0.82rem; }
+
+  /* ---------- Modal de instalação PWA ---------- */
+  .pwa-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+  .pwa-modal-overlay.open { opacity: 1; visibility: visible; }
+  .pwa-modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.2s;
+  }
+  .pwa-modal-overlay.open .pwa-modal { transform: translateY(0) scale(1); }
+  .pwa-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--accent2);
+    border-radius: 14px 14px 0 0;
+  }
+  .pwa-modal-header h3 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+  .pwa-modal-close {
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 1.4rem; line-height: 1; cursor: pointer;
+    padding: 0.1rem 0.4rem; border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .pwa-modal-close:hover { color: var(--accent); background: rgba(255, 255, 255, 0.06); }
+  .pwa-modal-body { padding: 1.4rem; font-size: 0.9rem; color: var(--text-dim); }
+  .pwa-modal-body p { margin-bottom: 1rem; }
+  .pwa-modal-body h4 {
+    color: var(--text); font-size: 0.95rem; margin: 1.2rem 0 0.5rem;
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  .pwa-modal-body h4:first-of-type { margin-top: 0; }
+  .pwa-modal-body ol { margin-left: 1.2rem; margin-bottom: 0.5rem; }
+  .pwa-modal-body ol li { margin-bottom: 0.4rem; line-height: 1.45; }
+  .pwa-modal-body .pwa-note {
+    background: rgba(233, 69, 96, 0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem;
+    color: var(--text);
+    font-size: 0.84rem;
+    margin-top: 1rem;
+  }
+  .pwa-modal-footer { padding: 0 1.4rem 1.4rem; }
+  .pwa-modal-footer button {
+    width: 100%; padding: 0.75rem; border-radius: 8px; border: none;
+    background: var(--accent); color: #fff; font-weight: 700;
+    font-size: 0.95rem; cursor: pointer; transition: opacity 0.15s;
+  }
+  .pwa-modal-footer button:hover { opacity: 0.9; }
+
+  @media (max-width: 600px) {
+    header {
+      flex-direction: row; align-items: center; flex-wrap: nowrap;
+      padding: 0.9rem 1rem; gap: 0.6rem;
+    }
+    .logo img { height: 34px; }
+    .header-right { gap: 0.4rem; margin-left: auto; flex-wrap: nowrap; }
+    .container { padding: 1.2rem 1rem; }
+    .name-card { flex-direction: column; align-items: flex-start; text-align: left; }
+    .name-avatar { width: 90px; height: 90px; min-width: 90px; font-size: 3.5rem; }
+    .name-details h3 { font-size: 1.3rem; }
+
+    .game-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+
+    .btn-reload { width: 32px; height: 32px; }
+    .user-area .user-pill { font-size: 0.8rem; padding: 0.28rem 0.6rem; }
+
+    .pwa-reminder { font-size: 0.82rem; padding: 0.75rem 1rem; }
+    .pwa-reminder .pwa-sub { font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#" id="logo-home" title="Go to top" aria-label="Go to top">
+    <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
+  </a>
+  <div class="header-right">
+    <div class="user-area" id="user-area">
+      <span class="user-pill" id="user-pill" title="Go to Your Name">🎮 <span id="user-name">Amanfã</span></span>
+      <button class="btn-reload" id="btn-reload" title="Reload page" aria-label="Reload page">🔄</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- PWA reminder (hidden when running as PWA) -->
+  <div class="pwa-reminder" id="pwa-reminder" role="button" tabindex="0" aria-label="How to install this app">
+    <span class="pwa-icon">📲</span>
+    <span>
+      <strong>Install this app on your device!</strong>
+      <span class="pwa-sub">Tap here to see how — add it to your home screen for a full‑screen, app‑like experience.</span>
+    </span>
+  </div>
+
+  <!-- Banner Steam (com vídeo WebM na área verde) -->
+  <a href="https://store.steampowered.com/app/4057350/"
+     target="_blank"
+     rel="noopener noreferrer"
+     style="display:block; position:relative; margin-bottom:1.5rem; border-radius:10px; overflow:hidden; border:1px solid var(--border); transition: transform 0.2s, border-color 0.2s; aspect-ratio: 4 / 1;"
+     onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--accent)';"
+     onmouseout="this.style.transform='';this.style.borderColor='var(--border)';">
+    
+    <!-- Imagem de fundo do banner -->
+    <img src="thumbs-assets/steam-banner.png"
+         alt="Jogue na Steam"
+         style="width:100%; height:100%; object-fit:cover; display:block;">
+    
+    <!-- Vídeo WebM posicionado sobre a área verde -->
+    <div style="position:absolute; top:18%; left:5.25%; width:25.6%; height:60.6%; overflow:hidden; border-radius:4px; pointer-events:none; background:#000;">
+      <video 
+             autoplay 
+             loop 
+             muted 
+             playsinline 
+             src="thumbs-assets/steam-video.webm"
+             style="width:100%; height:100%; object-fit:fill; display:block; pointer-events:none;">
+      </video>
+    </div>
+  </a>
+
+  <h2 class="section-title anchor-target" id="jogos">Available Games</h2>
+  <!-- Grid preenchido via JS a partir de jogos-info.json -->
+  <div class="game-grid" id="game-grid">
+    <div class="empty-msg">Loading games…</div>
+  </div>
+
+  <h2 class="section-title">Recent Activity</h2>
+  <div class="activity-feed" id="activity-feed">
+    <p>Loading recent activity…</p>
+  </div>
+
+  <!-- ======================================== -->
+  <!-- YOUR NAME (no login required)            -->
+  <!-- ======================================== -->
+  <h2 class="section-title anchor-target" id="perfil">Your Name</h2>
+  <div class="profile-wrap">
+    <div class="name-card">
+      <div class="name-avatar">🎮</div>
+      <div class="name-details">
+        <h3 id="name-display">Amanfã</h3>
+        <p>Pick a name (up to 8 letters/numbers) — it's used for any game you play, and saved on this device. Leave it blank to appear as <strong>Amanfã</strong>.</p>
+        <div class="name-form">
+          <input type="text" id="name-input" placeholder="insert your name" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button type="button" id="btn-save-name">Save name</button>
+          <button type="button" class="ghost" id="btn-clear-name">Clear</button>
+        </div>
+        <div class="name-msg" id="name-msg"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Amand.APPs ARCADE &copy; 2026 · Made with HTML5
+  <br>
+  <a href="https://jayhenrique.github.io/amandapps/samurai/" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--text-dim);opacity:0.6;">[debug] samurai</a>
+</footer>
+
+<!-- ======================================== -->
+<!-- PWA INSTALL INSTRUCTIONS MODAL           -->
+<!-- ======================================== -->
+<div class="pwa-modal-overlay" id="pwa-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title">
+  <div class="pwa-modal">
+    <div class="pwa-modal-header">
+      <h3 id="pwa-modal-title">📲 Install Amand.APPs ARCADE</h3>
+      <button class="pwa-modal-close" id="pwa-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="pwa-modal-body">
+      <p>Install this app on your device to play full‑screen, with a home‑screen icon and a native app‑like experience.</p>
+      <h4>🤖 Android (Chrome / Edge)</h4>
+      <ol>
+        <li>Tap the <strong>⋮</strong> menu in the top‑right corner.</li>
+        <li>Select <strong>“Install app”</strong> or <strong>“Add to Home screen”</strong>.</li>
+        <li>Confirm by tapping <strong>“Install”</strong>.</li>
+      </ol>
+      <h4>🍎 iPhone / iPad (Safari)</h4>
+      <ol>
+        <li>Tap the <strong>Share</strong> button (square with an arrow).</li>
+        <li>Scroll down and tap <strong>“Add to Home Screen”</strong>.</li>
+        <li>Tap <strong>“Add”</strong> in the top‑right corner.</li>
+      </ol>
+      <h4>💻 Desktop (Chrome / Edge)</h4>
+      <ol>
+        <li>Click the <strong>install icon</strong> (⊕ or a monitor with an arrow) in the address bar.</li>
+        <li>Click <strong>“Install”</strong> in the popup.</li>
+      </ol>
+      <div class="pwa-note">💡 After installing, the app opens in its own window — no browser bars, just the arcade!</div>
+    </div>
+    <div class="pwa-modal-footer">
+      <button id="pwa-modal-ok">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Biblioteca do Supabase via CDN (somente para leitura/gravação de scores) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // ============================================
+  // CONFIGURATION
+  // ============================================
+  const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+  const { createClient } = supabase;
+  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Nome do jogador — chave COMPARTILHADA com fim-de-jogo.html e jogo_inside.html
+  const NOME_STORAGE_KEY = 'amanfa_player_name';
+  const NOME_PADRAO = 'Amanfã';
+
+  // Dados completos do JSON e mapa game_id -> título
+  let JOGOS = {};
+  let GAME_NAMES = {};
+
+  // ============================================
+  // NOME DO JOGADOR (localStorage)
+  // ============================================
+  function sanitizeName(raw) {
+    let s = (raw == null) ? '' : String(raw);
+    s = s.replace(/[^A-Za-z0-9 ]/g, '');
+    s = s.slice(0, 8).trim();
+    return s;
+  }
+  function loadStoredName() {
+    try { return sanitizeName(localStorage.getItem(NOME_STORAGE_KEY) || ''); }
+    catch (e) { return ''; }
+  }
+  function saveStoredName(name) {
+    try { localStorage.setItem(NOME_STORAGE_KEY, name); }
+    catch (e) { console.warn('Could not save name:', e); }
+  }
+  function displayName() {
+    return loadStoredName() || NOME_PADRAO;
+  }
+
+  function atualizarUINome() {
+    const nome = displayName();
+    document.getElementById('user-name').textContent = nome;
+    document.getElementById('name-display').textContent = nome;
+    document.getElementById('name-input').value = loadStoredName();
+  }
+
+  // ============================================
+  // LOAD jogos-info.json (com grid dinâmico)
+  // ============================================
+  async function carregarNomesJogos() {
+    try {
+      // Cache-busting: garante que jogos novos apareçam mesmo com SW antigo
+      const res = await fetch('jogos-info.json?v=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      JOGOS = data;
+      GAME_NAMES = Object.fromEntries(
+        Object.entries(data).map(([id, info]) => [id, (info && info.titulo) ? info.titulo : id])
+      );
+
+      renderizarGridJogos();
+    } catch (e) {
+      console.warn('Could not load jogos-info.json:', e);
+      JOGOS = {};
+      GAME_NAMES = {};
+      const grid = document.getElementById('game-grid');
+      if (grid) {
+        grid.innerHTML = '<div class="empty-msg">Could not load the games list.</div>';
+      }
+    }
+  }
+
+  function nomeDoJogo(gameId) {
+    return GAME_NAMES[gameId] || gameId;
+  }
+
+  // ============================================
+  // GRID DINÂMICO
+  // ============================================
+  function thumbDoJogo(id, info) {
+    return (info && info.thumb) ? info.thumb : `thumbs-assets/${id}mini.png`;
+  }
+
+  function isJogoTeste(info) {
+    return ((info && info.categoria) || '').toLowerCase() === 'teste';
+  }
+
+  function renderizarGridJogos() {
+    const grid = document.getElementById('game-grid');
+    if (!grid) return;
+
+    // Filtra jogos de teste e ordena por "ordem" (alfabético como fallback)
+    const ids = Object.keys(JOGOS)
+      .filter(id => !isJogoTeste(JOGOS[id]))   // ← remova esta linha para exibir jogos de teste
+      .sort((a, b) => {
+        const oa = Number(JOGOS[a]?.ordem ?? 999);
+        const ob = Number(JOGOS[b]?.ordem ?? 999);
+        return oa - ob || a.localeCompare(b);
+      });
+
+    if (ids.length === 0) {
+      grid.innerHTML = '<div class="empty-msg">No games available.</div>';
+      return;
+    }
+
+    grid.innerHTML = ids.map(id => {
+      const info = JOGOS[id] || {};
+      const titulo = info.titulo || id;
+      const thumb = thumbDoJogo(id, info);
+      const href = `jogo.html?id=${encodeURIComponent(id)}`;
+
+      return `
+        <a class="game-card" href="${href}" title="${escapeHtml(titulo)}" aria-label="${escapeHtml(titulo)}">
+          <img class="game-thumb-img"
+               src="${escapeHtml(thumb)}"
+               alt="${escapeHtml(titulo)}"
+               loading="lazy"
+               onerror="this.onerror=null;this.src='thumbs-assets/icon-192.png';">
+        </a>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // ============================================
+  // SCORE FUNCTIONS
+  // ============================================
+  async function carregarPlacares() {
+    const cards = document.querySelectorAll('.lb-card');
+    for (const card of cards) {
+      const gameId = card.dataset.gameId;
+      const tbody = card.querySelector('.lb-body');
+
+      const h4 = card.querySelector('h4');
+      if (h4) {
+        const emojiMatch = h4.textContent.match(/^(\S+)\s+/);
+        const emoji = emojiMatch ? emojiMatch[1] + ' ' : '';
+        h4.textContent = emoji + nomeDoJogo(gameId);
+      }
+
+      const { data, error } = await _supabase
+        .from('scores')
+        .select('player_name, score')
+        .eq('game_id', gameId)
+        .order('score', { ascending: false })
+        .limit(5);
+
+      if (error) {
+        console.error('Error fetching leaderboard for game', gameId, error);
+        tbody.innerHTML = '<tr><td colspan="3">Error loading.</td></tr>';
+        continue;
+      }
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3">No scores yet.</td></tr>';
+        continue;
+      }
+
+      tbody.innerHTML = data.map((row, index) => `
+        <tr>
+          <td class="rank">${index + 1}</td>
+          <td class="player">${escapeHtml(row.player_name)}</td>
+          <td class="score">${row.score}</td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  async function carregarAtividade() {
+    const feed = document.getElementById('activity-feed');
+    const { data, error } = await _supabase
+      .from('scores')
+      .select('player_name, game_id, score, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error) { feed.innerHTML = '<p>Error loading activity.</p>'; return; }
+    if (!data || data.length === 0) { feed.innerHTML = '<p>No recent activity.</p>'; return; }
+
+    feed.innerHTML = data.map(row => `
+      <p><strong>${escapeHtml(row.player_name)}</strong> played <strong>${escapeHtml(nomeDoJogo(row.game_id))}</strong> and scored <strong>${row.score} points</strong>!</p>
+    `).join('');
+  }
+
+  // ============================================
+  // PWA DETECTION & MODAL
+  // ============================================
+  function isRunningAsPWA() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: minimal-ui)').matches ||
+           window.matchMedia('(display-mode: fullscreen)').matches ||
+           window.navigator.standalone === true;
+  }
+
+  function setupPWABanner() {
+    const banner = document.getElementById('pwa-reminder');
+    if (!banner) return;
+    if (isRunningAsPWA()) { banner.classList.add('hidden'); return; }
+
+    const overlay = document.getElementById('pwa-modal-overlay');
+    const closeBtn = document.getElementById('pwa-modal-close');
+    const okBtn = document.getElementById('pwa-modal-ok');
+
+    function openModal() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeModal() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+
+    banner.addEventListener('click', openModal);
+    banner.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+    });
+    closeBtn.addEventListener('click', closeModal);
+    okBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+    });
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', (ev) => {
+      if (ev.matches) banner.classList.add('hidden');
+    });
+  }
+
+  // ============================================
+  // INIT
+  // ============================================
+  document.addEventListener('DOMContentLoaded', async () => {
+    setupPWABanner();
+    await carregarNomesJogos();
+
+    carregarPlacares();
+    carregarAtividade();
+
+    atualizarUINome();
+
+    // Logo → Home (topo da página)
+    document.getElementById('logo-home').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (history.replaceState) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    });
+
+    // Pílula do header → seção "Your Name"
+    document.getElementById('user-pill').addEventListener('click', () => {
+      document.getElementById('perfil').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Reload
+    document.getElementById('btn-reload').addEventListener('click', () => location.reload());
+
+    // ---- NAME INPUT ----
+    const nameInput = document.getElementById('name-input');
+    const nameMsg = document.getElementById('name-msg');
+
+    nameInput.addEventListener('input', () => {
+      const clean = sanitizeName(nameInput.value);
+      if (clean !== nameInput.value) {
+        const pos = nameInput.selectionStart;
+        nameInput.value = clean;
+        try { nameInput.setSelectionRange(Math.min(pos, clean.length), Math.min(pos, clean.length)); } catch (e) {}
+      }
+    });
+
+    document.getElementById('btn-save-name').addEventListener('click', () => {
+      const typed = sanitizeName(nameInput.value);
+      const finalName = typed || NOME_PADRAO;
+      saveStoredName(finalName);
+      atualizarUINome();
+      nameMsg.textContent = `✔ Name saved as "${finalName}".`;
+      nameMsg.className = 'name-msg ok';
+      setTimeout(() => { nameMsg.textContent = ''; nameMsg.className = 'name-msg'; }, 2500);
+    });
+
+    document.getElementById('btn-clear-name').addEventListener('click', () => {
+      saveStoredName('');
+      atualizarUINome();
+      nameMsg.textContent = 'Name cleared — you will appear as "Amanfã".';
+      nameMsg.className = 'name-msg ok';
+      setTimeout(() => { nameMsg.textContent = ''; nameMsg.className = 'name-msg'; }, 2500);
+    });
+
+    // ============================================
+    // SERVICE WORKER REGISTRATION (PWA)
+    // ============================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((reg) => console.log('Service Worker registered:', reg.scope))
+          .catch((err) => console.warn('Service Worker registration failed:', err));
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

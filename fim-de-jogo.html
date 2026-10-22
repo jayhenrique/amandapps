@@ -4,28 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>Game Over — Arcade Central</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        /* ===== Estilos específicos da tela de fim de jogo ===== */
         html, body {
             width: 100%;
             height: 100%;
-            background: #000;
-            color: #eaeaea;
-            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
             overflow: hidden;
         }
 
-        /* ===== STAGE ===== */
         .stage {
             position: relative;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #000;
+            background: var(--bg);
         }
 
-        /* centered image container */
         .bg-wrap {
             position: absolute;
             inset: 0;
@@ -33,15 +28,14 @@
             align-items: center;
             justify-content: center;
             z-index: 0;
-            background: #000;
+            background: var(--bg);
         }
 
-        /* green fallback (test) */
         .bg-wrap::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: #00b140;
+            background: var(--bg-card);
             z-index: -1;
         }
         .bg-wrap.has-img::before { display: none; }
@@ -56,7 +50,6 @@
         }
         .bg-img.hidden { display: none; }
 
-        /* ===== CONTENT ===== */
         .content {
             position: relative;
             z-index: 2;
@@ -70,33 +63,31 @@
             padding: 1.5rem 1.2rem 1.4rem;
         }
 
-        /* score box with semi-transparent background */
         .score-box {
             text-align: center;
-            background: rgba(0, 0, 0, 0.45);
+            background: rgba(255, 215, 94, 0.85);
             backdrop-filter: blur(3px);
             border-radius: 10px;
             padding: 0.5rem 1.4rem;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
         }
         .score-label {
             font-size: 0.7rem;
-            color: #c7cbe0;
+            color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 1.5px;
             margin-bottom: 0.1rem;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+            text-shadow: 0 1px 4px rgba(255, 243, 207, 0.9);
         }
         .score-value {
             font-size: 2.6rem;
             font-weight: 800;
-            color: #f5c518;
+            color: var(--gold);
             line-height: 1;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+            text-shadow: 0 2px 10px rgba(255, 243, 207, 0.9);
         }
-        .score-value.error { color: #ff7b8a; font-size: 2rem; }
+        .score-value.error { color: var(--accent); font-size: 2rem; }
 
-        /* name input row */
         .name-row {
             display: flex;
             align-items: center;
@@ -112,30 +103,30 @@
             min-width: 0;
             padding: 0.65rem 0.8rem;
             border-radius: 8px;
-            border: 1px solid #2a3a5c;
-            background: rgba(22, 33, 62, 0.85);
+            border: 1px solid var(--border);
+            background: #fff3cf;
             backdrop-filter: blur(4px);
-            color: #eaeaea;
+            color: var(--text);
             font-size: 0.9rem;
             font-weight: 600;
             outline: none;
             transition: border-color 0.15s;
         }
-        .name-input::placeholder { color: #8a8fa3; font-weight: 400; }
-        .name-input:focus { border-color: #e94560; }
+        .name-input::placeholder { color: var(--text-dim); font-weight: 400; }
+        .name-input:focus { border-color: var(--accent); }
 
         .btn-send {
             padding: 0.65rem 0.9rem;
             border-radius: 8px;
             border: none;
-            background: #f5c518;
-            color: #111;
+            background: var(--accent);
+            color: #fff5f8;
             font-weight: 700;
             font-size: 0.85rem;
             cursor: pointer;
             white-space: nowrap;
             transition: opacity 0.15s, transform 0.1s;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 14px rgba(90, 46, 0, 0.25);
         }
         .btn-send:hover { opacity: 0.92; }
         .btn-send:active { transform: scale(0.98); }
@@ -146,11 +137,11 @@
             font-weight: 600;
             min-height: 1.2em;
             text-align: center;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+            text-shadow: 0 1px 4px rgba(255, 243, 207, 0.9);
         }
-        .status.ok    { color: #6ee7a8; }
-        .status.error { color: #ff7b8a; }
-        .status.info  { color: #8a8fa3; }
+        .status.ok    { color: #2e7d32; }
+        .status.error { color: var(--accent); }
+        .status.info  { color: var(--text-dim); }
 
         .actions {
             display: flex;
@@ -168,19 +159,19 @@
             font-size: 0.88rem;
             cursor: pointer;
             transition: opacity 0.15s, transform 0.1s;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 14px rgba(90, 46, 0, 0.25);
         }
         .actions button:hover { opacity: 0.92; }
         .actions button:active { transform: scale(0.98); }
 
-        .btn-retry { background: #e94560; color: #fff; }
+        .btn-retry { background: var(--accent); color: #fff5f8; }
         .btn-home  {
-            background: rgba(22, 33, 62, 0.85);
-            color: #eaeaea;
-            border: 1px solid #2a3a5c !important;
+            background: #fff3cf;
+            color: var(--text);
+            border: 1px solid var(--border) !important;
             backdrop-filter: blur(4px);
         }
-        .btn-home:hover { border-color: #8a8fa3 !important; }
+        .btn-home:hover { border-color: var(--accent) !important; }
 
         .debug-block {
             display: flex;
@@ -191,14 +182,14 @@
         }
         .debug-game-id {
             font-size: 0.62rem;
-            color: #c7cbe0;
+            color: var(--text-dim);
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             letter-spacing: 0.3px;
             user-select: all;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+            text-shadow: 0 1px 3px rgba(255, 243, 207, 0.9);
         }
-        .debug-game-id .val-true  { color: #6ee7a8; }
-        .debug-game-id .val-false { color: #ff7b8a; }
+        .debug-game-id .val-true  { color: #2e7d32; }
+        .debug-game-id .val-false { color: var(--accent); }
     </style>
 </head>
 <body>
@@ -209,13 +200,11 @@
     </div>
 
     <div class="content" id="content">
-        <!-- 1) SCORE BOX -->
         <div class="score-box" id="score-box">
             <div class="score-label">Score</div>
             <div class="score-value" id="score-value">0</div>
         </div>
 
-        <!-- 2) NAME INPUT (only when high score) -->
         <div class="name-row hidden" id="name-row">
             <input
                 type="text"
@@ -232,7 +221,6 @@
 
         <div class="status" id="status"></div>
 
-        <!-- 3) ACTIONS -->
         <div class="actions" id="actions">
             <button type="button" class="btn-retry" id="btn-retry">🔄 Try again</button>
             <button type="button" class="btn-home" id="btn-home">🏠 Back to home</button>
@@ -247,18 +235,12 @@
 </div>
 
 <script>
-    // =====================================================
-    // CONFIG
-    // =====================================================
     const HOME_URL    = '/amandapps/';
     const THUMB_DIR   = '/amandapps/thumbs-assets';
     const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
     const NOME_PADRAO = 'Amanfã';
     const NOME_STORAGE_KEY = 'amanfa_player_name';
 
-    // =====================================================
-    // HISTORY
-    // =====================================================
     try {
         history.replaceState({ fimDeJogo: true }, '', location.href);
     } catch (e) {
@@ -270,9 +252,6 @@
         window.location.replace(HOME_URL);
     });
 
-    // =====================================================
-    // READ DATA
-    // =====================================================
     let dados = null;
     try {
         const raw = sessionStorage.getItem('fimDeJogo');
@@ -318,7 +297,6 @@
         elDebugFlag.innerHTML = `flag: <span class="${corClasse}">${texto}</span>`;
     }
 
-    // Sanitize name: only letters, numbers and spaces; max 8 chars
     function sanitizeName(raw) {
         let s = (raw == null) ? '' : String(raw);
         s = s.replace(/[^A-Za-z0-9 ]/g, '');
@@ -326,7 +304,6 @@
         return s;
     }
 
-    // Save the name to localStorage (persists across games)
     function saveName(name) {
         try {
             localStorage.setItem(NOME_STORAGE_KEY, name);
@@ -335,7 +312,6 @@
         }
     }
 
-    // Load stored name (or empty string)
     function loadStoredName() {
         try {
             const stored = localStorage.getItem(NOME_STORAGE_KEY);
@@ -345,9 +321,6 @@
         }
     }
 
-    // =====================================================
-    // RENDER
-    // =====================================================
     if (dados && typeof dados.score === 'number') {
         elScore.textContent = Number(dados.score).toLocaleString('en-US');
         elScore.classList.remove('error');
@@ -357,12 +330,10 @@
         const isHighScore = flag === true;
 
         if (isHighScore) {
-            // Show the name input + send button
             elNameRow.classList.remove('hidden');
             elStatus.textContent = '🏆 You made it to the high score! Insert your name.';
             elStatus.className = 'status ok';
 
-            // Pre-fill with stored name (if any)
             const stored = loadStoredName();
             if (stored) {
                 elNameInput.value = stored;
@@ -420,27 +391,19 @@
         jogoUrl = JOGO_PADRAO_URL;
     }
 
-    // =====================================================
-    // NAME INPUT — live sanitization
-    // =====================================================
     elNameInput.addEventListener('input', () => {
         const clean = sanitizeName(elNameInput.value);
         if (clean !== elNameInput.value) {
             const pos = elNameInput.selectionStart;
             elNameInput.value = clean;
-            // keep cursor roughly in place
             try { elNameInput.setSelectionRange(Math.min(pos, clean.length), Math.min(pos, clean.length)); } catch (e) {}
         }
     });
 
-    // =====================================================
-    // SEND SCORE
-    // =====================================================
     elBtnSend.addEventListener('click', () => {
         const finalName = sanitizeName(elNameInput.value) || NOME_PADRAO;
         saveName(finalName);
 
-        // Persist the name into the fimDeJogo data so other pages can pick it up
         try {
             const updated = Object.assign({}, dados || {}, {
                 nome: finalName,
@@ -456,9 +419,6 @@
         elStatus.className = 'status ok';
     });
 
-    // =====================================================
-    // BUTTONS
-    // =====================================================
     document.getElementById('btn-retry').addEventListener('click', () => {
         try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
         window.location.replace(jogoUrl);

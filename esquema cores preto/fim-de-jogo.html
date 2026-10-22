@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Game Over — Arcade Central</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #eaeaea;
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+            overflow: hidden;
+        }
+
+        /* ===== STAGE ===== */
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* centered image container */
+        .bg-wrap {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 0;
+            background: #000;
+        }
+
+        /* green fallback (test) */
+        .bg-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #00b140;
+            z-index: -1;
+        }
+        .bg-wrap.has-img::before { display: none; }
+
+        .bg-img {
+            height: 100%;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+        }
+        .bg-img.hidden { display: none; }
+
+        /* ===== CONTENT ===== */
+        .content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 1.5rem 1.2rem 1.4rem;
+        }
+
+        /* score box with semi-transparent background */
+        .score-box {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(3px);
+            border-radius: 10px;
+            padding: 0.5rem 1.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .score-label {
+            font-size: 0.7rem;
+            color: #c7cbe0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.1rem;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+        }
+        .score-value {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #f5c518;
+            line-height: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+        }
+        .score-value.error { color: #ff7b8a; font-size: 2rem; }
+
+        /* name input row */
+        .name-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 360px;
+        }
+        .name-row.hidden { display: none; }
+
+        .name-input {
+            flex: 1;
+            min-width: 0;
+            padding: 0.65rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #2a3a5c;
+            background: rgba(22, 33, 62, 0.85);
+            backdrop-filter: blur(4px);
+            color: #eaeaea;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .name-input::placeholder { color: #8a8fa3; font-weight: 400; }
+        .name-input:focus { border-color: #e94560; }
+
+        .btn-send {
+            padding: 0.65rem 0.9rem;
+            border-radius: 8px;
+            border: none;
+            background: #f5c518;
+            color: #111;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.15s, transform 0.1s;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        }
+        .btn-send:hover { opacity: 0.92; }
+        .btn-send:active { transform: scale(0.98); }
+        .btn-send:disabled { opacity: 0.5; cursor: default; }
+
+        .status {
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-height: 1.2em;
+            text-align: center;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+        }
+        .status.ok    { color: #6ee7a8; }
+        .status.error { color: #ff7b8a; }
+        .status.info  { color: #8a8fa3; }
+
+        .actions {
+            display: flex;
+            gap: 0.6rem;
+            width: 100%;
+            max-width: 360px;
+            margin-top: 0.2rem;
+        }
+        .actions button {
+            flex: 1;
+            padding: 0.75rem 0.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+        }
+        .actions button:hover { opacity: 0.92; }
+        .actions button:active { transform: scale(0.98); }
+
+        .btn-retry { background: #e94560; color: #fff; }
+        .btn-home  {
+            background: rgba(22, 33, 62, 0.85);
+            color: #eaeaea;
+            border: 1px solid #2a3a5c !important;
+            backdrop-filter: blur(4px);
+        }
+        .btn-home:hover { border-color: #8a8fa3 !important; }
+
+        .debug-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            margin-top: 0.25rem;
+        }
+        .debug-game-id {
+            font-size: 0.62rem;
+            color: #c7cbe0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            letter-spacing: 0.3px;
+            user-select: all;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+        }
+        .debug-game-id .val-true  { color: #6ee7a8; }
+        .debug-game-id .val-false { color: #ff7b8a; }
+    </style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+    <div class="bg-wrap" id="bg-wrap">
+        <img id="bg-img" class="bg-img" src="" alt="Game image">
+    </div>
+
+    <div class="content" id="content">
+        <!-- 1) SCORE BOX -->
+        <div class="score-box" id="score-box">
+            <div class="score-label">Score</div>
+            <div class="score-value" id="score-value">0</div>
+        </div>
+
+        <!-- 2) NAME INPUT (only when high score) -->
+        <div class="name-row hidden" id="name-row">
+            <input
+                type="text"
+                id="name-input"
+                class="name-input"
+                placeholder="insert your name"
+                maxlength="8"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+            >
+            <button type="button" class="btn-send" id="btn-send">Send Score</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <!-- 3) ACTIONS -->
+        <div class="actions" id="actions">
+            <button type="button" class="btn-retry" id="btn-retry">🔄 Try again</button>
+            <button type="button" class="btn-home" id="btn-home">🏠 Back to home</button>
+        </div>
+
+        <div class="debug-block">
+            <div class="debug-game-id" id="debug-game-id">game_id: —</div>
+            <div class="debug-game-id" id="debug-score">score: —</div>
+            <div class="debug-game-id" id="debug-flag">flag: —</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =====================================================
+    // CONFIG
+    // =====================================================
+    const HOME_URL    = '/amandapps/';
+    const THUMB_DIR   = '/amandapps/thumbs-assets';
+    const JOGO_PADRAO_URL = '/amandapps/teste/index.html';
+    const NOME_PADRAO = 'Amanfã';
+    const NOME_STORAGE_KEY = 'amanfa_player_name';
+
+    // =====================================================
+    // HISTORY
+    // =====================================================
+    try {
+        history.replaceState({ fimDeJogo: true }, '', location.href);
+    } catch (e) {
+        console.warn('[fim-de-jogo] replaceState failed:', e);
+    }
+
+    window.addEventListener('popstate', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.replace(HOME_URL);
+    });
+
+    // =====================================================
+    // READ DATA
+    // =====================================================
+    let dados = null;
+    try {
+        const raw = sessionStorage.getItem('fimDeJogo');
+        if (raw) dados = JSON.parse(raw);
+    } catch (e) {
+        console.warn('[fim-de-jogo] invalid sessionStorage:', e);
+    }
+
+    const elScore        = document.getElementById('score-value');
+    const elStatus       = document.getElementById('status');
+    const content        = document.getElementById('content');
+    const elNameRow      = document.getElementById('name-row');
+    const elNameInput    = document.getElementById('name-input');
+    const elBtnSend      = document.getElementById('btn-send');
+
+    const elDebugId      = document.getElementById('debug-game-id');
+    const elDebugScore   = document.getElementById('debug-score');
+    const elDebugFlag    = document.getElementById('debug-flag');
+
+    const bgWrap         = document.getElementById('bg-wrap');
+    const bgImg          = document.getElementById('bg-img');
+
+    let jogoUrl = JOGO_PADRAO_URL;
+
+    function normalizarFlag(v) {
+        if (v === true  || v === 'true'  || v === 1 || v === '1') return true;
+        if (v === false || v === 'false' || v === 0 || v === '0') return false;
+        return null;
+    }
+
+    function renderDebugFlag(valorBruto) {
+        if (valorBruto === undefined) {
+            elDebugFlag.innerHTML = 'flag: —';
+            return;
+        }
+        const normalizado = normalizarFlag(valorBruto);
+        const texto = normalizado === true  ? 'true'
+                    : normalizado === false ? 'false'
+                    : JSON.stringify(valorBruto);
+        const corClasse = normalizado === true  ? 'val-true'
+                        : normalizado === false ? 'val-false'
+                        : '';
+        elDebugFlag.innerHTML = `flag: <span class="${corClasse}">${texto}</span>`;
+    }
+
+    // Sanitize name: only letters, numbers and spaces; max 8 chars
+    function sanitizeName(raw) {
+        let s = (raw == null) ? '' : String(raw);
+        s = s.replace(/[^A-Za-z0-9 ]/g, '');
+        s = s.slice(0, 8).trim();
+        return s;
+    }
+
+    // Save the name to localStorage (persists across games)
+    function saveName(name) {
+        try {
+            localStorage.setItem(NOME_STORAGE_KEY, name);
+        } catch (e) {
+            console.warn('[fim-de-jogo] could not save name:', e);
+        }
+    }
+
+    // Load stored name (or empty string)
+    function loadStoredName() {
+        try {
+            const stored = localStorage.getItem(NOME_STORAGE_KEY);
+            return stored ? sanitizeName(stored) : '';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+    if (dados && typeof dados.score === 'number') {
+        elScore.textContent = Number(dados.score).toLocaleString('en-US');
+        elScore.classList.remove('error');
+
+        const flagBruta = 'salvouHiscore' in dados ? dados.salvouHiscore : dados.salvo;
+        const flag = normalizarFlag(flagBruta);
+        const isHighScore = flag === true;
+
+        if (isHighScore) {
+            // Show the name input + send button
+            elNameRow.classList.remove('hidden');
+            elStatus.textContent = '🏆 You made it to the high score! Insert your name.';
+            elStatus.className = 'status ok';
+
+            // Pre-fill with stored name (if any)
+            const stored = loadStoredName();
+            if (stored) {
+                elNameInput.value = stored;
+            }
+            elNameInput.focus();
+        } else if (flag === false) {
+            elNameRow.classList.add('hidden');
+            elStatus.textContent = '🔄 Try again';
+            elStatus.className = 'status error';
+        } else {
+            elNameRow.classList.add('hidden');
+            if (dados.salvo) {
+                elStatus.textContent = '✔ Score saved!';
+                elStatus.className = 'status ok';
+            } else {
+                elStatus.textContent = '⚠ Could not save the score.';
+                elStatus.className = 'status error';
+            }
+        }
+
+        const gameId = dados.gameId || 'clickteam';
+        const thumbUrl = `${THUMB_DIR}/${encodeURIComponent(gameId)}end.png`;
+        bgImg.src = thumbUrl;
+        bgImg.alt = `Image of game ${gameId}`;
+        bgImg.onerror = () => {
+            bgImg.classList.add('hidden');
+            bgWrap.classList.remove('has-img');
+            console.warn('[fim-de-jogo] thumb not found:', thumbUrl);
+        };
+        bgImg.onload = () => {
+            bgWrap.classList.add('has-img');
+        };
+
+        elDebugId.textContent    = `game_id: ${gameId}`;
+        elDebugScore.textContent = `score: ${Number(dados.score).toLocaleString('en-US')}`;
+        renderDebugFlag(flagBruta);
+
+        jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
+    } else {
+        content.classList.add('anon');
+        bgImg.classList.add('hidden');
+        bgWrap.classList.remove('has-img');
+
+        elScore.textContent = 'Error';
+        elScore.classList.add('error');
+
+        elNameRow.classList.add('hidden');
+        elStatus.textContent = '⚠ No results found.';
+        elStatus.className = 'status error';
+
+        elDebugId.textContent    = 'game_id: —';
+        elDebugScore.textContent = 'score: —';
+        elDebugFlag.innerHTML    = 'flag: —';
+
+        jogoUrl = JOGO_PADRAO_URL;
+    }
+
+    // =====================================================
+    // NAME INPUT — live sanitization
+    // =====================================================
+    elNameInput.addEventListener('input', () => {
+        const clean = sanitizeName(elNameInput.value);
+        if (clean !== elNameInput.value) {
+            const pos = elNameInput.selectionStart;
+            elNameInput.value = clean;
+            // keep cursor roughly in place
+            try { elNameInput.setSelectionRange(Math.min(pos, clean.length), Math.min(pos, clean.length)); } catch (e) {}
+        }
+    });
+
+    // =====================================================
+    // SEND SCORE
+    // =====================================================
+    elBtnSend.addEventListener('click', () => {
+        const finalName = sanitizeName(elNameInput.value) || NOME_PADRAO;
+        saveName(finalName);
+
+        // Persist the name into the fimDeJogo data so other pages can pick it up
+        try {
+            const updated = Object.assign({}, dados || {}, {
+                nome: finalName,
+                salvouHiscore: true
+            });
+            sessionStorage.setItem('fimDeJogo', JSON.stringify(updated));
+        } catch (e) {
+            console.warn('[fim-de-jogo] could not update sessionStorage:', e);
+        }
+
+        elNameRow.classList.add('hidden');
+        elStatus.textContent = `✔ Score saved as ${finalName}!`;
+        elStatus.className = 'status ok';
+    });
+
+    // =====================================================
+    // BUTTONS
+    // =====================================================
+    document.getElementById('btn-retry').addEventListener('click', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.replace(jogoUrl);
+    });
+
+    document.getElementById('btn-home').addEventListener('click', () => {
+        try { sessionStorage.removeItem('fimDeJogo'); } catch (e) {}
+        window.location.replace(HOME_URL);
+    });
+</script>
+
+</body>
+</html>
