@@ -51,6 +51,7 @@
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/makeupmini.png",
+    "ranking": false
     "ordem": 6
   },
   "meongames": {
@@ -60,6 +61,7 @@
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/meongamesmini.png",
+    "ranking": false
     "ordem": 7
   },
   "punchkick": {
@@ -69,6 +71,7 @@
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/punchkickmini.png",
+    "ranking": false
     "ordem": 8
   },
   "samurai": {
