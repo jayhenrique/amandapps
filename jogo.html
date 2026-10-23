@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Jogo — Arcade Central</title>
+    <title>Game — Arcade Central</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ===== Estilos específicos da página jogo.html ===== */
+        /* ===== Styles specific to jogo.html ===== */
         .game-layout {
             display: grid;
             grid-template-columns: 320px 1fr;
@@ -45,12 +45,9 @@
 
         .col-info { width: 100%; display: flex; flex-direction: column; }
 
-        .game-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-            color: var(--text);
+        /* Título do jogo — um pouco maior que o .section-title padrão */
+        .col-info .section-title {
+            font-size: 1.45rem;
         }
 
         .descricao {
@@ -115,38 +112,13 @@
             margin-bottom: 0.3rem;
         }
 
-        .btn-sair {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.55rem 1.6rem;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            transition: background 0.15s, transform 0.12s, color 0.15s;
-            text-decoration: none;
-            width: 100%;
-            max-width: 320px;
-        }
-        .btn-sair:hover {
-            background: var(--accent);
-            color: #fff5f8;
-            text-decoration: none;
-            transform: translateY(-1px);
-        }
-        .btn-sair:active { transform: translateY(0); }
-
         @media (max-width: 720px) {
             .col-info { align-items: center; text-align: center; }
             .descricao { text-align: left; }
             .playing-as { justify-content: center; }
         }
 
-        /* ===== Ranking ===== */
+        /* ===== Leaderboard ===== */
         .lb {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -188,10 +160,21 @@
         <a class="logo" href="/amandapps/" title="Go to home" aria-label="Go to home">
             <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
         </a>
+        <div class="header-right">
+            <div class="user-area">
+                <button class="btn-reload" id="btn-back" title="Back to home" aria-label="Back to home">
+                    <img src="thumbs-assets/icon-back.png" alt="Back"
+                         onerror="this.style.display='none';this.parentNode.textContent='←';">
+                </button>
+                <button class="btn-reload" id="btn-reload" title="Reload page" aria-label="Reload page">
+                    <img src="thumbs-assets/icon-reload.png" alt="Reload">
+                </button>
+            </div>
+        </div>
     </header>
 
     <div class="container" id="conteudo">
-        <p style="color:var(--text-dim);">Carregando...</p>
+        <p style="color:var(--text-dim);">Loading...</p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -258,7 +241,7 @@
             const verticais   = ['v', 'vert', 'vertical', 'portrait', 'retrato', 'tall', '9:16'];
             if (horizontais.some(v => valor === v || valor.includes(v))) return 'h';
             if (verticais.some(v => valor === v || valor.includes(v)))   return 'v';
-            console.warn('[jogo] valor de orientação desconhecido:', valor, '— usando padrão (vertical)');
+            console.warn('[game] unknown orientation value:', valor, '— using default (vertical)');
             return 'v';
         }
 
@@ -267,7 +250,7 @@
                 localStorage.setItem('decimo_score', String(valor));
                 localStorage.setItem('decimo_score_game', String(gameId || ''));
             } catch (e) {
-                console.warn('[jogo] localStorage indisponível:', e);
+                console.warn('[game] localStorage unavailable:', e);
             }
             window.DECIMO_SCORE = valor;
 
@@ -289,9 +272,9 @@
                 `;
                 document.querySelector('.container').appendChild(dbg);
             }
-            dbg.textContent = `DEBUG → 10º colocado (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('pt-BR')} (raw: ${valor})`;
+            dbg.textContent = `DEBUG → 10th place (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('en-US')} (raw: ${valor})`;
 
-            console.log('[jogo] 10º colocado salvo em localStorage:', valor, 'game_id:', gameId);
+            console.log('[game] 10th place saved to localStorage:', valor, 'game_id:', gameId);
         }
 
         async function carregar() {
@@ -306,15 +289,15 @@
                         info = all[gameId] || null;
                     }
                 } catch (e) {
-                    console.warn('[jogo] não foi possível carregar jogos-info.json:', e);
+                    console.warn('[game] could not load jogos-info.json:', e);
                 }
             }
 
             const dados = {
-                titulo:    info?.titulo    || 'Jogo Desconhecido',
-                descricao: info?.descricao || 'Este jogo ainda não possui descrição disponível. Mas você pode jogar e se divertir mesmo assim!',
+                titulo:    info?.titulo    || 'Unknown Game',
+                descricao: info?.descricao || 'This game has no description yet. But you can play and have fun anyway!',
                 categoria: info?.categoria || '',
-                controles: info?.controles || 'Use o mouse e o teclado para jogar.',
+                controles: info?.controles || 'Use the mouse and keyboard to play.',
                 autor:     info?.autor     || ''
             };
 
@@ -329,7 +312,7 @@
                 ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
 
-            console.log('[jogo] gameId:', gameId, '| orientação:', orientacao, '| página:', paginaJogo);
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| page:', paginaJogo);
 
             const nomeJogador = escapeHTML(getPlayerName());
 
@@ -343,37 +326,36 @@
                     </div>
 
                     <div class="col-info">
-                        <h1 class="game-title">${escapeHTML(dados.titulo)}</h1>
+                        <h2 class="section-title">${escapeHTML(dados.titulo)}</h2>
                         <p class="descricao">${escapeHTML(dados.descricao)}</p>
-
-                        <div class="playing-as">
-                            🎮 Playing as <strong>${nomeJogador}</strong>
-                            <a href="${HOME_URL}#perfil">change</a>
-                        </div>
 
                         <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
 
                         <div class="como-jogar">
-                            <strong>Como jogar</strong>
+                            <strong>How to play</strong>
                             ${escapeHTML(dados.controles)}
                         </div>
-
-                        <a class="btn-sair" href="${HOME_URL}">SAIR</a>
                     </div>
                 </div>
 
-                <h2 class="section-title">Melhores pontuações</h2>
+                <h2 class="section-title">Best scores</h2>
+
+                <div class="playing-as">
+                    Playing as <strong>${nomeJogador}</strong>
+                    <a href="${HOME_URL}#perfil">change</a>
+                </div>
+
                 <div class="lb">
                     <table>
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Jogador</th>
-                                <th style="text-align:right;">Pontos</th>
+                                <th>Player</th>
+                                <th style="text-align:right;">Score</th>
                             </tr>
                         </thead>
                         <tbody id="lb-body">
-                            <tr><td colspan="3" class="empty">Carregando...</td></tr>
+                            <tr><td colspan="3" class="empty">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -385,7 +367,7 @@
                 thumbImg.onerror = () => {
                     thumbWrap.classList.add('error');
                     thumbImg.removeAttribute('src');
-                    console.warn('[jogo] thumb não encontrada:', thumbUrl);
+                    console.warn('[game] thumb not found:', thumbUrl);
                 };
             } else {
                 thumbWrap.classList.add('error');
@@ -399,7 +381,7 @@
             if (!tbody) return;
 
             if (!gameId) {
-                tbody.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma pontuação disponível.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">No scores available.</td></tr>`;
                 definirDecimoValor(0, '');
                 return;
             }
@@ -412,14 +394,14 @@
                 .limit(10);
 
             if (error) {
-                console.error('[jogo] erro ao buscar leaderboard:', error);
-                tbody.innerHTML = `<tr><td colspan="3" class="empty">Erro ao carregar pontuações.</td></tr>`;
+                console.error('[game] error fetching leaderboard:', error);
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">Error loading scores.</td></tr>`;
                 definirDecimoValor(0, gameId);
                 return;
             }
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="empty">Nenhuma pontuação ainda. Seja o primeiro!</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">No scores yet. Be the first!</td></tr>`;
                 definirDecimoValor(0, gameId);
                 return;
             }
@@ -428,7 +410,7 @@
                 <tr>
                     <td class="rank">${i + 1}</td>
                     <td class="player">${escapeHTML(row.player_name || NOME_PADRAO)}</td>
-                    <td class="score">${Number(row.score).toLocaleString('pt-BR')}</td>
+                    <td class="score">${Number(row.score).toLocaleString('en-US')}</td>
                 </tr>
             `).join('');
 
@@ -436,7 +418,15 @@
             definirDecimoValor(valorDecimo, gameId);
         }
 
-        document.addEventListener('DOMContentLoaded', carregar);
+        document.addEventListener('DOMContentLoaded', () => {
+            carregar();
+
+            document.getElementById('btn-back').addEventListener('click', () => {
+                window.location.href = HOME_URL;
+            });
+
+            document.getElementById('btn-reload').addEventListener('click', () => location.reload());
+        });
     </script>
 
 </body>

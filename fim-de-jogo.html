@@ -77,14 +77,12 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             margin-bottom: 0.1rem;
-            text-shadow: 0 1px 4px rgba(255, 243, 207, 0.9);
         }
         .score-value {
             font-size: 2.6rem;
             font-weight: 800;
             color: var(--gold);
             line-height: 1;
-            text-shadow: 0 2px 10px rgba(255, 243, 207, 0.9);
         }
         .score-value.error { color: var(--accent); font-size: 2rem; }
 
@@ -137,7 +135,6 @@
             font-weight: 600;
             min-height: 1.2em;
             text-align: center;
-            text-shadow: 0 1px 4px rgba(255, 243, 207, 0.9);
         }
         .status.ok    { color: #2e7d32; }
         .status.error { color: var(--accent); }
@@ -186,7 +183,6 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             letter-spacing: 0.3px;
             user-select: all;
-            text-shadow: 0 1px 3px rgba(255, 243, 207, 0.9);
         }
         .debug-game-id .val-true  { color: #2e7d32; }
         .debug-game-id .val-false { color: var(--accent); }
@@ -374,19 +370,32 @@
         jogoUrl = dados.jogoUrl || JOGO_PADRAO_URL;
     } else {
         content.classList.add('anon');
-        bgImg.classList.add('hidden');
-        bgWrap.classList.remove('has-img');
 
-        elScore.textContent = 'Error';
-        elScore.classList.add('error');
+        // Fallback: mostra um score fictício e uma imagem de teste, sem erros
+        elScore.textContent = Number(12345).toLocaleString('en-US');
+        elScore.classList.remove('error');
 
         elNameRow.classList.add('hidden');
-        elStatus.textContent = '⚠ No results found.';
-        elStatus.className = 'status error';
+        elStatus.textContent = '🎮 Demo';
+        elStatus.className = 'status info';
 
-        elDebugId.textContent    = 'game_id: —';
-        elDebugScore.textContent = 'score: —';
+        elDebugId.textContent    = 'game_id: teste';
+        elDebugScore.textContent = 'score: 12,345';
         elDebugFlag.innerHTML    = 'flag: —';
+
+        // Carrega a imagem de teste da pasta thumbs
+        const thumbTeste = `${THUMB_DIR}/teste.png`;
+        bgImg.src = thumbTeste;
+        bgImg.alt = 'Test image';
+        bgImg.classList.remove('hidden');
+        bgImg.onerror = () => {
+            bgImg.classList.add('hidden');
+            bgWrap.classList.remove('has-img');
+            console.warn('[fim-de-jogo] test thumb not found:', thumbTeste);
+        };
+        bgImg.onload = () => {
+            bgWrap.classList.add('has-img');
+        };
 
         jogoUrl = JOGO_PADRAO_URL;
     }

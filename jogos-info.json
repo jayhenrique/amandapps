@@ -44,6 +44,15 @@
     "thumb": "thumbs-assets/doubledragmini.png",
     "ordem": 5
   },
+  "doubledrag": {
+    "titulo": "MakeUP Rush",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/makeupmini.png",
+    "ordem": 6
+  },
   "samurai": {
     "titulo": "Samurai Flash",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
@@ -52,7 +61,7 @@
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/samuraimini.png",
     "orientacao": "h",
-    "ordem": 6
+    "ordem": 7
   },
   "teste": {
     "titulo": "Jogo de Teste",
