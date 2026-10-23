@@ -62,6 +62,16 @@
     "thumb": "thumbs-assets/meongamesmini.png",
     "ordem": 7
   },
+
+  "punchkick": {
+    "titulo": "Punchin and Kickin",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/punchkickmini.png",
+    "ordem": 7
+  },
   "samurai": {
     "titulo": "Samurai Flash",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
@@ -70,7 +80,7 @@
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/samuraimini.png",
     "orientacao": "h",
-    "ordem": 8
+    "ordem": 9
   },
   "teste": {
     "titulo": "Jogo de Teste",
