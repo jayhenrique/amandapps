@@ -15,8 +15,16 @@
             width: 100%;
             margin-bottom: 2rem;
         }
+
+        /* Mobile "normal" (não rotacionado) → 1 coluna */
         @media (max-width: 720px) {
             .game-layout { grid-template-columns: 1fr; gap: 1.2rem; }
+        }
+
+        /* Mobile em modo landscape forçado → layout de desktop (2 colunas) */
+        html.rotate-force .game-layout {
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
         }
 
         .col-image { width: 100%; display: flex; justify-content: center; }
@@ -156,6 +164,16 @@
             .orientation-warning { text-align: left; }
         }
 
+        /* Quando rotacionado, resetar os efeitos do mobile portrait */
+        html.rotate-force .col-info {
+            align-items: stretch;
+            text-align: left;
+        }
+        html.rotate-force .descricao { text-align: left; }
+        html.rotate-force .playing-as { justify-content: flex-start; }
+        html.rotate-force .orientation-warning { text-align: left; }
+        html.rotate-force .btn-play { width: 100%; max-width: 320px; }
+
         /* ===== Leaderboard ===== */
         .lb {
             background: var(--bg-card);
@@ -191,41 +209,37 @@
             padding: 1.5rem;
         }
 
-        /* ===== NOVO: rotação forçada da página em mobile landscape ===== */
+        /* ===== Rotação forçada da página em mobile landscape ===== */
         html.rotate-force,
         html.rotate-force body {
             overflow: hidden !important;
             height: 100%;
             width: 100%;
-            position: fixed;
-            inset: 0;
+            margin: 0;
+            padding: 0;
+            background: var(--bg, #1a1114);
         }
+
         html.rotate-force #page-rotate-wrapper {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vh;      /* largura = altura do viewport (após girar) */
-            height: 100vw;     /* altura = largura do viewport */
+            /* width/height reais são definidos via JS em px */
             transform-origin: top left;
+            /* gira 90° no sentido horário e puxa para dentro da tela */
             transform: rotate(90deg) translateY(-100%);
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             background: var(--bg, #1a1114);
             z-index: 9999;
-        }
-        /* Em iOS antigo pode precisar de fallback; moderno usa vh/vw */
-        @supports (height: 100dvh) {
-            html.rotate-force #page-rotate-wrapper {
-                width: 100dvh;
-                height: 100dvw;
-            }
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
 
-    <!-- NOVO: wrapper que será rotacionado -->
+    <!-- Wrapper que será rotacionado -->
     <div id="page-rotate-wrapper">
         <header>
             <a class="logo" href="/amandapps/" title="Go to home" aria-label="Go to home">
@@ -386,36 +400,53 @@
             console.log('[game] 10th place saved to localStorage:', valor, 'game_id:', gameId);
         }
 
-        // ===== NOVO: controle da rotação forçada da página =====
-        // Aplica rotação somente quando:
-        //   - é mobile
-        //   - o jogo é landscape
-        //   - o dispositivo está em portrait (para forçar a UI a ficar "deitada")
-        // Quando o device já está em landscape, o browser já mostra a página "deitada"
-        // e não precisamos de transform.
+        // ===== NOVO: aplica o wrapper rotacionado com dimensões medidas em px =====
+        // Usa window.innerWidth/innerHeight porque 100vh/100vw no mobile podem
+        // incluir a área atrás da URL bar e cortar o conteúdo.
+        // Também considera visualViewport quando disponível (iOS Safari).
+        function medirViewportReal() {
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            if (window.visualViewport) {
+                // visualViewport reflete a área realmente visível
+                w = Math.round(window.visualViewport.width);
+                h = Math.round(window.visualViewport.height);
+            }
+            return { w, h };
+        }
+
         function aplicarRotacaoForcada() {
             const html = document.documentElement;
+            const wrapper = document.getElementById('page-rotate-wrapper');
+            if (!wrapper) return;
+
             const deveRotacionar = (_playState.isMobile
                 && _playState.orientacao === 'h'
                 && !estaEmLandscape());
 
             const jaRotacionado = html.classList.contains('rotate-force');
 
-            if (deveRotacionar && !jaRotacionado) {
-                // reset scroll antes de rotacionar (evita glitch)
-                window.scrollTo(0, 0);
-                html.classList.add('rotate-force');
-                console.log('[game] forced rotation ON (portrait + landscape game)');
-            } else if (!deveRotacionar && jaRotacionado) {
+            if (deveRotacionar) {
+                const { w, h } = medirViewportReal();
+                // em portrait: w < h. Após girar 90°, o wrapper terá
+                // largura = h (altura original) e altura = w (largura original)
+                wrapper.style.width  = h + 'px';
+                wrapper.style.height = w + 'px';
+
+                if (!jaRotacionado) {
+                    window.scrollTo(0, 0);
+                    html.classList.add('rotate-force');
+                    console.log('[game] forced rotation ON', { w, h });
+                }
+            } else if (jaRotacionado) {
+                wrapper.style.width  = '';
+                wrapper.style.height = '';
                 html.classList.remove('rotate-force');
-                // restaura scroll após remover rotação
                 requestAnimationFrame(() => window.scrollTo(0, 0));
                 console.log('[game] forced rotation OFF');
             }
         }
 
-        // NOVO: tenta travar a orientação nativa quando o jogo é landscape
-        // (bônus — só funciona em fullscreen, senão é no-op silencioso)
         async function tentarTravarOrientacao() {
             if (!_playState.isMobile || _playState.orientacao !== 'h') return;
             if (!window.screen || !window.screen.orientation || typeof window.screen.orientation.lock !== 'function') return;
@@ -423,7 +454,6 @@
                 await window.screen.orientation.lock('landscape');
                 console.log('[game] screen.orientation.lock("landscape") OK');
             } catch (e) {
-                // Esperado na maioria dos casos fora de fullscreen — silencioso
                 console.log('[game] screen.orientation.lock skipped (needs fullscreen):', e.message || e);
             }
         }
@@ -452,7 +482,6 @@
                 btn.setAttribute('href', _playState.url);
             }
 
-            // NOVO: sincroniza rotação visual da página
             aplicarRotacaoForcada();
 
             console.log('[game] play state — mobile:', _playState.isMobile,
@@ -604,7 +633,6 @@
             const handler = () => {
                 setTimeout(() => {
                     atualizarEstadoPlay();
-                    // tenta lock de orientação nativo após primeira rotação do usuário
                     tentarTravarOrientacao();
                 }, 100);
             };
@@ -615,6 +643,15 @@
             if (window.screen && window.screen.orientation &&
                 typeof window.screen.orientation.addEventListener === 'function') {
                 window.screen.orientation.addEventListener('change', handler);
+            }
+
+            // NOVO: re-mede quando o visualViewport mudar (URL bar / teclado)
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    if (document.documentElement.classList.contains('rotate-force')) {
+                        aplicarRotacaoForcada();
+                    }
+                });
             }
 
             document.addEventListener('click', (e) => {
