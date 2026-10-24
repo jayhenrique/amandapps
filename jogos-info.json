@@ -83,7 +83,19 @@
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/samuraimini.png",
     "orientacao": "h",
+    "ranking": false,
     "ordem": 9
+  },
+  "spikes": {
+    "titulo": "Spikes on High Heels",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/samuraimini.png",
+    "orientacao": "h",
+    "ranking": false,
+    "ordem": 10
   },
   "teste": {
     "titulo": "Jogo de Teste",
