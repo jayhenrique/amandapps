@@ -45,7 +45,6 @@
 
         .col-info { width: 100%; display: flex; flex-direction: column; }
 
-        /* Título do jogo — um pouco maior que o .section-title padrão */
         .col-info .section-title {
             font-size: 1.45rem;
         }
@@ -82,11 +81,13 @@
             font-size: 1.1rem;
             letter-spacing: 0.5px;
             box-shadow: 0 10px 30px rgba(215, 33, 106, 0.35);
-            transition: transform 0.12s, box-shadow 0.12s;
+            transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s;
             text-decoration: none;
             width: 100%;
             max-width: 320px;
             margin-bottom: 1rem;
+            border: none;
+            cursor: pointer;
         }
         .btn-play:hover {
             transform: translateY(-2px);
@@ -94,6 +95,18 @@
             text-decoration: none;
         }
         .btn-play:active { transform: translateY(0); }
+
+        /* NOVO: estado desabilitado do botão PLAY */
+        .btn-play[disabled],
+        .btn-play.disabled {
+            background: #6b6b6b;
+            color: #d0d0d0;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.65;
+            pointer-events: none;
+            transform: none;
+        }
 
         .como-jogar {
             width: 100%;
@@ -220,6 +233,14 @@
         const NOME_STORAGE_KEY = 'amanfa_player_name';
         const NOME_PADRAO = 'Amanfã';
 
+        // Estado global do play (para o handler de clique / orientation change)
+        let _playState = {
+            url: '#',
+            orientacao: 'v',
+            isMobile: false,
+            blocked: false
+        };
+
         function sanitizeName(raw) {
             let s = (raw == null) ? '' : String(raw);
             s = s.replace(/[^A-Za-z0-9 ]/g, '');
@@ -271,22 +292,32 @@
             return 'v';
         }
 
-        // NOVO: detecta se é dispositivo móvel (celular/tablet)
-        // Combina pointer coarse + UA mobile + touch, para não pegar desktop com touch
+        // Detecta se é dispositivo móvel (celular/tablet)
         function ehDispositivoMovel() {
-            // pointer: coarse = entrada primária é dedo (celular/tablet)
             const coarsePointer = window.matchMedia
                 ? window.matchMedia('(pointer: coarse)').matches
                 : false;
-            // UA mobile clássico
             const uaMobile = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile|BlackBerry|Kindle|Silk/i
                 .test(navigator.userAgent || '');
-            // touch + tela pequena reforça mobile (evita Surface/book com touch)
             const touchSmall = ('ontouchstart' in window) && window.innerWidth <= 1024;
             return uaMobile || (coarsePointer && touchSmall);
         }
 
-        // NOVO: verifica se o jogo tem ranking habilitado (padrão = true)
+        // NOVO: detecta se o dispositivo está fisicamente em landscape
+        function estaEmLandscape() {
+            // screen.orientation é mais confiável em mobile moderno
+            if (window.screen && window.screen.orientation && typeof window.screen.orientation.type === 'string') {
+                return window.screen.orientation.type.indexOf('landscape') === 0;
+            }
+            // fallback clássico
+            if (typeof window.orientation === 'number') {
+                return Math.abs(window.orientation) === 90;
+            }
+            // último fallback: proporção da janela
+            return window.innerWidth > window.innerHeight;
+        }
+
+        // Verifica se o jogo tem ranking habilitado (padrão = true)
         function jogoTemRanking(info) {
             if (!info) return true;
             if (info.ranking === false) return false;
@@ -329,6 +360,41 @@
             console.log('[game] 10th place saved to localStorage:', valor, 'game_id:', gameId);
         }
 
+        // NOVO: aplica estado de bloqueio/liberação ao botão PLAY
+        // Regras:
+        //   - Se NÃO for mobile: sempre liberado
+        //   - Se for mobile e jogo vertical: sempre liberado
+        //   - Se for mobile e jogo horizontal: só liberado em landscape físico
+        function atualizarEstadoPlay() {
+            const btn = document.getElementById('btn-play');
+            if (!btn) return;
+
+            const precisaLandscape = (_playState.isMobile && _playState.orientacao === 'h');
+            const emLandscape = estaEmLandscape();
+            const bloqueado = precisaLandscape && !emLandscape;
+
+            _playState.blocked = bloqueado;
+
+            if (bloqueado) {
+                btn.setAttribute('disabled', 'disabled');
+                btn.classList.add('disabled');
+                btn.setAttribute('aria-disabled', 'true');
+                btn.textContent = '🔒 Rotate to landscape';
+                btn.removeAttribute('href');
+            } else {
+                btn.removeAttribute('disabled');
+                btn.classList.remove('disabled');
+                btn.removeAttribute('aria-disabled');
+                btn.textContent = '▶ PLAY';
+                btn.setAttribute('href', _playState.url);
+            }
+
+            console.log('[game] play state — mobile:', _playState.isMobile,
+                        '| game orientation:', _playState.orientacao,
+                        '| screen landscape:', emLandscape,
+                        '| blocked:', bloqueado);
+        }
+
         async function carregar() {
             const gameId = getGameIdFromURL();
 
@@ -365,12 +431,23 @@
                 ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
 
-            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', ehDispositivoMovel(), '| page:', paginaJogo);
+            const isMobile = ehDispositivoMovel();
+
+            // Atualiza estado global do play
+            _playState = {
+                url: playUrl,
+                orientacao: orientacao,
+                isMobile: isMobile,
+                blocked: false
+            };
+
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao,
+                        '| ranking:', temRanking, '| mobile:', isMobile, '| page:', paginaJogo);
 
             const nomeJogador = escapeHTML(getPlayerName());
 
-            // NOVO: aviso de orientação apenas em mobile e apenas se landscape
-            const avisoOrientacaoHTML = (orientacao === 'h' && ehDispositivoMovel()) ? `
+            // Aviso de orientação apenas em mobile e apenas se landscape
+            const avisoOrientacaoHTML = (orientacao === 'h' && isMobile) ? `
                 <div class="orientation-warning">
                     <span class="ow-icon">📱↔️</span>
                     <span>
@@ -380,7 +457,6 @@
                 </div>
             ` : '';
 
-            // Bloco do ranking (só aparece se ranking !== false)
             const rankingHTML = temRanking ? `
                 <h2 class="section-title">Best scores</h2>
 
@@ -420,7 +496,7 @@
 
                         ${avisoOrientacaoHTML}
 
-                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
+                        <a class="btn-play" id="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
 
                         <div class="como-jogar">
                             <strong>How to play</strong>
@@ -444,12 +520,49 @@
                 thumbWrap.classList.add('error');
             }
 
+            // Aplica estado inicial do botão (pode nascer já bloqueado)
+            atualizarEstadoPlay();
+
+            // Registra listeners de mudança de orientação
+            registrarListenersOrientacao();
+
             if (temRanking) {
                 await carregarLeaderboard(gameId);
             } else {
                 console.log('[game] ranking disabled for this game — skipping leaderboard load');
                 definirDecimoValor(0, gameId || '');
             }
+        }
+
+        // NOVO: listeners para detectar rotação do celular
+        let _orientationListenersRegistrados = false;
+        function registrarListenersOrientacao() {
+            if (_orientationListenersRegistrados) return;
+            _orientationListenersRegistrados = true;
+
+            const handler = () => {
+                // pequeno delay para o browser atualizar innerWidth/innerHeight
+                setTimeout(atualizarEstadoPlay, 100);
+            };
+
+            window.addEventListener('orientationchange', handler);
+            window.addEventListener('resize', handler);
+
+            if (window.screen && window.screen.orientation &&
+                typeof window.screen.orientation.addEventListener === 'function') {
+                window.screen.orientation.addEventListener('change', handler);
+            }
+
+            // Bloqueia clique se estiver bloqueado (safety net, já que removemos href)
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest && e.target.closest('#btn-play');
+                if (!btn) return;
+                if (_playState.blocked) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.warn('[game] play blocked — device is in portrait, game requires landscape');
+                }
+            }, true);
         }
 
         async function carregarLeaderboard(gameId) {
