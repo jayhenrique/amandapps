@@ -34,13 +34,13 @@ header {
   top: 0;
   z-index: 50;
   background: #d7216a;
-  border-bottom: 3px solid var(--accent2);
-  padding: 1.2rem 2rem;
+  border-bottom: 2px solid var(--accent2);
+  padding: 0.45rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.5rem;
   color: #fff5f8;
 }
 
@@ -52,49 +52,50 @@ header {
   transition: opacity 0.15s, transform 0.15s;
 }
 .logo:hover { opacity: 0.85; transform: scale(1.02); text-decoration: none; }
-.logo img { height: 42px; width: auto; display: block; }
+.logo img { height: 32px; width: auto; display: block; }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
   margin-left: auto;
 }
 
-.user-area { display: flex; align-items: center; gap: 0.35rem; font-size: 0.9rem; }
+.user-area { display: flex; align-items: center; gap: 0.3rem; font-size: 0.82rem; }
 .user-area .user-pill {
   background: #a8144f;
   color: #fff5f8;
-  padding: 0.3rem 0.7rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 999px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   cursor: pointer;
+  font-size: 0.82rem;
 }
 
 /* ---- Ícones sociais ---- */
 .social-links {
   display: flex;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.1rem;
 }
 .social-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   transition: opacity 0.15s, transform 0.15s;
   text-decoration: none;
 }
 .social-links a:hover { opacity: 0.8; transform: scale(1.08); text-decoration: none; }
 .social-links img {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   display: block;
   object-fit: contain;
 }
@@ -102,8 +103,8 @@ header {
 .btn-reload {
   background: transparent;
   border: none;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
@@ -115,15 +116,15 @@ header {
 .btn-reload:hover { opacity: 0.8; }
 .btn-reload:active { transform: rotate(180deg); }
 .btn-reload img {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: block;
   object-fit: contain;
 }
 
 /* ---------- Container ---------- */
 .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
-.anchor-target { scroll-margin-top: 100px; }
+.anchor-target { scroll-margin-top: 70px; }
 
 /* ---------- Section title (Baloo 2) ---------- */
 .section-title {
@@ -436,10 +437,10 @@ footer {
 @media (max-width: 600px) {
   header {
     flex-direction: row; align-items: center; flex-wrap: nowrap;
-    padding: 0.9rem 1rem; gap: 0.6rem;
+    padding: 0.35rem 0.75rem; gap: 0.4rem;
   }
-  .logo img { height: 34px; }
-  .header-right { gap: 0.3rem; margin-left: auto; flex-wrap: nowrap; }
+  .logo img { height: 28px; }
+  .header-right { gap: 0.25rem; margin-left: auto; flex-wrap: nowrap; }
   .container { padding: 1.2rem 1rem; }
   .name-card { flex-direction: column; align-items: flex-start; text-align: left; }
   .name-details h3 { font-size: 1.5rem; }
@@ -449,12 +450,12 @@ footer {
   .game-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
 
   .social-links { gap: 0.05rem; }
-  .social-links a { width: 24px; height: 24px; }
-  .social-links img { width: 20px; height: 20px; }
+  .social-links a { width: 22px; height: 22px; }
+  .social-links img { width: 18px; height: 18px; }
 
-  .btn-reload { width: 28px; height: 28px; }
-  .btn-reload img { width: 22px; height: 22px; }
-  .user-area .user-pill { font-size: 0.8rem; padding: 0.28rem 0.6rem; }
+  .btn-reload { width: 26px; height: 26px; }
+  .btn-reload img { width: 20px; height: 20px; }
+  .user-area .user-pill { font-size: 0.76rem; padding: 0.18rem 0.5rem; }
 
   .pwa-reminder { font-size: 0.82rem; padding: 0.75rem 1rem; }
   .pwa-reminder .pwa-sub { font-size: 0.75rem; }
