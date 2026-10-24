@@ -70,6 +70,7 @@
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/punchkickmini.png",
+    "ranking": false,
     "ordem": 7
   },
   "samurai": {

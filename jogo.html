@@ -112,10 +112,36 @@
             margin-bottom: 0.3rem;
         }
 
+        /* ===== Landscape orientation warning ===== */
+        .orientation-warning {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            width: 100%;
+            max-width: 320px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            background: rgba(215, 33, 106, 0.12);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        .orientation-warning .ow-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .orientation-warning strong {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
         @media (max-width: 720px) {
             .col-info { align-items: center; text-align: center; }
             .descricao { text-align: left; }
             .playing-as { justify-content: center; }
+            .orientation-warning { text-align: left; }
         }
 
         /* ===== Leaderboard ===== */
@@ -245,6 +271,17 @@
             return 'v';
         }
 
+        // NOVO: verifica se o jogo tem ranking habilitado (padrão = true)
+        function jogoTemRanking(info) {
+            if (!info) return true;
+            if (info.ranking === false) return false;
+            if (typeof info.ranking === 'string') {
+                const v = info.ranking.toLowerCase().trim();
+                if (v === 'false' || v === '0' || v === 'no' || v === 'nao' || v === 'não') return false;
+            }
+            return true;
+        }
+
         function definirDecimoValor(valor, gameId) {
             try {
                 localStorage.setItem('decimo_score', String(valor));
@@ -303,6 +340,7 @@
 
             const orientacao = obterOrientacao(info);
             const paginaJogo = (orientacao === 'h') ? JOGO_INSIDE_H_URL : JOGO_INSIDE_URL;
+            const temRanking = jogoTemRanking(info);
 
             const thumbUrl = gameId
                 ? `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`
@@ -312,32 +350,23 @@
                 ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
 
-            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| page:', paginaJogo);
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| page:', paginaJogo);
 
             const nomeJogador = escapeHTML(getPlayerName());
 
-            document.getElementById('conteudo').innerHTML = `
-                <div class="game-layout">
-                    <div class="col-image">
-                        <div class="thumb-wrap" id="thumb-wrap">
-                            ${thumbUrl ? `<img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">` : ''}
-                            <div class="thumb-fallback">🎮</div>
-                        </div>
-                    </div>
-
-                    <div class="col-info">
-                        <h2 class="section-title">${escapeHTML(dados.titulo)}</h2>
-                        <p class="descricao">${escapeHTML(dados.descricao)}</p>
-
-                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
-
-                        <div class="como-jogar">
-                            <strong>How to play</strong>
-                            ${escapeHTML(dados.controles)}
-                        </div>
-                    </div>
+            // NOVO: bloco de aviso de orientação (só aparece se for landscape)
+            const avisoOrientacaoHTML = (orientacao === 'h') ? `
+                <div class="orientation-warning">
+                    <span class="ow-icon">📱↔️</span>
+                    <span>
+                        This game is in <strong>landscape</strong> mode.
+                        Unlock your phone's auto-rotate and rotate it to play properly.
+                    </span>
                 </div>
+            ` : '';
 
+            // NOVO: bloco do ranking (só aparece se ranking !== false)
+            const rankingHTML = temRanking ? `
                 <h2 class="section-title">Best scores</h2>
 
                 <div class="playing-as">
@@ -359,6 +388,33 @@
                         </tbody>
                     </table>
                 </div>
+            ` : '';
+
+            document.getElementById('conteudo').innerHTML = `
+                <div class="game-layout">
+                    <div class="col-image">
+                        <div class="thumb-wrap" id="thumb-wrap">
+                            ${thumbUrl ? `<img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">` : ''}
+                            <div class="thumb-fallback">🎮</div>
+                        </div>
+                    </div>
+
+                    <div class="col-info">
+                        <h2 class="section-title">${escapeHTML(dados.titulo)}</h2>
+                        <p class="descricao">${escapeHTML(dados.descricao)}</p>
+
+                        ${avisoOrientacaoHTML}
+
+                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
+
+                        <div class="como-jogar">
+                            <strong>How to play</strong>
+                            ${escapeHTML(dados.controles)}
+                        </div>
+                    </div>
+                </div>
+
+                ${rankingHTML}
             `;
 
             const thumbImg = document.getElementById('thumb-img');
@@ -373,7 +429,14 @@
                 thumbWrap.classList.add('error');
             }
 
-            await carregarLeaderboard(gameId);
+            // NOVO: só carrega leaderboard se o jogo tiver ranking
+            if (temRanking) {
+                await carregarLeaderboard(gameId);
+            } else {
+                console.log('[game] ranking disabled for this game — skipping leaderboard load');
+                // opcional: ainda define o décimo valor como 0 para não ficar "stale"
+                definirDecimoValor(0, gameId || '');
+            }
         }
 
         async function carregarLeaderboard(gameId) {
