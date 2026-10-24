@@ -112,7 +112,7 @@
             margin-bottom: 0.3rem;
         }
 
-        /* ===== Landscape orientation warning ===== */
+        /* ===== Landscape orientation warning (mobile only) ===== */
         .orientation-warning {
             display: flex;
             align-items: center;
@@ -271,6 +271,21 @@
             return 'v';
         }
 
+        // NOVO: detecta se é dispositivo móvel (celular/tablet)
+        // Combina pointer coarse + UA mobile + touch, para não pegar desktop com touch
+        function ehDispositivoMovel() {
+            // pointer: coarse = entrada primária é dedo (celular/tablet)
+            const coarsePointer = window.matchMedia
+                ? window.matchMedia('(pointer: coarse)').matches
+                : false;
+            // UA mobile clássico
+            const uaMobile = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile|BlackBerry|Kindle|Silk/i
+                .test(navigator.userAgent || '');
+            // touch + tela pequena reforça mobile (evita Surface/book com touch)
+            const touchSmall = ('ontouchstart' in window) && window.innerWidth <= 1024;
+            return uaMobile || (coarsePointer && touchSmall);
+        }
+
         // NOVO: verifica se o jogo tem ranking habilitado (padrão = true)
         function jogoTemRanking(info) {
             if (!info) return true;
@@ -350,12 +365,12 @@
                 ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
 
-            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| page:', paginaJogo);
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', ehDispositivoMovel(), '| page:', paginaJogo);
 
             const nomeJogador = escapeHTML(getPlayerName());
 
-            // NOVO: bloco de aviso de orientação (só aparece se for landscape)
-            const avisoOrientacaoHTML = (orientacao === 'h') ? `
+            // NOVO: aviso de orientação apenas em mobile e apenas se landscape
+            const avisoOrientacaoHTML = (orientacao === 'h' && ehDispositivoMovel()) ? `
                 <div class="orientation-warning">
                     <span class="ow-icon">📱↔️</span>
                     <span>
@@ -365,7 +380,7 @@
                 </div>
             ` : '';
 
-            // NOVO: bloco do ranking (só aparece se ranking !== false)
+            // Bloco do ranking (só aparece se ranking !== false)
             const rankingHTML = temRanking ? `
                 <h2 class="section-title">Best scores</h2>
 
@@ -429,12 +444,10 @@
                 thumbWrap.classList.add('error');
             }
 
-            // NOVO: só carrega leaderboard se o jogo tiver ranking
             if (temRanking) {
                 await carregarLeaderboard(gameId);
             } else {
                 console.log('[game] ranking disabled for this game — skipping leaderboard load');
-                // opcional: ainda define o décimo valor como 0 para não ficar "stale"
                 definirDecimoValor(0, gameId || '');
             }
         }

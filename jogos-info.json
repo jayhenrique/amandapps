@@ -51,15 +51,17 @@
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/makeupmini.png",
+    "ranking": false,
     "ordem": 6
   },
   "meongames": {
-    "titulo": "MakeUP Rush",
+    "titulo": "MEON Games",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/meongamesmini.png",
+    "ranking": false,
     "ordem": 7
   },
 
@@ -71,7 +73,7 @@
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/punchkickmini.png",
     "ranking": false,
-    "ordem": 7
+    "ordem": 8
   },
   "samurai": {
     "titulo": "Samurai Flash",
