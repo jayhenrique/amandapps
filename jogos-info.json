@@ -84,7 +84,7 @@
     "thumb": "thumbs-assets/samuraimini.png",
     "orientacao": "h",
     "ranking": false,
-    "ordem": 9
+    "ordem": 99
   },
   "spikes": {
     "titulo": "Spikes on High Heels",
@@ -106,7 +106,7 @@
     "thumb": "thumbs-assets/shademini.png",
     "orientacao": "h",
     "ranking": false,
-    "ordem": 10
+    "ordem": 99
   },
   "teste": {
     "titulo": "Jogo de Teste",
