@@ -97,6 +97,17 @@
     "ranking": false,
     "ordem": 10
   },
+  "shade": {
+    "titulo": "Spikes on High Heels",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/shademini.png",
+    "orientacao": "h",
+    "ranking": false,
+    "ordem": 10
+  },
   "teste": {
     "titulo": "Jogo de Teste",
     "descricao": "Build de teste do Clickteam Fusion.",
