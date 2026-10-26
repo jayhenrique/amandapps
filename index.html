@@ -211,8 +211,8 @@
     return (info && info.thumb) ? info.thumb : `thumbs-assets/${id}mini.png`;
   }
 
-  function isJogoTeste(info) {
-    return ((info && info.categoria) || '').toLowerCase() === 'teste';
+  function isJogoOculto(info) {
+    return Number(info?.ordem) === 99;
   }
 
   function renderizarGridJogos() {
@@ -220,7 +220,7 @@
     if (!grid) return;
 
     const ids = Object.keys(JOGOS)
-      .filter(id => !isJogoTeste(JOGOS[id]))
+      .filter(id => !isJogoOculto(JOGOS[id]))
       .sort((a, b) => {
         const oa = Number(JOGOS[a]?.ordem ?? 999);
         const ob = Number(JOGOS[b]?.ordem ?? 999);
