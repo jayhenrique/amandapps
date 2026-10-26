@@ -57,6 +57,24 @@
             margin-bottom: 1.5rem;
         }
 
+        /* Bloco genérico no estilo "How to play" (usado por year e controles) */
+        .info-block {
+            width: 100%;
+            max-width: 320px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .info-block strong {
+            display: block;
+            color: var(--text);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
         .playing-as {
             font-size: 0.82rem;
             color: var(--text-dim);
@@ -94,23 +112,6 @@
             text-decoration: none;
         }
         .btn-play:active { transform: translateY(0); }
-
-        .como-jogar {
-            width: 100%;
-            max-width: 320px;
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-        .como-jogar strong {
-            display: block;
-            color: var(--text);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.3rem;
-        }
 
         @media (max-width: 720px) {
             .col-info { align-items: center; text-align: center; }
@@ -425,6 +426,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 titulo:    info?.titulo    || 'Unknown Game',
                 descricao: info?.descricao || 'This game has no description yet. But you can play and have fun anyway!',
                 categoria: info?.categoria || '',
+                year:      info?.year      || '',
                 controles: (isMobile
                     ? (info?.controlesM || info?.controles)
                     : info?.controles) || 'Use the mouse and keyboard to play.',
@@ -472,6 +474,14 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 </div>
             ` : '';
 
+            // Bloco "Release Year" (só aparece se year existir)
+            const yearHTML = dados.year ? `
+                <div class="info-block">
+                    <strong>Release Year</strong>
+                    ${escapeHTML(String(dados.year))}
+                </div>
+            ` : '';
+
             document.getElementById('conteudo').innerHTML = `
                 <div class="game-layout">
                     <div class="col-image">
@@ -485,12 +495,18 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                         <h2 class="section-title">${escapeHTML(dados.titulo)}</h2>
                         <p class="descricao">${escapeHTML(dados.descricao)}</p>
 
-                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
+                        ${yearHTML}
 
-                        <div class="como-jogar">
+                        <div class="info-block">
+                            <strong>Release Year</strong>
+                            ${yearHTML}
+                        </div>
+                        <div class="info-block">
                             <strong>How to play</strong>
                             ${escapeHTML(dados.controles)}
                         </div>
+
+                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
                     </div>
                 </div>
 
