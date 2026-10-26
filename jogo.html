@@ -34,6 +34,7 @@
             justify-content: center;
             position: relative;
             margin: 0 auto;
+            cursor: pointer;
         }
         .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .thumb-wrap .thumb-fallback { font-size: 5rem; color: var(--text-dim); display: none; }
@@ -151,6 +152,22 @@
             color: var(--text-dim);
             padding: 1.5rem;
         }
+
+        /* ===== Debug panel (escondido por padrão) ===== */
+        #debug-decimo {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.85rem;
+            color: var(--gold);
+            word-break: break-all;
+            width: 100%;
+        }
+        #debug-decimo.visible { display: block; }
 
         /* ===== Overlay de rotação (bloqueia tudo) ===== */
         .rotate-overlay {
@@ -328,18 +345,6 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             if (!dbg) {
                 dbg = document.createElement('div');
                 dbg.id = 'debug-decimo';
-                dbg.style.cssText = `
-                    margin-top: 1.5rem;
-                    padding: 0.75rem 1rem;
-                    background: var(--bg-card);
-                    border: 1px solid var(--accent);
-                    border-radius: 8px;
-                    font-family: ui-monospace, monospace;
-                    font-size: 0.85rem;
-                    color: var(--gold);
-                    word-break: break-all;
-                    width: 100%;
-                `;
                 document.querySelector('.container').appendChild(dbg);
             }
             dbg.textContent = `DEBUG → 10th place (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('en-US')} (raw: ${valor})`;
@@ -412,11 +417,17 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 }
             }
 
+            // Decide uma vez se é mobile, para manter consistência
+            // entre o texto exibido e o log de debug.
+            const isMobile = ehDispositivoMovel();
+
             const dados = {
                 titulo:    info?.titulo    || 'Unknown Game',
                 descricao: info?.descricao || 'This game has no description yet. But you can play and have fun anyway!',
                 categoria: info?.categoria || '',
-                controles: info?.controles || 'Use the mouse and keyboard to play.',
+                controles: (isMobile
+                    ? (info?.controlesM || info?.controles)
+                    : info?.controles) || 'Use the mouse and keyboard to play.',
                 autor:     info?.autor     || ''
             };
 
@@ -432,7 +443,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
 
-            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', ehDispositivoMovel(), '| landscape:', estaEmLandscape(), '| page:', paginaJogo);
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', isMobile, '| landscape:', estaEmLandscape(), '| page:', paginaJogo);
 
             const nomeJogador = escapeHTML(getPlayerName());
 
@@ -464,7 +475,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             document.getElementById('conteudo').innerHTML = `
                 <div class="game-layout">
                     <div class="col-image">
-                        <div class="thumb-wrap" id="thumb-wrap">
+                        <div class="thumb-wrap" id="thumb-wrap" title="Click to show debug info">
                             ${thumbUrl ? `<img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">` : ''}
                             <div class="thumb-fallback">🎮</div>
                         </div>
@@ -497,6 +508,12 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             } else {
                 thumbWrap.classList.add('error');
             }
+
+            // Clique na imagem do jogo revela o painel de debug
+            thumbWrap.addEventListener('click', () => {
+                const dbg = document.getElementById('debug-decimo');
+                if (dbg) dbg.classList.toggle('visible');
+            });
 
             if (temRanking) {
                 await carregarLeaderboard(gameId);

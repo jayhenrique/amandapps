@@ -3,7 +3,9 @@
     "titulo": "Copter Queen",
     "descricao": "Coma maçãs e cresça sem bater na parede. Clássico atemporal do arcade.",
     "categoria": "Arcade",
-    "controles": "Espaço ou clique/toque",
+    "controles": "Press Space to change direction!",
+    "controlesM": "Touch the screen to change direction!",
+
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/coptermini.png",
     "ordem": 1
@@ -12,7 +14,7 @@
     "titulo": "Flappy DragQueen",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
-    "controles": "Espaço ou clique/toque",
+    "controles": "Touch the screen or press Space to flap!",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/flappymini.png",
     "ordem": 2
@@ -21,7 +23,7 @@
     "titulo": "Snapshot DIVA",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
-    "controles": "clique/toque",
+    "controles": "Touch the buttons to approve or delete a photo.",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/snapshotmini.png",
     "ordem": 3
