@@ -3,43 +3,45 @@
     "titulo": "Copter Queen",
     "descricao": "Dodge the obstacles and whip your hair to reach the heights! Just be careful not to have your wig snatched on the way up, okay?",
     "categoria": "Arcade",
-    "year": "2014",
+    "year": "Feb 2014",
     "controles": "Press Space to change direction!",
     "controlesM": "Touch the screen to change direction!",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/coptermini.png",
-    "ordem": 1
+    "ordem": 89
   },
   "flappy": {
     "titulo": "Flappy DragQueen",
     "descricao": "Flap your wings, dodge the giant cocktails and avoid drama! How far can a fabulous Drag Queen fly?",
     "categoria": "Casual",
-    "year": "2014",
+    "year": "Feb 2014",
     "controles": "Press Space to flap!",
     "controlesM": "Touch the screen to flap!",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/flappymini.png",
-    "ordem": 2
+    "ordem": 90
   },
   "snapshot": {
     "titulo": "Snapshot DIVA",
     "descricao": "Strike a pose, unleash your inner star, and don't let the cameras catch your bad side! Are you ready to become the ultimate Snapshot Diva?",
     "categoria": "Casual",
-    "year": "2014",
+    "year": "Feb 2014",
     "controlesM": "Touch the buttons to approve or delete a photo.",
     "controles": "Press S to approve a good photo, D to delete the blurry ones and WAIT when the lights are out.",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/snapshotmini.png",
-    "ordem": 3
+    "ordem": 88
   },
   "icecream": {
     "titulo": "IceCreamy Machine",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
+    "year": "Sep 2014",
+
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/icecreammini.png",
-    "ordem": 4
+    "ordem": 80
   },
   "doubledrag": {
     "titulo": "Double DragQueens",
@@ -54,7 +56,9 @@
     "titulo": "MakeUP Rush",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
-    "controles": "clique/toque",
+    "controles": "This game is best played on MOBILE",
+    "controlesM": "Match the makeup",
+
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/makeupmini.png",
     "ranking": false,
@@ -64,7 +68,9 @@
     "titulo": "MEON Games",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
-    "controles": "clique/toque",
+    "controles": "This game is best played on MOBILE",
+
+    "controlesM": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/meongamesmini.png",
     "ranking": false,
@@ -80,17 +86,6 @@
     "thumb": "thumbs-assets/punchkickmini.png",
     "ranking": false,
     "ordem": 8
-  },
-  "samurai": {
-    "titulo": "Samurai Flash",
-    "descricao": "Help Amanda Sparks fly trought the drinks!",
-    "categoria": "Casual",
-    "controles": "clique/toque",
-    "autor": "Arcade Central",
-    "thumb": "thumbs-assets/samuraimini.png",
-    "orientacao": "h",
-    "ranking": false,
-    "ordem": 99
   },
   "spikes": {
     "titulo": "Spikes on High Heels",
@@ -114,6 +109,19 @@
     "ranking": false,
     "ordem": 99
   },
+  "samurai": {
+    "titulo": "Samurai Flash",
+    "descricao": "Test your reflexes in lightning-fast samurai duels where split-second timing decides life or death. It also has a Versus Mode to play with a friend. ",
+    "categoria": "Casual",
+    "controles": "Click on screen to strike when the red sign appears",
+    "controlesM": "Touch on screen to strike when the red sign appears",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/samuraimini.png",
+    "orientacao": "h",
+    "ranking": false,
+    "ordem": 87
+  },
+
   "teste": {
     "titulo": "Jogo de Teste",
     "descricao": "Build de teste do Clickteam Fusion.",
