@@ -422,14 +422,17 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             // entre o texto exibido e o log de debug.
             const isMobile = ehDispositivoMovel();
 
+            // Lê os controles SEM fallback fixo, para poder esconder o bloco se vazio
+            const controlesRaw = isMobile
+                ? (info?.controlesM || info?.controles)
+                : info?.controles;
+
             const dados = {
                 titulo:    info?.titulo    || 'Unknown Game',
                 descricao: info?.descricao || 'This game has no description yet. But you can play and have fun anyway!',
                 categoria: info?.categoria || '',
                 year:      info?.year      || '',
-                controles: (isMobile
-                    ? (info?.controlesM || info?.controles)
-                    : info?.controles) || 'Use the mouse and keyboard to play.',
+                controles: typeof controlesRaw === 'string' ? controlesRaw.trim() : '',
                 autor:     info?.autor     || ''
             };
 
@@ -482,6 +485,14 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 </div>
             ` : '';
 
+            // Bloco "How to play" (só aparece se houver controles)
+            const controlesHTML = dados.controles ? `
+                <div class="info-block">
+                    <strong>How to play</strong>
+                    ${escapeHTML(dados.controles)}
+                </div>
+            ` : '';
+
             document.getElementById('conteudo').innerHTML = `
                 <div class="game-layout">
                     <div class="col-image">
@@ -497,10 +508,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
 
                         ${yearHTML}
 
-                        <div class="info-block">
-                            <strong>How to play</strong>
-                            ${escapeHTML(dados.controles)}
-                        </div>
+                        ${controlesHTML}
 
                         <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
                     </div>
