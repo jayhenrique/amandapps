@@ -9,13 +9,13 @@
         /* ===== Styles specific to jogo.html ===== */
         .game-layout {
             display: grid;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 440px 1fr;
             gap: 2rem;
             align-items: start;
             width: 100%;
             margin-bottom: 2rem;
         }
-        @media (max-width: 720px) {
+        @media (max-width: 900px) {
             .game-layout { grid-template-columns: 1fr; gap: 1.2rem; }
         }
 
@@ -23,8 +23,8 @@
 
         .thumb-wrap {
             width: 100%;
-            max-width: 320px;
-            aspect-ratio: 300 / 250;
+            max-width: 480px;
+            aspect-ratio: 9 / 5; /* 900 x 500 */
             border-radius: 12px;
             overflow: hidden;
             background: var(--bg-card);
@@ -113,7 +113,7 @@
         }
         .btn-play:active { transform: translateY(0); }
 
-        @media (max-width: 720px) {
+        @media (max-width: 900px) {
             .col-info { align-items: center; text-align: center; }
             .descricao { text-align: left; }
             .playing-as { justify-content: center; }
