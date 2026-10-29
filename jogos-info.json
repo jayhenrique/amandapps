@@ -1,5 +1,5 @@
 {
-  "ordem_home": ["copter", "flappy", "icecream", "doubledrag"],
+  "ordem_home": ["shade","spikes","doubledrag","makeup","meongames","samurai","punchkick","icecream","snapshot","copter","flappy"],
 
   "copter": {
     "titulo": "Copter Queen",
@@ -39,7 +39,6 @@
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
     "year": "Sep 2014",
-
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/icecreammini.png",
@@ -47,9 +46,10 @@
   },
   "doubledrag": {
     "titulo": "Double DragQueens",
-    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "descricao": "Control Dragqueens Alessandra and Miranda trough 6 stages! Avoid and save the Drags in distress and beat the Dumbots, ‘Good’ Citizens, Pig Monsters and many more in Story Mode!",
     "categoria": "Casual",
     "controles": "clique/toque",
+    "year": "May 2019",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/doubledragmini.png",
     "ordem": 5
@@ -60,7 +60,7 @@
     "categoria": "Casual",
     "controles": "This game is best played on MOBILE",
     "controlesMoff": "Match the makeup",
-
+    "year": "Jun 2019",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/makeupmini.png",
     "ranking": false,
@@ -80,8 +80,9 @@
 
   "punchkick": {
     "titulo": "Punchin and Kickin",
-    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "descricao": "Fast paced action game with Drag Queen Amanda Sparks! How fast can you punch and kick your way to victory?",
     "categoria": "Casual",
+    "year": "Apr 2017",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/punchkickmini.png",
     "ranking": false,
@@ -101,9 +102,10 @@
   },
   "shade": {
     "titulo": "The Shade Forest",
-    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "descricao": "Fabulous, FREE and fun 90's inspired platformer game! Help Drag Queen Amanda Sparks to survive the Shade Forest and rescue her friend from the evil hands of the Hypocritics gang!",
     "categoria": "Casual",
     "autor": "Arcade Central",
+    "year": "Sep 2016",
     "thumb": "thumbs-assets/shademini.png",
     "orientacao": "h",
     "ranking": false,
