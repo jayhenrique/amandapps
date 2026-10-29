@@ -1,4 +1,6 @@
 {
+  "ordem_home": ["copter", "flappy", "icecream", "doubledrag"],
+
   "copter": {
     "titulo": "Copter Queen",
     "descricao": "Dodge the obstacles and whip your hair to reach the heights! Just be careful not to have your wig snatched on the way up, okay?",

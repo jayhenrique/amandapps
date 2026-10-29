@@ -1,0 +1,130 @@
+{
+  "copter": {
+    "titulo": "Copter Queen",
+    "descricao": "Dodge the obstacles and whip your hair to reach the heights! Just be careful not to have your wig snatched on the way up, okay?",
+    "categoria": "Arcade",
+    "year": "Feb 2014",
+    "controlesoff": "Press Space to change direction!",
+    "controlesMoff": "Touch the screen to change direction!",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/coptermini.png",
+    "ordem": 89
+  },
+  "flappy": {
+    "titulo": "Flappy DragQueen",
+    "descricao": "Flap your wings, dodge the giant cocktails and avoid drama! How far can a fabulous Drag Queen fly?",
+    "categoria": "Casual",
+    "year": "Feb 2014",
+    "controlesoff": "Press Space to flap!",
+    "controlesoff": "Touch the screen to flap!",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/flappymini.png",
+    "ordem": 90
+  },
+  "snapshot": {
+    "titulo": "Snapshot DIVA",
+    "descricao": "Strike a pose, unleash your inner star, and don't let the cameras catch your bad side! Are you ready to become the ultimate Snapshot Diva?",
+    "categoria": "Casual",
+    "year": "Feb 2014",
+    "controlesoff": "Touch the buttons to approve or delete a photo.",
+    "controlesoff": "Press S to approve a good photo, D to delete the blurry ones and WAIT when the lights are out.",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/snapshotmini.png",
+    "ordem": 88
+  },
+  "icecream": {
+    "titulo": "IceCreamy Machine",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "year": "Sep 2014",
+
+    "controles": "clique/toque",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/icecreammini.png",
+    "ordem": 80
+  },
+  "doubledrag": {
+    "titulo": "Double DragQueens",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "clique/toque",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/doubledragmini.png",
+    "ordem": 5
+  },
+  "makeup": {
+    "titulo": "MakeUP Rush",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "controles": "This game is best played on MOBILE",
+    "controlesMoff": "Match the makeup",
+
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/makeupmini.png",
+    "ranking": false,
+    "ordem": 6
+  },
+  "meongames": {
+    "titulo": "MEON Games",
+    "descricao": "MEON Games is designed to have fun with friends, family and house pets from all ages!",
+    "categoria": "Casual",
+    "controles": "This game is best played on MOBILE",
+    "year": "Jul 2017",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/meongamesmini.png",
+    "ranking": false,
+    "ordem": 7
+  },
+
+  "punchkick": {
+    "titulo": "Punchin and Kickin",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/punchkickmini.png",
+    "ranking": false,
+    "ordem": 8
+  },
+  "spikes": {
+    "titulo": "Spikes on High Heels",
+    "descricao": "Jump, serve and spike to help Amanda reach her goal to become the fiercest Voleyball player in the world... all while in 15cm stilettos!",
+    "categoria": "Casual",
+    "controles": "A and S to move, J to serve and K to Jump.",
+    "year": "Mar 2019",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/spikesmini.png",
+    "orientacao": "h",
+    "ranking": false,
+    "ordem": 10
+  },
+  "shade": {
+    "titulo": "The Shade Forest",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/shademini.png",
+    "orientacao": "h",
+    "ranking": false,
+    "ordem": 99
+  },
+  "samurai": {
+    "titulo": "Samurai Flash",
+    "descricao": "Test your reflexes in lightning-fast samurai duels where split-second timing decides life or death. It also has a Versus Mode to play with a friend. ",
+    "categoria": "Casual",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/samuraimini.png",
+    "orientacao": "h",
+    "ranking": false,
+    "ordem": 87
+  },
+
+  "teste": {
+    "titulo": "Jogo de Teste",
+    "descricao": "Build de teste do Clickteam Fusion.",
+    "categoria": "Teste",
+    "controles": "Varia conforme o jogo",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/icon-192.png",
+    "ordem": 99
+  }
+}
