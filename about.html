@@ -21,7 +21,7 @@
         /* --- Seção 1: About (foto + texto lado a lado) --- */
         .about-hero {
             display: grid;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 420px 1fr;   /* foto maior */
             gap: 2rem;
             align-items: start;
         }
@@ -31,7 +31,7 @@
 
         .about-photo {
             width: 100%;
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 4 / 3;                /* proporção real da imagem 800x600 */
             border-radius: 12px;
             overflow: hidden;
             background: var(--bg-card);
@@ -44,7 +44,7 @@
         .about-photo img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover;                  /* sem distorção; recorta se necessário */
             display: block;
         }
         .about-photo .photo-fallback {
