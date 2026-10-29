@@ -1,5 +1,4 @@
 {
-  "ordem_home": ["jogo1", "jogo2", "jogo4", "jogo3"],
   "copter": {
     "titulo": "Copter Queen",
     "descricao": "Dodge the obstacles and whip your hair to reach the heights! Just be careful not to have your wig snatched on the way up, okay?",
@@ -37,7 +36,7 @@
     "titulo": "IceCreamy Machine",
     "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
-    "year": "Sep 2014 - not released",
+    "year": "Sep 2014",
 
     "controles": "clique/toque",
     "autor": "Arcade Central",
@@ -46,9 +45,8 @@
   },
   "doubledrag": {
     "titulo": "Double DragQueens",
-    "descricao": "Control Dragqueens Alessandra and Miranda trough 6 stages! Avoid and save the Drags in distress and beat the Dumbots, ‘Good’ Citizens, Pig Monsters and many more in Story Mode!",
-    "categoria": "Casual"
-    "year": "May 2019",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
+    "categoria": "Casual",
     "controles": "clique/toque",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/doubledragmini.png",
@@ -80,9 +78,8 @@
 
   "punchkick": {
     "titulo": "Punchin and Kickin",
-    "descricao": "Fast paced action game with Drag Queen Amanda Sparks! How fast can you punch and kick your way to victory?",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
-    "year": "Apr 2017",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/punchkickmini.png",
     "ranking": false,
@@ -102,14 +99,13 @@
   },
   "shade": {
     "titulo": "The Shade Forest",
-    "descricao": "Fabulous, FREE and fun 90's inspired platformer game! Help Drag Queen Amanda Sparks to survive the Shade Forest and rescue her friend from the evil hands of the Hypocritics gang!",
+    "descricao": "Help Amanda Sparks fly trought the drinks!",
     "categoria": "Casual",
-    "year": "Sep 2016",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/shademini.png",
     "orientacao": "h",
     "ranking": false,
-    "ordem": 4
+    "ordem": 99
   },
   "samurai": {
     "titulo": "Samurai Flash",
