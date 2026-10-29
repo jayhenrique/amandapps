@@ -129,6 +129,16 @@
         }
         .btn-play:active { transform: translateY(0); }
 
+        /* Variante do botão para download */
+        .btn-play.btn-download {
+            background: var(--gold, #f0a500);
+            color: #1a0f08;
+            box-shadow: 0 10px 30px rgba(240, 165, 0, 0.35);
+        }
+        .btn-play.btn-download:hover {
+            box-shadow: 0 14px 40px rgba(240, 165, 0, 0.5);
+        }
+
         @media (max-width: 900px) {
             .col-info { align-items: center; text-align: center; }
             .descricao { text-align: left; }
@@ -339,6 +349,18 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             return '';
         }
 
+        // Extrai a URL de download do JSON (campo "download")
+        function obterLinkDownload(info) {
+            if (!info) return '';
+            const v = info.download;
+            if (typeof v === 'string' && v.trim()) {
+                const url = v.trim();
+                // Só aceita http(s) para evitar javascript: etc.
+                if (/^https?:\/\//i.test(url)) return url;
+            }
+            return '';
+        }
+
         function obterOrientacao(info) {
             if (!info) return 'v';
             const chaves = [
@@ -506,7 +528,8 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 year:      info?.year      || '',
                 controles: typeof controlesRaw === 'string' ? controlesRaw.trim() : '',
                 autor:     info?.autor     || '',
-                link:      obterLinkExterno(info)
+                link:      obterLinkExterno(info),
+                download:  obterLinkDownload(info)
             };
 
             const orientacao = obterOrientacao(info);
@@ -517,11 +540,21 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 ? `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`
                 : '';
 
-            const playUrl = gameId
-                ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
-                : '#';
+            // Se houver link de download, o botão vira "DOWNLOAD GAME" e aponta para ele.
+            // Caso contrário, mantém o comportamento original de PLAY.
+            const temDownload = !!dados.download;
 
-            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', isMobile, '| landscape:', estaEmLandscape(), '| page:', paginaJogo, '| link:', dados.link || '(none)');
+            const playUrl = temDownload
+                ? dados.download
+                : (gameId ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}` : '#');
+
+            const playLabel = temDownload ? '⬇ DOWNLOAD GAME' : '▶ PLAY';
+            const playClass = temDownload ? 'btn-play btn-download' : 'btn-play';
+            const playAttrs = temDownload
+                ? 'target="_blank" rel="noopener noreferrer"'
+                : '';
+
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', isMobile, '| landscape:', estaEmLandscape(), '| page:', paginaJogo, '| link:', dados.link || '(none)', '| download:', dados.download || '(none)');
 
             const nomeJogador = escapeHTML(getPlayerName());
 
@@ -585,7 +618,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                     <div class="col-info">
                         <h2 class="section-title">${escapeHTML(dados.titulo)}</h2>
 
-                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
+                        <a class="${playClass}" href="${escapeHTML(playUrl)}" data-orientacao="${orientacao}" ${playAttrs}>${playLabel}</a>
 
                         <p class="descricao">${escapeHTML(dados.descricao)}</p>
 
