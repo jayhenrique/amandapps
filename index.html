@@ -154,7 +154,6 @@
 
   let JOGOS = {};
   let GAME_NAMES = {};
-  let ORDEM_HOME = [];
 
   function sanitizeName(raw) {
     let s = (raw == null) ? '' : String(raw);
@@ -187,10 +186,6 @@
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
 
-      // Extrai a lista de ordem e remove do objeto de jogos
-      ORDEM_HOME = Array.isArray(data.ordem_home) ? data.ordem_home.slice() : [];
-      delete data.ordem_home;
-
       JOGOS = data;
       GAME_NAMES = Object.fromEntries(
         Object.entries(data).map(([id, info]) => [id, (info && info.titulo) ? info.titulo : id])
@@ -201,7 +196,6 @@
       console.warn('Could not load jogos-info.json:', e);
       JOGOS = {};
       GAME_NAMES = {};
-      ORDEM_HOME = [];
       const grid = document.getElementById('game-grid');
       if (grid) {
         grid.innerHTML = '<div class="empty-msg">Could not load the games list.</div>';
@@ -225,24 +219,13 @@
     const grid = document.getElementById('game-grid');
     if (!grid) return;
 
-    const idsVisiveis = Object.keys(JOGOS).filter(id => !isJogoOculto(JOGOS[id]));
-
-    // Mapa: id -> índice na ordem_home
-    const posicao = new Map();
-    ORDEM_HOME.forEach((id, i) => posicao.set(id, i));
-
-    const ids = idsVisiveis.sort((a, b) => {
-      const pa = posicao.has(a) ? posicao.get(a) : Infinity;
-      const pb = posicao.has(b) ? posicao.get(b) : Infinity;
-
-      // Se ambos estão na ordem_home, segue a posição nela
-      if (pa !== pb) return pa - pb;
-
-      // Fallback: ordem numérica (para jogos fora da lista)
-      const oa = Number(JOGOS[a]?.ordem ?? 999);
-      const ob = Number(JOGOS[b]?.ordem ?? 999);
-      return oa - ob || a.localeCompare(b);
-    });
+    const ids = Object.keys(JOGOS)
+      .filter(id => !isJogoOculto(JOGOS[id]))
+      .sort((a, b) => {
+        const oa = Number(JOGOS[a]?.ordem ?? 999);
+        const ob = Number(JOGOS[b]?.ordem ?? 999);
+        return oa - ob || a.localeCompare(b);
+      });
 
     if (ids.length === 0) {
       grid.innerHTML = '<div class="empty-msg">No games available.</div>';
