@@ -201,6 +201,34 @@
             line-height: 1.5;
             margin: 0;
         }
+        /* Botão de voltar dentro do overlay */
+        .rotate-overlay .btn-back-overlay {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            background: var(--accent, #d7216a);
+            color: #fff5f8;
+            padding: 0.75rem 1.8rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(215, 33, 106, 0.35);
+            transition: transform 0.12s, box-shadow 0.12s;
+            font-family: inherit;
+        }
+        .rotate-overlay .btn-back-overlay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(215, 33, 106, 0.5);
+        }
+        .rotate-overlay .btn-back-overlay:active {
+            transform: translateY(0);
+        }
         @keyframes rotate-hint {
             0%, 100% { transform: rotate(0deg); }
             50%      { transform: rotate(-90deg); }
@@ -366,8 +394,21 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 <div class="rotate-icon">📱</div>
                 <h2>Rotate your phone</h2>
                 <p>This game is in <strong>landscape</strong> mode. Turn your phone sideways to continue.</p>
+                <p style="font-size:0.85rem; color:var(--text-dim, #ccc); margin-top:-0.4rem;">
+                    ⚠️ Make sure <strong>auto-rotate</strong> is enabled on your device.
+                </p>
+                <button class="btn-back-overlay" id="btn-overlay-back">← Back to home</button>
             `;
             document.body.appendChild(_overlayEl);
+
+            // Botão de voltar no overlay
+            const btnBack = document.getElementById('btn-overlay-back');
+            if (btnBack) {
+                btnBack.addEventListener('click', () => {
+                    window.location.href = HOME_URL;
+                });
+            }
+
             return _overlayEl;
         }
 
