@@ -1,5 +1,5 @@
 {
-  "ordem_home": ["shade","spikes","doubledrag","makeup","meongames","samurai","punchkick","icecream","snapshot","copter","flappy"],
+  "ordem_home": ["shade","spikes","doubledrag","makeup","meongames","punchkick","icecream","samurai","snapshot","copter","flappy"],
 
   "copter": {
     "titulo": "Copter Queen",
@@ -52,7 +52,8 @@
     "year": "May 2019",
     "autor": "Arcade Central",
     "thumb": "thumbs-assets/doubledragmini.png",
-    "ordem": 5
+    "ordem": 5,
+    "link": "https://www.behance.net/gallery/84260857/Game-Design-Double-DragQueens"
   },
   "makeup": {
     "titulo": "MakeUP Rush",
@@ -114,7 +115,7 @@
     "thumb": "thumbs-assets/shademini.png",
     "orientacao": "h",
     "ranking": false,
-    "ordem": 99,
+    "ordem": 9,
     "link": "https://www.behance.net/gallery/89240015/Game-Design-Shade-Forest"
   },
   "samurai": {
