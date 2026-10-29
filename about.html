@@ -241,7 +241,7 @@
 
     <div class="container">
 
-        <!-- ===== Seção 1: ABOUT ===== -->
+        <!-- ===== Seção 1: ABOUT (texto vem do JSON) ===== -->
         <section class="about-section">
             <h2 class="section-title">About</h2>
 
@@ -252,21 +252,8 @@
                     <div class="photo-fallback">📷</div>
                 </div>
 
-                <div class="about-text">
-                    <p>
-                        <strong>Amand.APPs</strong> is an indie game development project made with HTML5,
-                        focused on small, quick, and fun arcade games that run right in your browser —
-                        no downloads, no installs, just click and play.
-                    </p>
-                    <p>
-                        Every game is handcrafted, from the art to the code, with a lot of care
-                        and a healthy dose of nostalgia for classic arcade cabinets. The goal is
-                        simple: give people a small moment of fun wherever they are.
-                    </p>
-                    <p>
-                        Want to follow the project? Check out the social links on the
-                        <a href="/">home page</a> or reach out on Discord. Thanks for playing! 🎮
-                    </p>
+                <div class="about-text" id="about-text">
+                    <p style="color:var(--text-dim);">Loading…</p>
                 </div>
             </div>
         </section>
@@ -277,7 +264,6 @@
 
             <div class="contact-grid">
 
-                <!-- Email -->
                 <a class="contact-card"
                    href="mailto:contato@amandapps.com"
                    title="Send an email">
@@ -288,7 +274,6 @@
                     </span>
                 </a>
 
-                <!-- Discord (servidor) -->
                 <a class="contact-card"
                    href="https://discord.gg/Av3SY2wAq"
                    target="_blank"
@@ -301,7 +286,6 @@
                     </span>
                 </a>
 
-                <!-- Instagram -->
                 <a class="contact-card"
                    href="https://www.instagram.com/amand.apps/"
                    target="_blank"
@@ -314,7 +298,6 @@
                     </span>
                 </a>
 
-                <!-- Bluesky -->
                 <a class="contact-card"
                    href="https://bsky.app/profile/amandrag.bsky.social"
                    target="_blank"
@@ -336,7 +319,6 @@
 
             <div class="clipping-grid">
 
-                <!-- Slot de vídeo 1 -->
                 <a class="video-slot"
                    href="https://www.youtube.com/watch?v=SEU_VIDEO_1"
                    target="_blank"
@@ -350,7 +332,6 @@
                     </div>
                 </a>
 
-                <!-- Slot de vídeo 2 -->
                 <a class="video-slot"
                    href="https://www.youtube.com/watch?v=SEU_VIDEO_2"
                    target="_blank"
@@ -389,7 +370,44 @@
     </div>
 
     <script>
+        // ====== Texto de fallback (usado se o JSON falhar) ======
+        const ABOUT_FALLBACK = [
+            "<strong>Amand.APPs</strong> is an indie game development project made with HTML5, focused on small, quick, and fun arcade games that run right in your browser — no downloads, no installs, just click and play.",
+            "Every game is handcrafted, from the art to the code, with a lot of care and a healthy dose of nostalgia for classic arcade cabinets. The goal is simple: give people a small moment of fun wherever they are.",
+            "Want to follow the project? Check out the social links on the <a href=\"/\">home page</a> or reach out on Discord. Thanks for playing! 🎮"
+        ];
+
+        async function carregarAbout() {
+            const alvo = document.getElementById('about-text');
+            if (!alvo) return;
+
+            let paragrafos = null;
+            try {
+                const res = await fetch('about-info.json?v=' + Date.now(), { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+
+                // Aceita { "about": [...] } ou { "about": "texto único" }
+                if (Array.isArray(data.about)) {
+                    paragrafos = data.about;
+                } else if (typeof data.about === 'string' && data.about.trim()) {
+                    paragrafos = [data.about.trim()];
+                } else {
+                    throw new Error('about-info.json sem campo "about" válido');
+                }
+            } catch (e) {
+                console.warn('[about] could not load about-info.json, using fallback:', e);
+                paragrafos = ABOUT_FALLBACK;
+            }
+
+            alvo.innerHTML = paragrafos
+                .map(p => `<p>${p}</p>`)
+                .join('');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            carregarAbout();
+
             document.getElementById('btn-back').addEventListener('click', () => {
                 window.location.href = '/';
             });
