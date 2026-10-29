@@ -48,6 +48,7 @@
 
         .col-info .section-title {
             font-size: 1.45rem;
+            margin-bottom: 0.6rem;
         }
 
         .descricao {
@@ -56,6 +57,21 @@
             line-height: 1.55;
             margin-bottom: 1.5rem;
         }
+
+        /* Link externo opcional (abaixo da descrição) */
+        .game-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.88rem;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            word-break: break-all;
+        }
+        .game-link:hover { text-decoration: underline; }
+        .game-link::before { content: "🔗"; font-size: 0.95rem; }
 
         /* Bloco genérico no estilo "How to play" (usado por year e controles) */
         .info-block {
@@ -308,6 +324,21 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             }[c]));
         }
 
+        // Extrai a URL de link externo do JSON (várias chaves possíveis)
+        function obterLinkExterno(info) {
+            if (!info) return '';
+            const chaves = ['link', 'url', 'site', 'website', 'href', 'linkExterno', 'link_externo'];
+            for (const chave of chaves) {
+                const v = info[chave];
+                if (typeof v === 'string' && v.trim()) {
+                    const url = v.trim();
+                    // Só aceita http(s) para evitar javascript: etc.
+                    if (/^https?:\/\//i.test(url)) return url;
+                }
+            }
+            return '';
+        }
+
         function obterOrientacao(info) {
             if (!info) return 'v';
             const chaves = [
@@ -474,7 +505,8 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 categoria: info?.categoria || '',
                 year:      info?.year      || '',
                 controles: typeof controlesRaw === 'string' ? controlesRaw.trim() : '',
-                autor:     info?.autor     || ''
+                autor:     info?.autor     || '',
+                link:      obterLinkExterno(info)
             };
 
             const orientacao = obterOrientacao(info);
@@ -489,7 +521,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}`
                 : '#';
 
-            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', isMobile, '| landscape:', estaEmLandscape(), '| page:', paginaJogo);
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', isMobile, '| landscape:', estaEmLandscape(), '| page:', paginaJogo, '| link:', dados.link || '(none)');
 
             const nomeJogador = escapeHTML(getPlayerName());
 
@@ -534,6 +566,13 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 </div>
             ` : '';
 
+            // Bloco de link externo (só aparece se houver link no JSON)
+            const linkHTML = dados.link ? `
+                <a class="game-link" href="${escapeHTML(dados.link)}" target="_blank" rel="noopener noreferrer">
+                    ${escapeHTML(dados.link)}
+                </a>
+            ` : '';
+
             document.getElementById('conteudo').innerHTML = `
                 <div class="game-layout">
                     <div class="col-image">
@@ -545,13 +584,16 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
 
                     <div class="col-info">
                         <h2 class="section-title">${escapeHTML(dados.titulo)}</h2>
+
+                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
+
                         <p class="descricao">${escapeHTML(dados.descricao)}</p>
+
+                        ${linkHTML}
 
                         ${yearHTML}
 
                         ${controlesHTML}
-
-                        <a class="btn-play" href="${playUrl}" data-orientacao="${orientacao}">▶ PLAY</a>
                     </div>
                 </div>
 
