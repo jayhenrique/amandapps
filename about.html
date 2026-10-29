@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About — Amand.APPs ARCADE</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== Estilos específicos da página About ===== */
+
+        .about-section {
+            width: 100%;
+            margin-bottom: 3rem;
+        }
+
+        .about-section h2.section-title {
+            font-size: 1.45rem;
+            margin-bottom: 1.2rem;
+        }
+
+        /* --- Seção 1: About (foto + texto lado a lado) --- */
+        .about-hero {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        @media (max-width: 800px) {
+            .about-hero { grid-template-columns: 1fr; gap: 1.2rem; }
+        }
+
+        .about-photo {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .about-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .about-photo .photo-fallback {
+            display: none;
+            font-size: 4rem;
+            color: var(--text-dim);
+        }
+        .about-photo.error img { display: none; }
+        .about-photo.error .photo-fallback {
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%;
+        }
+
+        .about-text {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+        }
+        .about-text p { margin-bottom: 1rem; }
+        .about-text p:last-child { margin-bottom: 0; }
+        .about-text strong { color: var(--text); }
+        .about-text a { color: var(--accent); }
+
+        /* --- Seção 2: Contact (cards clicáveis) --- */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .contact-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.9rem;
+            padding: 1.2rem 1.3rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-dim);
+            transition: transform 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .contact-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            background: rgba(215, 33, 106, 0.06);
+            text-decoration: none;
+        }
+        .contact-card:active { transform: translateY(0); }
+
+        .contact-card .contact-icon {
+            font-size: 1.6rem;
+            line-height: 1;
+            flex: 0 0 auto;
+        }
+        .contact-card .contact-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+        }
+        .contact-card .contact-label {
+            color: var(--text);
+            font-weight: 700;
+            font-size: 0.92rem;
+            letter-spacing: 0.2px;
+        }
+        .contact-card .contact-value {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        /* --- Seção 3: Clipping (links de vídeos YouTube, 2 slots) --- */
+        .clipping-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+        }
+        @media (max-width: 800px) {
+            .clipping-grid { grid-template-columns: 1fr; }
+        }
+
+        .video-slot {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .video-slot:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            text-decoration: none;
+        }
+        .video-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .video-slot .video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 1rem;
+        }
+        .video-slot .video-placeholder .play-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+
+        /* --- Seção 4: Press kit --- */
+        .presskit-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .presskit-card .presskit-text {
+            flex: 1 1 260px;
+            color: var(--text-dim);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+        .presskit-card .presskit-text strong {
+            display: block;
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .presskit-card .btn-play {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--accent);
+            color: #fff5f8;
+            padding: 0.8rem 1.6rem;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 30px rgba(215, 33, 106, 0.35);
+            transition: transform 0.12s, box-shadow 0.12s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .presskit-card .btn-play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px rgba(215, 33, 106, 0.5);
+            text-decoration: none;
+        }
+        .presskit-card .btn-play:active { transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER (idêntico ao jogo.html) ===== -->
+    <header>
+        <a class="logo" href="/" title="Go to home" aria-label="Go to home">
+            <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
+        </a>
+        <div class="header-right">
+            <div class="user-area">
+                <button class="btn-reload" id="btn-back" title="Back to home" aria-label="Back to home">
+                    <img src="thumbs-assets/icon-back.png" alt="Back"
+                         onerror="this.style.display='none';this.parentNode.textContent='←';">
+                </button>
+                <button class="btn-reload" id="btn-reload" title="Reload page" aria-label="Reload page">
+                    <img src="thumbs-assets/icon-reload.png" alt="Reload">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ===== Seção 1: ABOUT ===== -->
+        <section class="about-section">
+            <h2 class="section-title">About</h2>
+
+            <div class="about-hero">
+                <div class="about-photo" id="about-photo">
+                    <img src="thumbs-assets/about-photo.png" alt="About Amand.APPs"
+                         onerror="this.parentNode.classList.add('error');this.removeAttribute('src');">
+                    <div class="photo-fallback">📷</div>
+                </div>
+
+                <div class="about-text">
+                    <p>
+                        <strong>Amand.APPs</strong> is an indie game development project made with HTML5,
+                        focused on small, quick, and fun arcade games that run right in your browser —
+                        no downloads, no installs, just click and play.
+                    </p>
+                    <p>
+                        Every game is handcrafted, from the art to the code, with a lot of care
+                        and a healthy dose of nostalgia for classic arcade cabinets. The goal is
+                        simple: give people a small moment of fun wherever they are.
+                    </p>
+                    <p>
+                        Want to follow the project? Check out the social links on the
+                        <a href="/">home page</a> or reach out on Discord. Thanks for playing! 🎮
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Seção 2: CONTACT ===== -->
+        <section class="about-section">
+            <h2 class="section-title">Contact</h2>
+
+            <div class="contact-grid">
+
+                <!-- Email -->
+                <a class="contact-card"
+                   href="mailto:contato@amandapps.com"
+                   title="Send an email">
+                    <span class="contact-icon">✉️</span>
+                    <span class="contact-body">
+                        <span class="contact-label">Email</span>
+                        <span class="contact-value">contato@amandapps.com</span>
+                    </span>
+                </a>
+
+                <!-- Discord (servidor) -->
+                <a class="contact-card"
+                   href="https://discord.gg/Av3SY2wAq"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Join the Discord server">
+                    <span class="contact-icon">💬</span>
+                    <span class="contact-body">
+                        <span class="contact-label">Discord</span>
+                        <span class="contact-value">Join the community server</span>
+                    </span>
+                </a>
+
+                <!-- Instagram -->
+                <a class="contact-card"
+                   href="https://www.instagram.com/amand.apps/"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Follow on Instagram">
+                    <span class="contact-icon">📸</span>
+                    <span class="contact-body">
+                        <span class="contact-label">Instagram</span>
+                        <span class="contact-value">@amand.apps</span>
+                    </span>
+                </a>
+
+                <!-- Bluesky -->
+                <a class="contact-card"
+                   href="https://bsky.app/profile/amandrag.bsky.social"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Follow on Bluesky">
+                    <span class="contact-icon">🦋</span>
+                    <span class="contact-body">
+                        <span class="contact-label">Bluesky</span>
+                        <span class="contact-value">@amandrag.bsky.social</span>
+                    </span>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- ===== Seção 3: CLIPPING ===== -->
+        <section class="about-section">
+            <h2 class="section-title">Clipping</h2>
+
+            <div class="clipping-grid">
+
+                <!-- Slot de vídeo 1 -->
+                <a class="video-slot"
+                   href="https://www.youtube.com/watch?v=SEU_VIDEO_1"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Watch video 1">
+                    <img src="thumbs-assets/clipping-1.png" alt="Video 1"
+                         onerror="this.style.display='none';">
+                    <div class="video-placeholder">
+                        <div class="play-icon">▶</div>
+                        <div>Video 1 — YouTube</div>
+                    </div>
+                </a>
+
+                <!-- Slot de vídeo 2 -->
+                <a class="video-slot"
+                   href="https://www.youtube.com/watch?v=SEU_VIDEO_2"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Watch video 2">
+                    <img src="thumbs-assets/clipping-2.png" alt="Video 2"
+                         onerror="this.style.display='none';">
+                    <div class="video-placeholder">
+                        <div class="play-icon">▶</div>
+                        <div>Video 2 — YouTube</div>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- ===== Seção 4: PRESS KIT ===== -->
+        <section class="about-section">
+            <h2 class="section-title">Press Kit</h2>
+
+            <div class="presskit-card">
+                <div class="presskit-text">
+                    <strong>📦 Press Kit</strong>
+                    Logos, screenshots, character art and everything you need to write about
+                    Amand.APPs — all in one Google Drive folder.
+                </div>
+                <a class="btn-play"
+                   href="https://drive.google.com/drive/folders/SEU_ID_DA_PASTA"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    📥 Open Press Kit
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-back').addEventListener('click', () => {
+                window.location.href = '/';
+            });
+            document.getElementById('btn-reload').addEventListener('click', () => location.reload());
+        });
+    </script>
+
+</body>
+</html>
