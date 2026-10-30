@@ -177,6 +177,33 @@
             50%      { transform: rotate(-90deg); }
         }
 
+        /* ===== Modo landscape (celular virado, jogo horizontal) ===== */
+        /* Força o layout de 2 colunas mesmo abaixo de 900px */
+        @media (max-width: 900px) {
+            body.landscape-mode .game-layout {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            body.landscape-mode .col-info {
+                align-items: flex-start;
+                text-align: left;
+            }
+            body.landscape-mode .playing-as {
+                justify-content: flex-start;
+            }
+            body.landscape-mode .descricao {
+                text-align: left;
+            }
+            body.landscape-mode .thumb-wrap {
+                max-width: 100%;
+            }
+            body.landscape-mode .info-block,
+            body.landscape-mode .btn-play,
+            body.landscape-mode .rotate-warning {
+                max-width: 100%;
+            }
+        }
+
         @media (max-width: 900px) {
             .col-info { align-items: center; text-align: center; }
             .descricao { text-align: left; }
@@ -411,7 +438,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
 
         function atualizarEstadoRotacao() {
             if (!_obrigaRotacao) {
-                // Não exige rotação: garante botão liberado e aviso escondido
+                document.body.classList.remove('landscape-mode');
                 if (_playBtnEl) {
                     _playBtnEl.classList.remove('disabled');
                     _playBtnEl.removeAttribute('aria-disabled');
@@ -421,6 +448,9 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             }
 
             const landscape = estaEmLandscape();
+
+            // Liga/desliga o layout de 2 colunas forçado
+            document.body.classList.toggle('landscape-mode', landscape);
 
             if (_playBtnEl) {
                 if (landscape) {
