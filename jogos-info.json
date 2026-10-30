@@ -1,6 +1,32 @@
 {
-  "ordem_home": ["shade","spikes","doubledrag","makeup","meongames","punchkick","icecream","samurai","snapshot","copter","flappy"],
+  "ordem_home": ["cdb6","shade","dt2","spikes","doubledrag","makeup","meongames","punchkick","icecream","samurai","snapshot","copter","flappy"],
 
+  "dt2": {
+    "titulo": "Duel Toys 2.5",
+    "descricao": "-",
+    "categoria": "Arcade",
+    "year": "Jan 2010/ 2018",
+    "controlesoff": "Press Space to change direction!",
+    "controlesMoff": "Touch the screen to change direction!",
+    "download":"https://gamejolt.com/games/dueltoys25/450051",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/dt2mini.png",
+    "link": "https://www.behance.net/gallery/256767893/Corrida-das-Blogueiras-6",
+    "ordem": 89
+  },
+  "cdb6": {
+    "titulo": "Corrida das Blogueiras 6: A Maldição dos Zumbis",
+    "descricao": "-",
+    "categoria": "Arcade",
+    "year": "Oct 2024",
+    "controlesoff": "Press Space to change direction!",
+    "controlesMoff": "Touch the screen to change direction!",
+    "download":"https://store.steampowered.com/app/3248320/",
+    "autor": "Arcade Central",
+    "thumb": "thumbs-assets/cdb6mini.png",
+    "link": "https://www.behance.net/gallery/256767893/Corrida-das-Blogueiras-6",
+    "ordem": 89
+  },
   "copter": {
     "titulo": "Copter Queen",
     "descricao": "Dodge the obstacles and whip your hair to reach the heights! Just be careful not to have your wig snatched on the way up, okay?",

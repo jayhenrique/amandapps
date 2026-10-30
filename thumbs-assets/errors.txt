@@ -1,1 +1,2 @@
-[29/10/2026, 20:38:02] layer "icecreamend.png copy": Expected end of input but "c" found.
+[29/10/2026, 21:03:16] layer "cdb6.png": Duplicate path: cdb6.png
+[29/10/2026, 21:03:16] layer "icecreamend.png copy": Expected end of input but "c" found.
