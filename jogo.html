@@ -139,10 +139,49 @@
             box-shadow: 0 14px 40px rgba(240, 165, 0, 0.5);
         }
 
+        /* Botão de play desabilitado (rotação incorreta) */
+        .btn-play.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+            cursor: not-allowed;
+            filter: grayscale(0.4);
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* ===== Aviso de rotação (inline, sem tampar a tela) ===== */
+        .rotate-warning {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 320px;
+            padding: 0.7rem 0.9rem;
+            margin-bottom: 1rem;
+            background: rgba(240, 165, 0, 0.12);
+            border: 1px solid var(--gold, #f0a500);
+            border-radius: 10px;
+            color: var(--gold, #f0a500);
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .rotate-warning.visible { display: flex; }
+        .rotate-warning .rotate-warning-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            animation: rotate-hint 1.6s ease-in-out infinite;
+        }
+        @keyframes rotate-hint {
+            0%, 100% { transform: rotate(0deg); }
+            50%      { transform: rotate(-90deg); }
+        }
+
         @media (max-width: 900px) {
             .col-info { align-items: center; text-align: center; }
             .descricao { text-align: left; }
             .playing-as { justify-content: center; }
+            .rotate-warning { text-align: left; }
         }
 
         /* ===== Leaderboard ===== */
@@ -195,75 +234,6 @@
             width: 100%;
         }
         #debug-decimo.visible { display: block; }
-
-        /* ===== Overlay de rotação (bloqueia tudo) ===== */
-        .rotate-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: var(--bg, #1a0f08);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-            gap: 1.2rem;
-            color: var(--text, #fff);
-        }
-        .rotate-overlay .rotate-icon {
-            font-size: 4rem;
-            animation: rotate-hint 1.6s ease-in-out infinite;
-        }
-        .rotate-overlay h2 {
-            font-size: 1.3rem;
-            margin: 0;
-            color: var(--accent, #d7216a);
-        }
-        .rotate-overlay p {
-            font-size: 0.95rem;
-            color: var(--text-dim, #ccc);
-            max-width: 320px;
-            line-height: 1.5;
-            margin: 0;
-        }
-        /* Botão de voltar dentro do overlay */
-        .rotate-overlay .btn-back-overlay {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-            margin-top: 0.5rem;
-            background: var(--accent, #d7216a);
-            color: #fff5f8;
-            padding: 0.75rem 1.8rem;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            letter-spacing: 0.5px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(215, 33, 106, 0.35);
-            transition: transform 0.12s, box-shadow 0.12s;
-            font-family: inherit;
-        }
-        .rotate-overlay .btn-back-overlay:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(215, 33, 106, 0.5);
-        }
-        .rotate-overlay .btn-back-overlay:active {
-            transform: translateY(0);
-        }
-        @keyframes rotate-hint {
-            0%, 100% { transform: rotate(0deg); }
-            50%      { transform: rotate(-90deg); }
-        }
-        /* Esconde o conteúdo enquanto o overlay estiver ativo */
-        body.rotate-lock #conteudo,
-        body.rotate-lock header {
-            visibility: hidden;
-        }
     </style>
 </head>
 <body>
@@ -434,58 +404,53 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
             console.log('[game] 10th place saved to localStorage:', valor, 'game_id:', gameId);
         }
 
-        // ====== Overlay de rotação ======
-        let _overlayEl = null;
-        let _obrigaRotacao = false; // só true se o jogo é landscape E é mobile
+        // ====== Controle de rotação (aviso inline + botão desabilitado) ======
+        let _obrigaRotacao = false;
+        let _playBtnEl = null;
+        let _rotateWarnEl = null;
 
-        function criarOverlay() {
-            if (_overlayEl) return _overlayEl;
-            _overlayEl = document.createElement('div');
-            _overlayEl.className = 'rotate-overlay';
-            _overlayEl.id = 'rotate-overlay';
-            _overlayEl.innerHTML = `
-                <div class="rotate-icon">📱</div>
-                <h2>Rotate your phone</h2>
-                <p>This game is in <strong>landscape</strong> mode. Turn your phone sideways to continue.</p>
-                <p style="font-size:0.85rem; color:var(--text-dim, #ccc); margin-top:-0.4rem;">
-                    ⚠️ Make sure <strong>auto-rotate</strong> is enabled on your device.
-                </p>
-                <button class="btn-back-overlay" id="btn-overlay-back">← Back to home</button>
-            `;
-            document.body.appendChild(_overlayEl);
-
-            // Botão de voltar no overlay
-            const btnBack = document.getElementById('btn-overlay-back');
-            if (btnBack) {
-                btnBack.addEventListener('click', () => {
-                    window.location.href = HOME_URL;
-                });
+        function atualizarEstadoRotacao() {
+            if (!_obrigaRotacao) {
+                // Não exige rotação: garante botão liberado e aviso escondido
+                if (_playBtnEl) {
+                    _playBtnEl.classList.remove('disabled');
+                    _playBtnEl.removeAttribute('aria-disabled');
+                }
+                if (_rotateWarnEl) _rotateWarnEl.classList.remove('visible');
+                return;
             }
 
-            return _overlayEl;
-        }
-
-        function aplicarEstadoRotacao() {
-            if (!_obrigaRotacao) return;
             const landscape = estaEmLandscape();
-            const overlay = criarOverlay();
-            if (landscape) {
-                overlay.style.display = 'none';
-                document.body.classList.remove('rotate-lock');
-            } else {
-                overlay.style.display = 'flex';
-                document.body.classList.add('rotate-lock');
+
+            if (_playBtnEl) {
+                if (landscape) {
+                    _playBtnEl.classList.remove('disabled');
+                    _playBtnEl.removeAttribute('aria-disabled');
+                } else {
+                    _playBtnEl.classList.add('disabled');
+                    _playBtnEl.setAttribute('aria-disabled', 'true');
+                }
+            }
+
+            if (_rotateWarnEl) {
+                _rotateWarnEl.classList.toggle('visible', !landscape);
             }
         }
 
         function configurarRotacao(orientacao) {
             // Só bloqueia se: jogo é landscape E é mobile
             _obrigaRotacao = (orientacao === 'h' && ehDispositivoMovel());
-            if (!_obrigaRotacao) return;
+            if (!_obrigaRotacao) {
+                atualizarEstadoRotacao();
+                return;
+            }
 
-            aplicarEstadoRotacao();
+            _playBtnEl = document.querySelector('.btn-play');
+            _rotateWarnEl = document.getElementById('rotate-warning');
 
-            const onChange = () => aplicarEstadoRotacao();
+            atualizarEstadoRotacao();
+
+            const onChange = () => atualizarEstadoRotacao();
             window.addEventListener('orientationchange', onChange);
             window.addEventListener('resize', onChange);
             // matchMedia é mais confiável em alguns browsers
@@ -620,6 +585,11 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
 
                         <a class="${playClass}" href="${escapeHTML(playUrl)}" data-orientacao="${orientacao}" ${playAttrs}>${playLabel}</a>
 
+                        <div class="rotate-warning" id="rotate-warning" role="alert">
+                            <span class="rotate-warning-icon">📱</span>
+                            <span>Turn your phone sideways (landscape) to play this game.</span>
+                        </div>
+
                         <p class="descricao">${escapeHTML(dados.descricao)}</p>
 
                         ${linkHTML}
@@ -658,7 +628,7 @@ const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
                 definirDecimoValor(0, gameId || '');
             }
 
-            // Configura o overlay de rotação DEPOIS de renderizar o conteúdo
+            // Configura o aviso de rotação DEPOIS de renderizar o conteúdo
             configurarRotacao(orientacao);
         }
 

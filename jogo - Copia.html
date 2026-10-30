@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Game — Arcade Central</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== Styles specific to jogo.html ===== */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 440px 1fr;
+            gap: 2rem;
+            align-items: start;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) {
+            .game-layout { grid-template-columns: 1fr; gap: 1.2rem; }
+        }
+
+        .col-image { width: 100%; display: flex; justify-content: center; }
+
+        .thumb-wrap {
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 9 / 5; /* 900 x 500 */
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+        .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .thumb-wrap .thumb-fallback { font-size: 5rem; color: var(--text-dim); display: none; }
+        .thumb-wrap.error img { display: none; }
+        .thumb-wrap.error .thumb-fallback {
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%;
+        }
+
+        .col-info { width: 100%; display: flex; flex-direction: column; }
+
+        .col-info .section-title {
+            font-size: 1.45rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .descricao {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.55;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Link externo opcional (abaixo da descrição) */
+        .game-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.88rem;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            word-break: break-all;
+        }
+        .game-link:hover { text-decoration: underline; }
+        .game-link::before { content: "🔗"; font-size: 0.95rem; }
+
+        /* Bloco genérico no estilo "How to play" (usado por year e controles) */
+        .info-block {
+            width: 100%;
+            max-width: 320px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .info-block strong {
+            display: block;
+            color: var(--text);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        .playing-as {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-bottom: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .playing-as strong { color: var(--gold); font-weight: 700; }
+        .playing-as a { font-size: 0.78rem; color: var(--accent); margin-left: 0.2rem; }
+
+        .btn-play {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--accent);
+            color: #fff5f8;
+            padding: 0.9rem 2rem;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 30px rgba(215, 33, 106, 0.35);
+            transition: transform 0.12s, box-shadow 0.12s;
+            text-decoration: none;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 1rem;
+        }
+        .btn-play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px rgba(215, 33, 106, 0.5);
+            text-decoration: none;
+        }
+        .btn-play:active { transform: translateY(0); }
+
+        /* Variante do botão para download */
+        .btn-play.btn-download {
+            background: var(--accent);
+            color: #fff5f8;
+            box-shadow: 0 10px 30px rgba(240, 165, 0, 0.35);
+        }
+        .btn-play.btn-download:hover {
+            box-shadow: 0 14px 40px rgba(240, 165, 0, 0.5);
+        }
+
+        @media (max-width: 900px) {
+            .col-info { align-items: center; text-align: center; }
+            .descricao { text-align: left; }
+            .playing-as { justify-content: center; }
+        }
+
+        /* ===== Leaderboard ===== */
+        .lb {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .lb table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        .lb th, .lb td {
+            padding: 0.65rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(90, 46, 0, 0.12);
+        }
+        .lb th {
+            background: var(--accent2);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text);
+            font-weight: 700;
+        }
+        .lb tr:last-child td { border-bottom: none; }
+        .lb .rank { color: var(--text-dim); width: 3rem; }
+        .lb .player { font-weight: 600; }
+        .lb .score { text-align: right; color: var(--gold); font-weight: 700; }
+        .lb tr:nth-child(1) .player { color: var(--gold); }
+        .lb tr:nth-child(2) .player { color: #a05a1e; }
+        .lb tr:nth-child(3) .player { color: #c08040; }
+        .lb .empty {
+            text-align: center;
+            color: var(--text-dim);
+            padding: 1.5rem;
+        }
+
+        /* ===== Debug panel (escondido por padrão) ===== */
+        #debug-decimo {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.85rem;
+            color: var(--gold);
+            word-break: break-all;
+            width: 100%;
+        }
+        #debug-decimo.visible { display: block; }
+
+        /* ===== Overlay de rotação (bloqueia tudo) ===== */
+        .rotate-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg, #1a0f08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            gap: 1.2rem;
+            color: var(--text, #fff);
+        }
+        .rotate-overlay .rotate-icon {
+            font-size: 4rem;
+            animation: rotate-hint 1.6s ease-in-out infinite;
+        }
+        .rotate-overlay h2 {
+            font-size: 1.3rem;
+            margin: 0;
+            color: var(--accent, #d7216a);
+        }
+        .rotate-overlay p {
+            font-size: 0.95rem;
+            color: var(--text-dim, #ccc);
+            max-width: 320px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        /* Botão de voltar dentro do overlay */
+        .rotate-overlay .btn-back-overlay {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            background: var(--accent, #d7216a);
+            color: #fff5f8;
+            padding: 0.75rem 1.8rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(215, 33, 106, 0.35);
+            transition: transform 0.12s, box-shadow 0.12s;
+            font-family: inherit;
+        }
+        .rotate-overlay .btn-back-overlay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(215, 33, 106, 0.5);
+        }
+        .rotate-overlay .btn-back-overlay:active {
+            transform: translateY(0);
+        }
+        @keyframes rotate-hint {
+            0%, 100% { transform: rotate(0deg); }
+            50%      { transform: rotate(-90deg); }
+        }
+        /* Esconde o conteúdo enquanto o overlay estiver ativo */
+        body.rotate-lock #conteudo,
+        body.rotate-lock header {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a class="logo" href="/" title="Go to home" aria-label="Go to home">
+            <img src="thumbs-assets/logoamandapps.png" alt="Amand.Apps">
+        </a>
+        <div class="header-right">
+            <div class="user-area">
+                <button class="btn-reload" id="btn-back" title="Back to home" aria-label="Back to home">
+                    <img src="thumbs-assets/icon-back.png" alt="Back"
+                         onerror="this.style.display='none';this.parentNode.textContent='←';">
+                </button>
+                <button class="btn-reload" id="btn-reload" title="Reload page" aria-label="Reload page">
+                    <img src="thumbs-assets/icon-reload.png" alt="Reload">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" id="conteudo">
+        <p style="color:var(--text-dim);">Loading...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+const HOME_URL      = '/';
+const THUMB_DIR     = '/thumbs-assets';
+const INFO_JSON_URL = '/jogos-info.json';
+
+const JOGO_INSIDE_URL   = '/jogo_inside.html';
+const JOGO_INSIDE_H_URL = '/jogo_inside_h.html';
+
+        const SUPABASE_URL = 'https://ojnslmzbryfapmnwiefr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qbnNsbXpicnlmYXBtbndpZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMDUwNjQsImV4cCI6MjEwNzg4MTA2NH0.yilHEBICm3Z-FDTp5n75AY8kUfKVzSXke1z0mDjkuQo';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const NOME_STORAGE_KEY = 'amanfa_player_name';
+        const NOME_PADRAO = 'Amanfã';
+
+        function sanitizeName(raw) {
+            let s = (raw == null) ? '' : String(raw);
+            s = s.replace(/[^A-Za-z0-9 ]/g, '');
+            s = s.slice(0, 8).trim();
+            return s;
+        }
+        function getPlayerName() {
+            try {
+                const stored = sanitizeName(localStorage.getItem(NOME_STORAGE_KEY) || '');
+                return stored || NOME_PADRAO;
+            } catch (e) {
+                return NOME_PADRAO;
+            }
+        }
+
+        function getGameIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) return null;
+            return id.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+        }
+
+        function escapeHTML(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+            }[c]));
+        }
+
+        // Extrai a URL de link externo do JSON (várias chaves possíveis)
+        function obterLinkExterno(info) {
+            if (!info) return '';
+            const chaves = ['link', 'url', 'site', 'website', 'href', 'linkExterno', 'link_externo'];
+            for (const chave of chaves) {
+                const v = info[chave];
+                if (typeof v === 'string' && v.trim()) {
+                    const url = v.trim();
+                    // Só aceita http(s) para evitar javascript: etc.
+                    if (/^https?:\/\//i.test(url)) return url;
+                }
+            }
+            return '';
+        }
+
+        // Extrai a URL de download do JSON (campo "download")
+        function obterLinkDownload(info) {
+            if (!info) return '';
+            const v = info.download;
+            if (typeof v === 'string' && v.trim()) {
+                const url = v.trim();
+                // Só aceita http(s) para evitar javascript: etc.
+                if (/^https?:\/\//i.test(url)) return url;
+            }
+            return '';
+        }
+
+        function obterOrientacao(info) {
+            if (!info) return 'v';
+            const chaves = [
+                'orientacao', 'orientação', 'orientation',
+                'formato', 'layout', 'modo', 'mode',
+                'tela', 'screen', 'display'
+            ];
+            let valor = null;
+            for (const chave of chaves) {
+                if (info[chave] != null) {
+                    valor = String(info[chave]).toLowerCase().trim();
+                    break;
+                }
+            }
+            if (!valor) return 'v';
+            const horizontais = ['h', 'horz', 'horizontal', 'landscape', 'paisagem', 'wide', '16:9', '4:3'];
+            const verticais   = ['v', 'vert', 'vertical', 'portrait', 'retrato', 'tall', '9:16'];
+            if (horizontais.some(v => valor === v || valor.includes(v))) return 'h';
+            if (verticais.some(v => valor === v || valor.includes(v)))   return 'v';
+            console.warn('[game] unknown orientation value:', valor, '— using default (vertical)');
+            return 'v';
+        }
+
+        // Detecta se é dispositivo móvel (celular/tablet)
+        function ehDispositivoMovel() {
+            const coarsePointer = window.matchMedia
+                ? window.matchMedia('(pointer: coarse)').matches
+                : false;
+            const uaMobile = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile|BlackBerry|Kindle|Silk/i
+                .test(navigator.userAgent || '');
+            const touchSmall = ('ontouchstart' in window) && window.innerWidth <= 1024;
+            return uaMobile || (coarsePointer && touchSmall);
+        }
+
+        // Verifica se está em landscape (largura >= altura)
+        function estaEmLandscape() {
+            if (window.matchMedia) {
+                return window.matchMedia('(orientation: landscape)').matches;
+            }
+            return window.innerWidth > window.innerHeight;
+        }
+
+        // Verifica se o jogo tem ranking habilitado (padrão = true)
+        function jogoTemRanking(info) {
+            if (!info) return true;
+            if (info.ranking === false) return false;
+            if (typeof info.ranking === 'string') {
+                const v = info.ranking.toLowerCase().trim();
+                if (v === 'false' || v === '0' || v === 'no' || v === 'nao' || v === 'não') return false;
+            }
+            return true;
+        }
+
+        function definirDecimoValor(valor, gameId) {
+            try {
+                localStorage.setItem('decimo_score', String(valor));
+                localStorage.setItem('decimo_score_game', String(gameId || ''));
+            } catch (e) {
+                console.warn('[game] localStorage unavailable:', e);
+            }
+            window.DECIMO_SCORE = valor;
+
+            let dbg = document.getElementById('debug-decimo');
+            if (!dbg) {
+                dbg = document.createElement('div');
+                dbg.id = 'debug-decimo';
+                document.querySelector('.container').appendChild(dbg);
+            }
+            dbg.textContent = `DEBUG → 10th place (game_id: ${gameId || '—'}): ${Number(valor).toLocaleString('en-US')} (raw: ${valor})`;
+
+            console.log('[game] 10th place saved to localStorage:', valor, 'game_id:', gameId);
+        }
+
+        // ====== Overlay de rotação ======
+        let _overlayEl = null;
+        let _obrigaRotacao = false; // só true se o jogo é landscape E é mobile
+
+        function criarOverlay() {
+            if (_overlayEl) return _overlayEl;
+            _overlayEl = document.createElement('div');
+            _overlayEl.className = 'rotate-overlay';
+            _overlayEl.id = 'rotate-overlay';
+            _overlayEl.innerHTML = `
+                <div class="rotate-icon">📱</div>
+                <h2>Rotate your phone</h2>
+                <p>This game is in <strong>landscape</strong> mode. Turn your phone sideways to continue.</p>
+                <p style="font-size:0.85rem; color:var(--text-dim, #ccc); margin-top:-0.4rem;">
+                    ⚠️ Make sure <strong>auto-rotate</strong> is enabled on your device.
+                </p>
+                <button class="btn-back-overlay" id="btn-overlay-back">← Back to home</button>
+            `;
+            document.body.appendChild(_overlayEl);
+
+            // Botão de voltar no overlay
+            const btnBack = document.getElementById('btn-overlay-back');
+            if (btnBack) {
+                btnBack.addEventListener('click', () => {
+                    window.location.href = HOME_URL;
+                });
+            }
+
+            return _overlayEl;
+        }
+
+        function aplicarEstadoRotacao() {
+            if (!_obrigaRotacao) return;
+            const landscape = estaEmLandscape();
+            const overlay = criarOverlay();
+            if (landscape) {
+                overlay.style.display = 'none';
+                document.body.classList.remove('rotate-lock');
+            } else {
+                overlay.style.display = 'flex';
+                document.body.classList.add('rotate-lock');
+            }
+        }
+
+        function configurarRotacao(orientacao) {
+            // Só bloqueia se: jogo é landscape E é mobile
+            _obrigaRotacao = (orientacao === 'h' && ehDispositivoMovel());
+            if (!_obrigaRotacao) return;
+
+            aplicarEstadoRotacao();
+
+            const onChange = () => aplicarEstadoRotacao();
+            window.addEventListener('orientationchange', onChange);
+            window.addEventListener('resize', onChange);
+            // matchMedia é mais confiável em alguns browsers
+            if (window.matchMedia) {
+                const mq = window.matchMedia('(orientation: landscape)');
+                if (mq.addEventListener) mq.addEventListener('change', onChange);
+                else if (mq.addListener) mq.addListener(onChange);
+            }
+        }
+
+        async function carregar() {
+            const gameId = getGameIdFromURL();
+
+            let info = null;
+            if (gameId) {
+                try {
+                    const resp = await fetch(INFO_JSON_URL, { cache: 'no-cache' });
+                    if (resp.ok) {
+                        const all = await resp.json();
+                        info = all[gameId] || null;
+                    }
+                } catch (e) {
+                    console.warn('[game] could not load jogos-info.json:', e);
+                }
+            }
+
+            // Decide uma vez se é mobile, para manter consistência
+            // entre o texto exibido e o log de debug.
+            const isMobile = ehDispositivoMovel();
+
+            // Lê os controles SEM fallback fixo, para poder esconder o bloco se vazio
+            const controlesRaw = isMobile
+                ? (info?.controlesM || info?.controles)
+                : info?.controles;
+
+            const dados = {
+                titulo:    info?.titulo    || 'Unknown Game',
+                descricao: info?.descricao || 'This game has no description yet. But you can play and have fun anyway!',
+                categoria: info?.categoria || '',
+                year:      info?.year      || '',
+                controles: typeof controlesRaw === 'string' ? controlesRaw.trim() : '',
+                autor:     info?.autor     || '',
+                link:      obterLinkExterno(info),
+                download:  obterLinkDownload(info)
+            };
+
+            const orientacao = obterOrientacao(info);
+            const paginaJogo = (orientacao === 'h') ? JOGO_INSIDE_H_URL : JOGO_INSIDE_URL;
+            const temRanking = jogoTemRanking(info);
+
+            const thumbUrl = gameId
+                ? `${THUMB_DIR}/${encodeURIComponent(gameId)}.png`
+                : '';
+
+            // Se houver link de download, o botão vira "DOWNLOAD GAME" e aponta para ele.
+            // Caso contrário, mantém o comportamento original de PLAY.
+            const temDownload = !!dados.download;
+
+            const playUrl = temDownload
+                ? dados.download
+                : (gameId ? `${paginaJogo}?jogo=${encodeURIComponent(gameId)}` : '#');
+
+            const playLabel = temDownload ? '⬇ DOWNLOAD GAME' : '▶ PLAY';
+            const playClass = temDownload ? 'btn-play btn-download' : 'btn-play';
+            const playAttrs = temDownload
+                ? 'target="_blank" rel="noopener noreferrer"'
+                : '';
+
+            console.log('[game] gameId:', gameId, '| orientation:', orientacao, '| ranking:', temRanking, '| mobile:', isMobile, '| landscape:', estaEmLandscape(), '| page:', paginaJogo, '| link:', dados.link || '(none)', '| download:', dados.download || '(none)');
+
+            const nomeJogador = escapeHTML(getPlayerName());
+
+            // Bloco do ranking (só aparece se ranking !== false)
+            const rankingHTML = temRanking ? `
+                <h2 class="section-title">Best scores</h2>
+
+                <div class="playing-as">
+                    Playing as <strong>${nomeJogador}</strong>
+                    <a href="${HOME_URL}#perfil">change</a>
+                </div>
+
+                <div class="lb">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Player</th>
+                                <th style="text-align:right;">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lb-body">
+                            <tr><td colspan="3" class="empty">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            ` : '';
+
+            // Bloco "Release Year" (só aparece se year existir)
+            const yearHTML = dados.year ? `
+                <div class="info-block">
+                    <strong>Release Year</strong>
+                    ${escapeHTML(String(dados.year))}
+                </div>
+            ` : '';
+
+            // Bloco "How to play" (só aparece se houver controles)
+            const controlesHTML = dados.controles ? `
+                <div class="info-block">
+                    <strong>How to play</strong>
+                    ${escapeHTML(dados.controles)}
+                </div>
+            ` : '';
+
+            // Bloco de link externo (só aparece se houver link no JSON)
+            const linkHTML = dados.link ? `
+                <a class="game-link" href="${escapeHTML(dados.link)}" target="_blank" rel="noopener noreferrer">
+                    ${escapeHTML(dados.link)}
+                </a>
+            ` : '';
+
+            document.getElementById('conteudo').innerHTML = `
+                <div class="game-layout">
+                    <div class="col-image">
+                        <div class="thumb-wrap" id="thumb-wrap" title="Click to show debug info">
+                            ${thumbUrl ? `<img id="thumb-img" src="${thumbUrl}" alt="${escapeHTML(dados.titulo)}">` : ''}
+                            <div class="thumb-fallback">🎮</div>
+                        </div>
+                    </div>
+
+                    <div class="col-info">
+                        <h2 class="section-title">${escapeHTML(dados.titulo)}</h2>
+
+                        <a class="${playClass}" href="${escapeHTML(playUrl)}" data-orientacao="${orientacao}" ${playAttrs}>${playLabel}</a>
+
+                        <p class="descricao">${escapeHTML(dados.descricao)}</p>
+
+                        ${linkHTML}
+
+                        ${yearHTML}
+
+                        ${controlesHTML}
+                    </div>
+                </div>
+
+                ${rankingHTML}
+            `;
+
+            const thumbImg = document.getElementById('thumb-img');
+            const thumbWrap = document.getElementById('thumb-wrap');
+            if (thumbImg) {
+                thumbImg.onerror = () => {
+                    thumbWrap.classList.add('error');
+                    thumbImg.removeAttribute('src');
+                    console.warn('[game] thumb not found:', thumbUrl);
+                };
+            } else {
+                thumbWrap.classList.add('error');
+            }
+
+            // Clique na imagem do jogo revela o painel de debug
+            thumbWrap.addEventListener('click', () => {
+                const dbg = document.getElementById('debug-decimo');
+                if (dbg) dbg.classList.toggle('visible');
+            });
+
+            if (temRanking) {
+                await carregarLeaderboard(gameId);
+            } else {
+                console.log('[game] ranking disabled for this game — skipping leaderboard load');
+                definirDecimoValor(0, gameId || '');
+            }
+
+            // Configura o overlay de rotação DEPOIS de renderizar o conteúdo
+            configurarRotacao(orientacao);
+        }
+
+        async function carregarLeaderboard(gameId) {
+            const tbody = document.getElementById('lb-body');
+            if (!tbody) return;
+
+            if (!gameId) {
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">No scores available.</td></tr>`;
+                definirDecimoValor(0, '');
+                return;
+            }
+
+            const { data, error } = await _supabase
+                .from('scores')
+                .select('player_name, score, created_at')
+                .eq('game_id', gameId)
+                .order('score', { ascending: false })
+                .limit(10);
+
+            if (error) {
+                console.error('[game] error fetching leaderboard:', error);
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">Error loading scores.</td></tr>`;
+                definirDecimoValor(0, gameId);
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="empty">No scores yet. Be the first!</td></tr>`;
+                definirDecimoValor(0, gameId);
+                return;
+            }
+
+            tbody.innerHTML = data.map((row, i) => `
+                <tr>
+                    <td class="rank">${i + 1}</td>
+                    <td class="player">${escapeHTML(row.player_name || NOME_PADRAO)}</td>
+                    <td class="score">${Number(row.score).toLocaleString('en-US')}</td>
+                </tr>
+            `).join('');
+
+            const valorDecimo = (data.length >= 10) ? (Number(data[9].score) || 0) : 0;
+            definirDecimoValor(valorDecimo, gameId);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregar();
+
+            document.getElementById('btn-back').addEventListener('click', () => {
+                window.location.href = HOME_URL;
+            });
+
+            document.getElementById('btn-reload').addEventListener('click', () => location.reload());
+        });
+    </script>
+
+</body>
+</html>
